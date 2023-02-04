@@ -51,7 +51,7 @@ export const getImagesByFolder = async (folderName: string): Promise<Image[]> =>
 
   const images = await Promise.all(
     files.map(async (file) => {
-      const exifData = await ExifReader.load(file.fileData);
+      const exifData = ExifReader.load(file.fileData.buffer);
 
       const [height, width, make, model, aperture, exposure, focalLength, lens, iso, captureDate] = getExifData(
         exifData,

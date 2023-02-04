@@ -30,7 +30,7 @@ export const getFolderData = async (folderName: string): Promise<BucketItem[]> =
     filteredObjects.map(async (obj) => {
       const data = await client.send(new GetObjectCommand({ ...bucketParams, Key: obj.Key }));
 
-      const fileData = await data.Body!.transformToByteArray();
+      const fileData = await data.Body?.transformToByteArray();
 
       return {
         fileData,
@@ -39,5 +39,5 @@ export const getFolderData = async (folderName: string): Promise<BucketItem[]> =
     })
   );
 
-  return parsedObjects;
+  return parsedObjects.filter((element) => element !== undefined) as BucketItem[];
 };

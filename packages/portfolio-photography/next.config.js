@@ -6,4 +6,7 @@ module.exports = {
   experimental: {
     appDir: true,
   },
+  images: {
+    "s3.eu-west-1.amazonaws.com"
+  }
 };

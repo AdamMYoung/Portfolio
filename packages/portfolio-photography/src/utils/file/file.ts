@@ -4,7 +4,9 @@ import ExifReader from "exifreader";
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { getBucketObjects, getFolderData } from "../aws";
+import { IImageRepository } from "../image";
+import { LocalImageRepository } from "../image/local-image-repository";
+import { AWSImageRepository } from "../image/aws-image-repository";
 
 dayjs.extend(customParseFormat);
 
@@ -47,11 +49,19 @@ export const getAllFolders = async (): Promise<string[]> => {
 };
 
 export const getImagesByFolder = async (folderName: string): Promise<Image[]> => {
-  const files = await getFolderData(folderName);
+  let imageRepository: IImageRepository;
+
+  if (process.env.NODE_ENV === "development") {
+    imageRepository = new LocalImageRepository();
+  } else {
+    imageRepository = new AWSImageRepository();
+  }
+
+  const files = await imageRepository.getImagesByFolder(folderName);
 
   const images = await Promise.all(
     files.map(async (file) => {
-      const exifData = ExifReader.load(file.fileData.buffer);
+      const exifData = ExifReader.load(file.data);
 
       const [height, width, make, model, aperture, exposure, focalLength, lens, iso, captureDate] = getExifData(
         exifData,
@@ -70,7 +80,7 @@ export const getImagesByFolder = async (folderName: string): Promise<Image[]> =>
       );
 
       return {
-        path: file.filePath,
+        path: file.path,
         exif: {
           height: parseInt(height),
           width: parseInt(width),

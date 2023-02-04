@@ -1,0 +1,18 @@
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import { Button } from "./Button";
+
+<Meta title="atoms/Button" component={Button} args={{ children: "Test" }} />
+
+export const Template = (args) => <Button {...args} />;
+
+# Button
+
+Typically used for click interactions.
+
+<Canvas>
+  <Story name="Button">{Template.bind({})}</Story>
+</Canvas>
+
+asd
+
+<ArgsTable of={Button} />

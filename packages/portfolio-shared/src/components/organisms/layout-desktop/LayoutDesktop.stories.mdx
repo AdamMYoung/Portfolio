@@ -1,0 +1,27 @@
+import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
+import { Layout, LayoutNavigation, LayoutBody } from "./Layout";
+
+<Meta title="organisms/Layout" component={Layout} />
+
+export const Template = (args) => (
+  <Layout {...args}>
+    <LayoutNavigation>
+      <h1 className="font-bold text-2xl">Adam Young</h1>
+      <hr />
+      <a>Lorem </a>
+      <a>Ipsum </a>
+      <a>Dolor </a>
+    </LayoutNavigation>
+    <LayoutBody>My Content</LayoutBody>
+  </Layout>
+);
+
+# Layout
+
+<Canvas>
+  <Story name="Layout">{Template.bind({})}</Story>
+</Canvas>
+
+asd
+
+<ArgsTable of={Layout} />

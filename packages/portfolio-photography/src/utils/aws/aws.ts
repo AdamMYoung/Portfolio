@@ -34,7 +34,7 @@ export const getFolderData = async (folderName: string): Promise<BucketItem[]> =
 
       return {
         fileData,
-        filePath: `${process.env.AWS_S3_BUCKET_BASE_URL}${obj.Key}`,
+        filePath: `https://${process.env.AWS_S3_BUCKET_HOSTNAME}/${process.env.AWS_S3_BUCKET_NAME}/${obj.Key}`,
       };
     })
   );

@@ -7,6 +7,13 @@ module.exports = {
     appDir: true,
   },
   images: {
-    "s3.eu-west-1.amazonaws.com"
-  }
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: process.env.AWS_S3_BUCKET_HOSTNAME,
+        port: "",
+        pathname: `/${process.env.AWS_S3_BUCKET_NAME}/**`,
+      },
+    ],
+  },
 };

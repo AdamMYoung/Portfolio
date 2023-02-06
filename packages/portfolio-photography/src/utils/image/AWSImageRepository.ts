@@ -28,7 +28,8 @@ export class AWSImageRepository implements IImageRepository {
       filteredObjects.map(async (obj) => {
         const data = await client.send(new GetObjectCommand({ ...bucketParams, Key: obj.Key }));
 
-        const fileData = await (await data.Body!.transformToByteArray()).buffer;
+        const byteArray = await data.Body!.transformToByteArray();
+        const fileData = byteArray.buffer;
 
         return {
           data: fileData,

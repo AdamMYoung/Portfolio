@@ -6885,6 +6885,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/sharp@npm:^0.31.1":
+  version: 0.31.1
+  resolution: "@types/sharp@npm:0.31.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: 226871181fc88b5ef8a6bc32c1e14a3426cc45480ed49536c45bb5c166c089169b8fe3e5c57aea8c34cc40b08311a95d5582c1a2f540f4425eb66fea3d6e0489
+  languageName: node
+  linkType: hard
+
 "@types/source-list-map@npm:*":
   version: 0.1.2
   resolution: "@types/source-list-map@npm:0.1.2"
@@ -19937,6 +19946,7 @@ __metadata:
     "@types/node": 18.11.9
     "@types/react": 18.0.25
     "@types/react-dom": 18.0.9
+    "@types/sharp": ^0.31.1
     autoprefixer: ^10.4.13
     aws-crt: ^1.15.9
     dayjs: ^1.11.6
@@ -19950,7 +19960,7 @@ __metadata:
     react-dom: 18.2.0
     react-icons: ^4.6.0
     server-only: ^0.0.1
-    sharp: ^0.31.2
+    sharp: ^0.31.3
     tailwind-merge: ^1.8.0
     tailwindcss: ^3.2.4
     typescript: 4.9.3
@@ -22278,9 +22288,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.31.2":
-  version: 0.31.2
-  resolution: "sharp@npm:0.31.2"
+"sharp@npm:^0.31.3":
+  version: 0.31.3
+  resolution: "sharp@npm:0.31.3"
   dependencies:
     color: ^4.2.3
     detect-libc: ^2.0.1
@@ -22291,7 +22301,7 @@ __metadata:
     simple-get: ^4.0.1
     tar-fs: ^2.1.1
     tunnel-agent: ^0.6.0
-  checksum: 076717b7a073ea47bb522ff2931b74b6608daeb6f7ae334e4848d47fdf4d23bcb18cd49044fd5fb27ef27a1a4aa87d141894d67d1c4bb15a6e2e63cf4dbe329e
+  checksum: 29fd1dfbc616c6389f53f366cec342b4353d9f2a37e98952ca273db38dca57dfa0f336322d6d763f0fae876042ead22fd86ffe26d70c32ade2458d421db60d04
   languageName: node
   linkType: hard
 

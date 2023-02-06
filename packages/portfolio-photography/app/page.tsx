@@ -16,3 +16,5 @@ export default async function Home() {
     </ImageGrid>
   );
 }
+
+export const revalidate = 60;

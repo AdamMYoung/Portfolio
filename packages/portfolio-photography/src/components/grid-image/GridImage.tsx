@@ -1,6 +1,5 @@
 import React, { useState, Fragment } from "react";
 import NextImage from "next/image";
-import { Button } from "portfolio-shared";
 import { Dialog, Transition } from "@headlessui/react";
 
 import { Image } from "../../utils";

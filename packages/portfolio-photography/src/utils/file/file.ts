@@ -4,9 +4,7 @@ import ExifReader from "exifreader";
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { IImageRepository } from "../image";
-import { LocalImageRepository } from "../image/local-image-repository";
-import { AWSImageRepository } from "../image/aws-image-repository";
+import { IImageRepository, LocalImageRepository, AWSImageRepository } from "../image";
 
 dayjs.extend(customParseFormat);
 

@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import sharp from "sharp";
 import { IImageRepository, ImageData } from "./image.types";
 
 export class LocalImageRepository implements IImageRepository {
@@ -11,9 +12,11 @@ export class LocalImageRepository implements IImageRepository {
       files.map(async (file) => {
         const fileData = await fs.readFile(`${folderPath}/${file}`);
 
+        const compressed = await sharp(fileData).jpeg({ quality: 40 }).toBuffer();
+
         return {
           data: fileData,
-          path: fileData.toString("base64"),
+          path: `data:image/png;base64,${compressed.toString("base64")}`,
         };
       })
     );

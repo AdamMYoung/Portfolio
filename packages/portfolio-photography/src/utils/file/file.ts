@@ -26,35 +26,14 @@ export type Image = {
   exif: ImageExif;
 };
 
+const imageRepository: IImageRepository =
+  process.env.NODE_ENV === "development" ? new LocalImageRepository() : new AWSImageRepository();
+
 const getExifData = (exif: any, keys: string[]): string[] => {
   return keys.map((key) => exif?.[key]?.description ?? "N/A");
 };
 
-export const getAllFolders = async (): Promise<string[]> => {
-  const directory = await getBucketObjects();
-
-  const set = new Set<string>();
-
-  directory.Contents?.forEach((d) => {
-    const folderName = d.Key?.split("/")[0];
-
-    if (folderName) {
-      set.add(folderName);
-    }
-  });
-
-  return Array.from(set);
-};
-
 export const getImagesByFolder = async (folderName: string): Promise<Image[]> => {
-  let imageRepository: IImageRepository;
-
-  if (process.env.NODE_ENV === "development") {
-    imageRepository = new LocalImageRepository();
-  } else {
-    imageRepository = new AWSImageRepository();
-  }
-
   const files = await imageRepository.getImagesByFolder(folderName);
 
   const images = await Promise.all(

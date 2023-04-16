@@ -10,9 +10,7 @@ export default function Projects() {
     <div className="flex flex-col gap-16">
       <div className="flex flex-col gap-8">
         <h1 className="text-3xl font-bold">Projects</h1>
-        <p>
-          Here's some of the projects I've made in the past, some normal and some <i>not-so</i>.
-        </p>
+        <p>Here&apos;s some of the projects I&apos;ve made in the past.</p>
       </div>
       <div className="flex flex-col gap-16">
         {/* Photography Portfolio */}
@@ -28,7 +26,7 @@ export default function Projects() {
             <p>
               I recently decided to revamp my development and photography portfolio, making use of Next.js 13 features
               such as the <code className="rounded bg-gray-800 px-1">app</code> directory, a monorepo structure with a
-              shared component library, and yarn 3 package management to name a few.
+              shared component library, and yarn 3 package management.
             </p>
             <Link type="external" href="https://photography.aydev.uk">
               photography.aydev.uk

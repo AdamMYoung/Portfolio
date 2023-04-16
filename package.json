@@ -9,15 +9,15 @@
   "devDependencies": {
     "dotenv-cli": "^7.2.1",
     "eslint-config-custom": "*",
-    "prettier": "^2.8.1",
-    "prettier-plugin-tailwindcss": "^0.2.0",
+    "prettier": "latest",
+    "prettier-plugin-tailwindcss": "^0.2.3",
     "turbo": "^1.9.1"
   },
   "scripts": {
     "format": "prettier -w **/*.tsx",
     "build": "dotenv -- turbo build",
     "dev": "dotenv -- turbo dev",
-    "lint": "turbo run lint"
+    "lint": "dotenv -- turbo lint"
   },
   "name": "portfolio",
   "packageManager": "yarn@3.3.0"

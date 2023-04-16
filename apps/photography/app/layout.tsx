@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-before-interactive-script-outside-document */
 import React from "react";
-import { Baskervville } from "@next/font/google";
+import { Baskervville } from "next/font/google";
 import { FiMenu, FiInstagram, FiTwitter } from "react-icons/fi";
 import Script from "next/script";
 

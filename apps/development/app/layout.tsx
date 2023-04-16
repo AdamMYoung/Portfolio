@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-before-interactive-script-outside-document */
 import React from "react";
-import { Roboto_Mono } from "@next/font/google";
+import { Roboto_Mono } from "next/font/google";
 import { FiMenu, FiGithub, FiTwitter } from "react-icons/fi";
 import Script from "next/script";
 

@@ -41,7 +41,11 @@ export const LayoutMobileDrawer = ({ children, className, as = "div", ...rest }:
   );
 };
 
-export const LayoutMobileDrawerItem = ({ children, className, ...rest }: ExtractProps<typeof Menu.Item>) => {
+export const LayoutMobileDrawerItem = ({
+  children,
+  className,
+  ...rest
+}: ExtractProps<typeof Menu.Item> & { href: string }) => {
   return (
     <Menu.Item as={Link} className={twMerge("p-4 hover:bg-slate-100", className)} {...rest}>
       {children}

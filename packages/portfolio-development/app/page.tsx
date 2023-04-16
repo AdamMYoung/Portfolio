@@ -6,13 +6,13 @@ export default function Home() {
     <div className="flex flex-col gap-8">
       <div className="grid gap-8 md:grid-cols-2">
         <div className="flex flex-col gap-8">
-          <h1 className="text-4xl font-bold">Hi, I'm Adam Young!</h1>
+          <h1 className="text-4xl font-bold">Hi, I&apos;m Adam Young!</h1>
           <p>
-            I'm a Software Engineer currently working at Checkout.com. My focus is currently on React and Next.js, as
-            well as whatever the hottest languages and libraries are at the moment.
+            I&apos;m a Software Engineer currently working at Checkout.com. My focus is currently on React and Next.js,
+            as well as any new and interesting libraries that come my way.
           </p>
           <p>
-            When I'm not working, you can probably find me out hiking, flying drones, or taking pictures, more of which
+            When I&apos;m not working, you can probably find me hiking, flying drones, or taking pictures, more of which
             you can find on my{" "}
             <a className="underline" target="_blank" rel="noreferrer" href="https://photography.aydev.uk">
               photography site

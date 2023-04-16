@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import React from "react";
 import { ContactForm } from "./contact-form";
 

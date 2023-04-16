@@ -1,10 +1,14 @@
-import { promises as fs } from "fs";
+import { promises as fs, existsSync } from "fs";
 import path from "path";
 import sharp from "sharp";
 import { IImageRepository, ImageData } from "./image.types";
 
 export class LocalImageRepository implements IImageRepository {
   async getImagesByFolder(folderName: string): Promise<ImageData[]> {
+    if (!existsSync(".image-cache")) {
+      return [];
+    }
+
     const folderPath = path.resolve(`.image-cache/${folderName}`);
     const files = await fs.readdir(folderPath);
 

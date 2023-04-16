@@ -11,7 +11,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch",
+    "dev": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test --passWithNoTests",
     "lint": "tsdx lint",
@@ -34,16 +34,16 @@
       "pre-commit": "tsdx lint"
     }
   },
-  "name": "portfolio-shared",
+  "name": "components",
   "author": "adammyoung",
-  "module": "dist/portfolio-shared.esm.js",
+  "module": "dist/components.esm.js",
   "size-limit": [
     {
-      "path": "dist/portfolio-shared.cjs.production.min.js",
+      "path": "dist/components.cjs.production.min.js",
       "limit": "10 KB"
     },
     {
-      "path": "dist/portfolio-shared.esm.js",
+      "path": "dist/components.esm.js",
       "limit": "10 KB"
     }
   ],

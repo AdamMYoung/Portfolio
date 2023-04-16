@@ -10439,7 +10439,6 @@ __metadata:
     eslint: ^7.23.0
     eslint-config-next: 13.0.0
     eslint-config-prettier: ^8.3.0
-    eslint-config-turbo: latest
     eslint-plugin-react: 7.31.8
     eslint-plugin-tailwindcss: ^3.9.0
     typescript: ^4.7.4
@@ -10532,17 +10531,6 @@ __metadata:
     eslint-plugin-react: 7.x
     eslint-plugin-react-hooks: 1.x || 2.x
   checksum: 8af6801f29d7314611e111a1593e91d412d41cde6719303ee6db7de65d78ed4b53e9197497765bb2deed65e6bfd73bf7e74da58cab3f66838c2927880b21eeba
-  languageName: node
-  linkType: hard
-
-"eslint-config-turbo@npm:latest":
-  version: 1.9.1
-  resolution: "eslint-config-turbo@npm:1.9.1"
-  dependencies:
-    eslint-plugin-turbo: 1.9.1
-  peerDependencies:
-    eslint: ">6.6.0"
-  checksum: cd0b69ab9cba42346191fda667d7b502254e23b08fba5f7916903ee80443c84ec91f5ee25c68d0c7127552699970c5a7c25bc66fae42009c795c4eafbfb75967
   languageName: node
   linkType: hard
 
@@ -10750,15 +10738,6 @@ __metadata:
   peerDependencies:
     tailwindcss: ^3.2.2
   checksum: d5a3a9092770d832d74f10388c25213d553ae0873d5f2ee978c7214a65859efc112d194744aefe8b9002f307f3ea87bd5ffd80d426e12c83dd5701c29a8ac2a9
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-turbo@npm:1.9.1":
-  version: 1.9.1
-  resolution: "eslint-plugin-turbo@npm:1.9.1"
-  peerDependencies:
-    eslint: ">6.6.0"
-  checksum: e870512a1cb48155a824bb9e67c17bceb4cf0a3d0b47fa1785a41a745f3b305233d5536167a5444c6e7b68a0cd1afc0498cf15467d0a4aaf982cbacd3d509e7e
   languageName: node
   linkType: hard
 

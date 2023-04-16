@@ -1,6 +1,5 @@
 warn  - You have enabled experimental feature (appDir) in next.config.js.
+info  - Thank you for testing `appDir` please leave your feedback at https://nextjs.link/app-feedback
 warn  - Experimental features are not covered by semver, and may cause unexpected or broken application behavior. Use at your own risk.
 
-info  - Thank you for testing `appDir` please leave your feedback at https://nextjs.link/app-feedback
-Failed to load plugin 'turbo' declared in '.eslintrc.js » eslint-config-custom » eslint-config-turbo': Ns(...).map is not a function
-Referenced from: C:\git\Portfolio\node_modules\eslint-config-turbo\index.js
+✔ No ESLint warnings or errors

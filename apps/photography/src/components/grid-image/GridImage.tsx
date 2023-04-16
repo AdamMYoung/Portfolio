@@ -86,7 +86,7 @@ const GridImageDialog = ({ isOpen, onClose, image }: GridImageDialogProps) => {
                   {isLoaded && (
                     <ImageMetadataTable
                       exif={image.exif}
-                      className="pointer-events-auto absolute top-4 right-4 cursor-default gap-2"
+                      className="pointer-events-auto absolute right-4 top-4 cursor-default gap-2"
                     />
                   )}
                 </div>

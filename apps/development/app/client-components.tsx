@@ -1,3 +1,3 @@
 "use client";
 
-export * from "portfolio-shared";
+export * from "components";

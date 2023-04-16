@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ElementProps, ImageGrid as InternalImageGrid } from "portfolio-shared";
+import { ElementProps, ImageGrid as InternalImageGrid } from "components";
 import { SelectedImageProvider } from "../src/providers";
 
-export * from "portfolio-shared";
+export * from "components";
 
 export { GridImage } from "../src/components";
 

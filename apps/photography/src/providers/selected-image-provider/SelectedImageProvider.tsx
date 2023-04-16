@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext } from "portfolio-shared";
+import { createContext } from "components";
 import React, { useCallback, useEffect, useState } from "react";
 
 type SelectedImageContextOptions = {

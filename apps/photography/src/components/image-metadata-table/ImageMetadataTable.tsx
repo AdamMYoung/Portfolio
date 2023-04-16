@@ -1,6 +1,6 @@
 "use client";
 
-import { ElementProps } from "portfolio-shared";
+import { ElementProps, Button } from "components";
 import { twMerge } from "tailwind-merge";
 import { FiAperture, FiCamera, FiCalendar } from "react-icons/fi";
 import { FaRuler, FaRunning, FaInfo } from "react-icons/fa";
@@ -11,7 +11,6 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import { ImageExif } from "../../utils";
 import { useState } from "react";
-import { Button } from "portfolio-shared";
 
 dayjs.extend(customParseFormat);
 

@@ -20,3 +20,8 @@ export default async function Contact() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Adam Young | Contact",
+  description: "Get in touch",
+};

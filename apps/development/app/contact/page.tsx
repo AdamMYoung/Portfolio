@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import React from "react";
 import { ContactForm } from "./contact-form";
 
@@ -20,3 +21,8 @@ export default async function Contact() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Adam Young | Contact",
+  description: "Get in touch",
+};

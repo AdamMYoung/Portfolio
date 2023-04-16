@@ -2,6 +2,7 @@ import React from "react";
 
 import { ImageGrid, GridImage } from "./client-components";
 import { getImagesByFolder } from "../src/utils";
+import { Metadata } from "next";
 
 export default async function Home() {
   const images = await getImagesByFolder("home");
@@ -16,5 +17,10 @@ export default async function Home() {
     </ImageGrid>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Adam Young | Photography",
+  description: "Photography portfolio of Photographer, Adam Young",
+};
 
 export const revalidate = 60;

@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Image from "next/image";
 import selfie from "../src/images/selfie-snow.jpg";
 
@@ -34,3 +35,8 @@ export default function Home() {
     </div>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Adam Young | Development",
+  description: "Development portfolio of Software Engineer, Adam Young",
+};

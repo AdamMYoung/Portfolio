@@ -52,10 +52,15 @@ export default async function PageLayout({ children }: PageLayoutProps) {
             <LayoutDesktopNavigation>
               <Link href="/contact">Contact</Link>
               <IconList>
-                <Link href="https://www.instagram.com/adammyoung_/">
+                <Link
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Instagram"
+                  href="https://www.instagram.com/adammyoung_/"
+                >
                   <FiInstagram />
                 </Link>
-                <Link href="https://twitter.com/AdamMYoung_">
+                <Link target="_blank" rel="noreferrer" aria-label="Twitter" href="https://twitter.com/AdamMYoung_">
                   <FiTwitter />
                 </Link>
               </IconList>
@@ -88,8 +93,8 @@ export default async function PageLayout({ children }: PageLayoutProps) {
       </body>
       {process.env.NODE_ENV === "production" && (
         <>
-          <Script src="https://www.googletagmanager.com/gtag/js?id=G-7PBGQ73SD5" strategy="beforeInteractive" />
-          <Script id="google-analytics" strategy="beforeInteractive">
+          <Script src="https://www.googletagmanager.com/gtag/js?id=G-7PBGQ73SD5" strategy="afterInteractive" />
+          <Script id="google-analytics" strategy="afterInteractive">
             {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){window.dataLayer.push(arguments);}

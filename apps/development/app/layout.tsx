@@ -97,6 +97,7 @@ export default async function PageLayout({ children }: PageLayoutProps) {
                 className="flex items-center gap-2 py-2 hover:bg-gray-700"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="GitHub"
                 href="https://github.com/AdamMYoung"
               >
                 <FiGithub /> GitHub
@@ -105,6 +106,7 @@ export default async function PageLayout({ children }: PageLayoutProps) {
                 className="flex items-center gap-2 py-2 hover:bg-gray-700"
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Twitter"
                 href="https://twitter.com/AdamMYoung_"
               >
                 <FiTwitter /> Twitter
@@ -116,8 +118,8 @@ export default async function PageLayout({ children }: PageLayoutProps) {
       </body>
       {process.env.NODE_ENV === "production" && (
         <>
-          <Script src="https://www.googletagmanager.com/gtag/js?id=G-WGNHV27GTK" strategy="beforeInteractive" />
-          <Script id="google-analytics" strategy="beforeInteractive">
+          <Script src="https://www.googletagmanager.com/gtag/js?id=G-WGNHV27GTK" strategy="afterInteractive" />
+          <Script id="google-analytics" strategy="afterInteractive">
             {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){window.dataLayer.push(arguments);}

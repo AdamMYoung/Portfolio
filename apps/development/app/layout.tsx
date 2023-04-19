@@ -13,10 +13,10 @@ export default async function PageLayout({ children }: PageLayoutProps) {
   return (
     <html lang="en-gb">
       <body className="py-16 flex flex-col gap-12">
-        <nav className="grid grid-cols-[1.5fr_1fr] gap-4 justify-between text-4xl section-container">
+        <nav className="grid grid-cols-[1.5fr_1fr] gap-4 justify-between text-3xl md:text-4xl section-container">
           <div>Some Logo</div>
 
-          <div className="flex gap-6">
+          <div className="flex gap-6 ">
             <Link href="/">About</Link>
             <Link href="/blog">Blog</Link>
             <Link href="/contact">Contact</Link>

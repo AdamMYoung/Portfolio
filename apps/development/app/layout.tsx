@@ -12,17 +12,23 @@ type PageLayoutProps = {
 export default async function PageLayout({ children }: PageLayoutProps) {
   return (
     <html lang="en-gb">
-      <body className="py-16 flex flex-col gap-12">
-        <nav className="grid grid-cols-[1.5fr_1fr] gap-4 justify-between text-3xl md:text-4xl section-container">
+      <body className="pt-16 flex flex-col ">
+        <div className="flex flex-col gap-12">
+        <nav className="grid grid-cols-[1.5fr_1fr] gap-4 justify-between text-3xl lg:text-4xl section-container">
           <div>Some Logo</div>
-
-          <div className="flex gap-6 ">
+          <div className="flex gap-6">
             <Link href="/">About</Link>
             <Link href="/blog">Blog</Link>
             <Link href="/contact">Contact</Link>
           </div>
         </nav>
         <main>{children}</main>
+        </div>
+        <footer className="py-16 bg-gray-100">
+          <div className="section-container">
+            <Link href="/">Home</Link>
+          </div>
+        </footer>
       </body>
       {process.env.NODE_ENV === "production" && (
         <>

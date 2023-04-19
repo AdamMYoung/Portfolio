@@ -7,8 +7,8 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Card */}
-      <div className="grid gap-4 md:grid-cols-[1.5fr_1fr] pb-16 section-container">
-        <div className="flex flex-col gap-24">
+      <div className="grid gap-12 md:gap-4 md:grid-cols-[1.5fr_1fr]  section-container">
+        <div className="relative flex flex-col gap-24">
           <div className="flex flex-col gap-4">
             <h1 className="text-6xl md:text-8xl tracking-wide font-medium">
               Adam <br /> Young.
@@ -21,7 +21,7 @@ export default function Home() {
             <a>LinkedIn</a>
           </div>
         </div>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 pb-16">
           <h2 className="tracking-wider">Introduction</h2>
           <p className="text-3xl md:text-4xl">Front-end Software Engineer, based in Darlington, UK.</p>
           <p>
@@ -66,32 +66,32 @@ export default function Home() {
           </div>
       </div>
 
-       {/* Projects */}
+       {/* Blog Links */}
        <div className="pb-16 pt-48 bg-gray-100">
-        <div className="section-container grid grid-cols-2">
-          
+        <div className="section-container gap-8 grid md:grid-cols-2">
           <div className="flex flex-col gap-4">
             <h3 className="text-2xl">Topics</h3>
-          <div className="flex items-center gap-2">
-            <Link href="/blog" className="rounded-full px-2 py-1.5 text-xs uppercase text-white bg-gray-500">React</Link>
-            <Link href="/blog" className="rounded-full px-2 py-1.5 text-xs uppercase text-white bg-gray-500">React</Link>
-            <Link href="/blog" className="rounded-full px-2 py-1.5 text-xs uppercase text-white bg-gray-500">React</Link>
-            <Link href="/blog" className="rounded-full px-2 py-1.5 text-xs uppercase text-white bg-gray-500">React</Link>
+            <div className="flex items-center gap-2">
+              <Link href="/blog" className="rounded-full px-2 py-1.5 text-xs uppercase text-white bg-gray-500">React</Link>
+              <Link href="/blog" className="rounded-full px-2 py-1.5 text-xs uppercase text-white bg-gray-500">React</Link>
+              <Link href="/blog" className="rounded-full px-2 py-1.5 text-xs uppercase text-white bg-gray-500">React</Link>
+              <Link href="/blog" className="rounded-full px-2 py-1.5 text-xs uppercase text-white bg-gray-500">React</Link>
+            </div>
           </div>
-          </div>
-          <Link className="text-3xl ml-auto mt-auto" href="/blog">View More</Link>
+          <Link className="text-2xl md:ml-auto mt-auto" href="/blog">View More</Link>
         </div>
       </div>
 
       {/* Projects */}
       <div className="py-16">
-      <div className="grid gap-8 md:grid-cols-2 section-container">
+        <div className="grid gap-8 md:grid-cols-2 section-container">
           <div className="flex flex-col gap-6">
             <h2>Projects</h2>
             <p className="text-3xl md:text-4xl">Have a look at some of my other sites.</p>
             <div className="flex flex-col gap-2 items-start text-2xl">
               <button className="w-auto">Blurdle</button>
-              <button>AYDev Photography</button>
+              <button>Photography Portfolio</button>
+              <button>Biscuit Sog Index</button>
               </div>
           </div>
         </div>

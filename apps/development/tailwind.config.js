@@ -1,14 +1,18 @@
+const sharedConfig = require("tailwind-config/tailwind.config.js");
+const merge = require("lodash.merge");
 const { fontFamily } = require("tailwindcss/defaultTheme");
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{ts,tsx}", "./app/**/*.{ts,tsx,md,mdx}", "../../packages/components/src/**/*.{ts,tsx,md,mdx}"],
+const config = { ...sharedConfig };
+
+merge(config, {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-roboto-mono)", ...fontFamily.sans],
+        sans: ["var(--font-jost)", ...fontFamily.sans],
       },
     },
   },
-  plugins: [],
-};
+});
+
+/** @type {import('tailwindcss').Config} */
+module.exports = config;

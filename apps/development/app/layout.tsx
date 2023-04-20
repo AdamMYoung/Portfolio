@@ -1,9 +1,14 @@
-/* eslint-disable @next/next/no-before-interactive-script-outside-document */
 import React from "react";
 import Script from "next/script";
+import { Jost } from "next/font/google";
+
+import Link from "next/link";
+import { twMerge } from "tailwind-merge";
+import { ChevronRightSquare } from "lucide-react";
 
 import "../styles/globals.css";
-import Link from "next/link";
+
+const jost = Jost({ subsets: ["latin"], variable: "--font-jost" });
 
 type PageLayoutProps = {
   children: React.ReactNode;
@@ -12,19 +17,23 @@ type PageLayoutProps = {
 export default async function PageLayout({ children }: PageLayoutProps) {
   return (
     <html lang="en-gb">
-      <body className="pt-16 flex flex-col ">
+      <body className={twMerge("flex flex-col pt-16 font-sans", jost.variable)}>
         <div className="flex flex-col gap-12">
-        <nav className="grid grid-cols-[1.5fr_1fr] gap-4 justify-between text-3xl lg:text-4xl section-container">
-          <div>Some Logo</div>
-          <div className="flex gap-6">
-            <Link href="/">About</Link>
-            <Link href="/blog">Blog</Link>
-            <Link href="/contact">Contact</Link>
-          </div>
-        </nav>
-        <main>{children}</main>
+          <nav className="section-container grid grid-cols-[1.5fr_1fr] items-center justify-between gap-4 text-3xl lg:text-4xl">
+            <ChevronRightSquare className="h-12 w-12" />
+            <div className="flex gap-6">
+              <Link href="/">About</Link>
+              <Link className="text-gray-500" href="/blog">
+                Blog
+              </Link>
+              <Link className="text-gray-500" href="/contact">
+                Contact
+              </Link>
+            </div>
+          </nav>
+          <main>{children}</main>
         </div>
-        <footer className="py-16 bg-gray-100">
+        <footer className="bg-gray-100 py-16">
           <div className="section-container">
             <Link href="/">Home</Link>
           </div>

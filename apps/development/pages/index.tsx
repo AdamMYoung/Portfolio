@@ -16,7 +16,7 @@ export default function Home() {
     <>
       <Head>
         <title>Adam Young | Development</title>
-        <meta property="description" content="Development portfolio of Software Engineer, Adam Young" />
+        <meta name="description" content="Development portfolio of Software Engineer, Adam Young" />
       </Head>
       <div className="container mx-auto flex max-w-2xl flex-col gap-16 px-4 py-12 leading-8 text-gray-300 md:px-0">
         <nav>
@@ -55,6 +55,7 @@ export default function Home() {
                 src={hike}
                 className="rounded-lg border border-gray-700"
                 priority
+                quality={50}
                 placeholder="blur"
               />
               <div className="flex flex-col gap-3 p-2">
@@ -80,6 +81,7 @@ export default function Home() {
                 src={blurdle}
                 className="rounded-lg border border-gray-700"
                 priority
+                quality={50}
                 placeholder="blur"
               />
               <div className="flex flex-col gap-3 p-2">
@@ -102,6 +104,7 @@ export default function Home() {
                 alt="Screenshot of the photography.aydev.uk site"
                 src={photography}
                 className="rounded-lg border border-gray-700"
+                quality={50}
                 placeholder="blur"
               />
               <div className="flex flex-col gap-3 p-2">

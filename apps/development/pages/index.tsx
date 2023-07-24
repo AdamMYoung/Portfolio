@@ -80,6 +80,7 @@ export default function Home() {
                 src={photography}
                 className="rounded-lg border border-gray-700"
                 quality={50}
+                priority
                 placeholder="blur"
               />
               <div className="flex flex-col gap-3 p-2">
@@ -98,7 +99,6 @@ export default function Home() {
                 alt="Screenshot of the blurdle.aydev.uk site"
                 src={blurdle}
                 className="rounded-lg border border-gray-700"
-                priority
                 quality={50}
                 placeholder="blur"
               />

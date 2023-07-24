@@ -20,7 +20,7 @@ export default function Home() {
       </Head>
       <div className="container mx-auto flex max-w-2xl flex-col gap-16 px-4 py-12 leading-8 text-gray-300 md:px-0">
         <nav>
-          <span className="text-xl">
+          <span className="text-2xl">
             <span className="font-semibold">aydev</span>
             <span className="font-light">.uk</span>
           </span>
@@ -34,7 +34,7 @@ export default function Home() {
             <IconLink href="https://checkout.com" target="_blank" rel="noreferrer" icon={<Checkout />}>
               Checkout.com
             </IconLink>{" "}
-            where I&apos;ve been building our marketing and documentation platforms with{" "}
+            where I&apos;ve been building our marketing and documentation platforms in{" "}
             <IconLink href="https://nextjs.org/" target="_blank" rel="noreferrer" icon={<Next />}>
               Next.js
             </IconLink>
@@ -71,10 +71,28 @@ export default function Home() {
                   Scotland. Features include Strava integration and tracking, interactive 3D maps, timeline playback,
                   and gear management and sharing.
                 </p>
-                <p>The site is built with Next.js server components, backed by Planetscale, Redis, and Vercel.</p>
+                <p>The site is built with Next.js Server Components, backed by Planetscale, Redis, and Vercel.</p>
               </div>
             </section>
-
+            <section className="flex flex-col gap-2">
+              <Image
+                alt="Screenshot of the photography.aydev.uk site"
+                src={photography}
+                className="rounded-lg border border-gray-700"
+                quality={50}
+                placeholder="blur"
+              />
+              <div className="flex flex-col gap-3 p-2">
+                <a
+                  className="text-lg text-white underline hover:no-underline"
+                  target="_blank"
+                  href="https://photography.aydev.uk"
+                >
+                  photography.aydev.uk
+                </a>
+                <p>My personal photography site, serving images from an AWS S3 bucket and built on Next.js.</p>
+              </div>
+            </section>
             <section className="flex flex-col gap-2">
               <Image
                 alt="Screenshot of the blurdle.aydev.uk site"
@@ -99,25 +117,6 @@ export default function Home() {
                 </p>
               </div>
             </section>
-            <section className="flex flex-col gap-2">
-              <Image
-                alt="Screenshot of the photography.aydev.uk site"
-                src={photography}
-                className="rounded-lg border border-gray-700"
-                quality={50}
-                placeholder="blur"
-              />
-              <div className="flex flex-col gap-3 p-2">
-                <a
-                  className="text-lg text-white underline hover:no-underline"
-                  target="_blank"
-                  href="https://photography.aydev.uk"
-                >
-                  photography.aydev.uk
-                </a>
-                <p>My personal photography site, serving images from an AWS S3 bucket and built on Next.js.</p>
-              </div>
-            </section>
           </div>
         </div>
         <div>
@@ -138,6 +137,9 @@ export default function Home() {
               href="https://twitter.com/AdamMYoung_"
             >
               Twitter
+            </a>
+            <a className="underline hover:no-underline" target="_blank" rel="noreferrer" href="mailto:adam@aydev.uk">
+              Email
             </a>
           </div>
         </div>

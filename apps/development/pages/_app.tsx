@@ -3,6 +3,8 @@ import type { AppProps } from "next/app";
 
 import "../styles/globals.css";
 import { twMerge } from "tailwind-merge";
+import { MDXProvider } from "@mdx-js/react";
+import { components } from "../src/mdx-components";
 
 const jost = Jost({ subsets: ["latin"], variable: "--font-jost" });
 
@@ -18,7 +20,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         </nav>
 
         <main className="grow">
-          <Component {...pageProps} />
+          <MDXProvider components={components}>
+            <Component {...pageProps} />
+          </MDXProvider>
         </main>
         <div>
           <h2 className="text-xl font-semibold text-white">Links</h2>

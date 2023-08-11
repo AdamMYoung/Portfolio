@@ -1,1 +1,75 @@
-# Building a production-ready app on the cheap
+# Building a production-ready app on the cheap in 2023
+
+I've recently been developing a hiking platform for gear tracking and route planning (check it out at [hike.aydev.uk](https://hike.aydev.uk)!), and as the project has grown it's requirements have resulted in me needing a decent amount of infrastructure and monitoring to keep it running smoothly.
+
+I figured it would be useful to document the tools and services I've used to enable me to host APIs, web servers, databases, caching, and monitoring, all for **£0.00/month**.
+
+## Web Hosting - [Vercel](https://vercel.com)
+
+Vercel is a...
+
+### Benefits
+
+- Generous hosting options for a variety of frameworks.
+- Built-in GDPR-compliant analytics.
+- Deployments are easy to setup, and Vercel provides an excellent developer experience when dealing with preview and feature branches.
+
+### Downsides
+
+- Whilst Vercel does enable API hosting via their serverless function platform, hobby accounts are limited to 10 seconds of execution time. While this would be more than suitable for most applications, there are some uses case within hike.aydev in which this limit was being hit. To get around this issue, I turned to...
+
+## APIs - [Fly.io](https://fly.io)
+
+Fly.io is a managed API hosting provider...
+
+### Benefits
+
+- a
+- b
+- c
+
+### Downsides
+
+Something else
+
+## Databases - Planetscale
+
+Planetscale is a...
+
+### Benefits
+
+- a
+- b
+- c
+
+### Downsides
+
+Something else
+
+## Caching - Upstash
+
+Upstash is a...
+
+### Benefits
+
+- a
+- b
+- c
+
+### Downsides
+
+Something else
+
+## Monitoring - Axiom
+
+Axiom is a...
+
+### Benefits
+
+- a
+- b
+- c
+
+### Downsides
+
+Something else

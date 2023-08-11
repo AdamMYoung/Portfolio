@@ -4736,7 +4736,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdx-js/loader@npm:^2.1.5":
+"@mdx-js/loader@npm:^2.1.5, @mdx-js/loader@npm:^2.3.0":
   version: 2.3.0
   resolution: "@mdx-js/loader@npm:2.3.0"
   dependencies:
@@ -4809,7 +4809,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mdx-js/react@npm:^2.1.5":
+"@mdx-js/react@npm:^2.1.5, @mdx-js/react@npm:^2.3.0":
   version: 2.3.0
   resolution: "@mdx-js/react@npm:2.3.0"
   dependencies:
@@ -4884,6 +4884,23 @@ __metadata:
     "@mdx-js/react":
       optional: true
   checksum: 0304b2db6b8d041e5831d800e969a94b9dd3773ab9e8627cd74087d109c4343f51d64a0ca6b97ff1f42570e91e3d0a5039f380a76434f763d91b5992ab7cf1b8
+  languageName: node
+  linkType: hard
+
+"@next/mdx@npm:^13.4.13":
+  version: 13.4.13
+  resolution: "@next/mdx@npm:13.4.13"
+  dependencies:
+    source-map: ^0.7.0
+  peerDependencies:
+    "@mdx-js/loader": ">=0.15.0"
+    "@mdx-js/react": ">=0.15.0"
+  peerDependenciesMeta:
+    "@mdx-js/loader":
+      optional: true
+    "@mdx-js/react":
+      optional: true
+  checksum: 87ea16363847ccc69989aa5807b90b1d78469d6e3a1c2a76ec91730836126bd71fe81f607cedaa48646f5ec693c5bd078bce97891b092e577e072e0e12cc4279
   languageName: node
   linkType: hard
 
@@ -11172,8 +11189,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "development@workspace:apps/development"
   dependencies:
-    "@mdx-js/loader": ^2.1.5
-    "@mdx-js/react": ^2.1.5
+    "@mdx-js/loader": ^2.3.0
+    "@mdx-js/react": ^2.3.0
+    "@next/mdx": ^13.4.13
     "@svgr/webpack": ^8.0.1
     "@types/node": 18.11.9
     "@types/react": 18.0.25

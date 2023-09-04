@@ -20,30 +20,29 @@ export default function Home() {
       </Head>
       <div className="container mx-auto flex max-w-2xl flex-col gap-16 px-4 py-12 leading-8 text-gray-300 md:px-0">
         <nav>
-          <span className="text-2xl">
-            <span className="font-semibold">aydev</span>
-            <span className="font-light">.uk</span>
-          </span>
+          <span className="text-2xl font-semibold">Adam M. Young</span>
         </nav>
 
         <div className="flex flex-col gap-12">
-          <h1 className="text-2xl font-semibold text-white">Hi! I&apos;m Adam Young👋</h1>
-          <p>
-            I&apos;m a frontend developer, photographer, hiker, and occasional blogger. I currently work as a Software
-            Engineer at{" "}
-            <IconLink href="https://checkout.com" target="_blank" rel="noreferrer" icon={<Checkout />}>
-              Checkout.com
-            </IconLink>{" "}
-            where I&apos;ve been building our marketing and documentation platforms in{" "}
-            <IconLink href="https://nextjs.org/" target="_blank" rel="noreferrer" icon={<Next />}>
-              Next.js
-            </IconLink>
-            , a powerful web-framework built with{" "}
-            <IconLink href="https://react.dev/" target="_blank" rel="noreferrer" icon={<React />}>
-              React
-            </IconLink>
-            .
-          </p>
+          <div>
+            <h1 className="text-2xl font-semibold text-white">Hi, I&apos;m Adam Young!👋</h1>
+            <p>
+              I&apos;m a software developer, photographer, hiker, and occasional blogger. I currently work as a Software
+              Engineer at{" "}
+              <IconLink href="https://checkout.com" target="_blank" rel="noreferrer" icon={<Checkout />}>
+                Checkout.com
+              </IconLink>{" "}
+              where I&apos;ve been developing our marketing and documentation platforms using{" "}
+              <IconLink href="https://nextjs.org/" target="_blank" rel="noreferrer" icon={<Next />}>
+                Next.js
+              </IconLink>
+              , a powerful web-framework built with{" "}
+              <IconLink href="https://react.dev/" target="_blank" rel="noreferrer" icon={<React />}>
+                React
+              </IconLink>
+              .
+            </p>
+          </div>
         </div>
 
         <div className="flex flex-col gap-6">

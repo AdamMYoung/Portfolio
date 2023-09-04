@@ -24,7 +24,7 @@ export default function Home() {
         </nav>
 
         <div className="flex flex-col gap-12">
-          <div>
+          <div className="flex flex-col gap-4">
             <h1 className="text-2xl font-semibold text-white">Hi, I&apos;m Adam Young!👋</h1>
             <p>
               I&apos;m a software developer, photographer, hiker, and occasional blogger. I currently work as a Software

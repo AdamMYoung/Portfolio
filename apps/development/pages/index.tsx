@@ -61,12 +61,12 @@ export default function Home() {
                 <a
                   className="text-lg text-white underline hover:no-underline"
                   target="_blank"
-                  href="https://hike.aydev.uk"
+                  href="https://trailwise.io"
                 >
-                  hike.aydev.uk
+                  trailwise.io
                 </a>
                 <p>
-                  Hike is a UK-based hiking and gear platform used to track fell completion across the Lake District and
+                  TrailWise is a UK-based hiking and gear platform used to track fell completion across the Lake District and
                   Scotland. Features include Strava integration and tracking, interactive 3D maps, timeline playback,
                   and gear management and sharing.
                 </p>

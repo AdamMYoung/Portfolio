@@ -6,16 +6,18 @@ import { Image } from "../../utils";
 type GridImageProps = {
   index: number;
   image: Image;
+  placeholder: `data:image/${string}`;
   isPriority?: boolean;
 };
 
-export const GridImage = ({ image, isPriority }: GridImageProps) => {
+export const GridImage = ({ image, placeholder, isPriority }: GridImageProps) => {
   return (
     <div className="relative w-full" style={{ aspectRatio: image.exif.width / image.exif.height }}>
       <NextImage
         className="transition-all hover:cursor-pointer hover:brightness-75 active:brightness-50"
         priority={isPriority}
         alt=""
+        placeholder={placeholder}
         src={image.path}
         fill
         sizes="(max-width: 1024px) 50vw, 25vw"

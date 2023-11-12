@@ -16860,6 +16860,7 @@ __metadata:
     eslint-config-next: 14.0.2
     exifreader: ^4.16.0
     next: ^14.0.2
+    plaiceholder: ^3.0.0
     postcss: ^8.4.31
     react: 18.2.0
     react-dom: 18.2.0
@@ -16939,6 +16940,15 @@ __metadata:
   dependencies:
     find-up: ^6.3.0
   checksum: 94298b20a446bfbbd66604474de8a0cdd3b8d251225170970f15d9646f633e056c80520dd5b4c1d1050c9fed8f6a9e5054b141c93806439452efe72e57562c03
+  languageName: node
+  linkType: hard
+
+"plaiceholder@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "plaiceholder@npm:3.0.0"
+  peerDependencies:
+    sharp: ">= 0.30.6"
+  checksum: 783072104ff1ca388f7662048a901d02d04ba0884442400d8142ff60ec3c39c40baf80729f0187ca9f057eac8c8382a86d57eb61a08bf40b0d2bf7c7762a71e2
   languageName: node
   linkType: hard
 

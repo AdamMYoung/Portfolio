@@ -32,7 +32,7 @@ export class AWSImageRepository implements IImageRepository {
         const byteArray = await data.Body!.transformToByteArray();
         const fileData = byteArray.buffer;
 
-        const { base64 } = await getPlaiceholder(fileData as Buffer);
+        const { base64 } = await getPlaiceholder(Buffer.from(fileData));
 
         return {
           data: fileData,

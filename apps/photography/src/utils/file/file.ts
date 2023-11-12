@@ -23,6 +23,7 @@ export type ImageExif = {
 
 export type Image = {
   path: string;
+  placeholder: `data:image/${string}`;
   exif: ImageExif;
 };
 
@@ -58,6 +59,7 @@ export const getImagesByFolder = async (folderName: string): Promise<Image[]> =>
 
       return {
         path: file.path,
+        placeholder: file.placeholder,
         exif: {
           height: parseInt(height),
           width: parseInt(width),

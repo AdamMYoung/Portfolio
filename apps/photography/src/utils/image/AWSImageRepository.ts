@@ -1,3 +1,4 @@
+import { getPlaiceholder } from "plaiceholder";
 import { IImageRepository, ImageData } from "./image.types";
 
 import { S3Client, ListObjectsCommand, GetObjectCommand } from "@aws-sdk/client-s3";
@@ -31,9 +32,12 @@ export class AWSImageRepository implements IImageRepository {
         const byteArray = await data.Body!.transformToByteArray();
         const fileData = byteArray.buffer;
 
+        const { base64 } = await getPlaiceholder(Buffer.from(fileData));
+
         return {
           data: fileData,
           path: `https://${process.env.AWS_S3_BUCKET_HOSTNAME}/${process.env.AWS_S3_BUCKET_NAME}/${obj.Key}`,
+          placeholder: base64 as `data:image/${string}`,
         };
       })
     );

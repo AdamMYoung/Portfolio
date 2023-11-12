@@ -4,5 +4,6 @@ dist
 
 .env
 .turbo
+.image-cache
 .next
 next-env.d.ts

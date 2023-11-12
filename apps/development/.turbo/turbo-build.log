@@ -1,45 +1,26 @@
-warn  - You have enabled experimental feature (appDir) in next.config.js.
-warn  - Experimental features are not covered by semver, and may cause unexpected or broken application behavior. Use at your own risk.
+   Linting and checking validity of types ...
+(node:11356) ExperimentalWarning: The Fetch API is an experimental feature. This feature could change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+   ▲ Next.js 14.0.2
 
-info  - Thank you for testing `appDir` please leave your feedback at https://nextjs.link/app-feedback
-info  - Creating an optimized production build...
-info  - Compiled successfully
-info  - Linting and checking validity of types...
-We detected TypeScript in your project and reconfigured your tsconfig.json file for you. Strict-mode is set to false by default.
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Collecting page data ...
+   Generating static pages (0/3) ...
+ ✓ Generating static pages (3/3) 
+   Finalizing page optimization ...
+   Collecting build traces ...
 
-The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+Route (pages)                              Size     First Load JS
+┌ ○ /                                      8.47 kB          93 kB
+├   /_app                                  0 B            84.5 kB
+└ ○ /404                                   178 B          84.7 kB
++ First Load JS shared by all              87.5 kB
+  ├ chunks/framework-d567a1b3daec1299.js   45.2 kB
+  ├ chunks/main-bbcfa75fd42ef8cd.js        31.7 kB
+  ├ chunks/pages/_app-5ab798770e1b6ac7.js  6.83 kB
+  ├ chunks/webpack-8fa1640cc84ba8fe.js     750 B
+  └ css/07ecf09660fe5589.css               3.01 kB
 
-	- include was updated to add '.next/types/**/*.ts'
+○  (Static)  prerendered as static content
 
-error - ESLint: Failed to load plugin 'turbo' declared in '.eslintrc.js » eslint-config-custom » eslint-config-turbo': Ns(...).map is not a function Referenced from: C:\git\Portfolio\node_modules\eslint-config-turbo\index.js
-info  - Collecting page data...
-info  - Generating static pages (0/6)
-SyntaxError: Unexpected token u in JSON at position 0
-    at JSON.parse (<anonymous>)
-    at U (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:22:53)
-    at c (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:24:307)
-SyntaxError: Unexpected token u in JSON at position 0
-    at JSON.parse (<anonymous>)
-    at U (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:22:53)
-    at c (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:24:307)
-SyntaxError: Unexpected token u in JSON at position 0
-    at JSON.parse (<anonymous>)
-    at U (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:22:53)
-    at c (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:24:307)
-SyntaxError: Unexpected token u in JSON at position 0
-    at JSON.parse (<anonymous>)
-    at U (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:22:53)
-    at c (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:24:307)
-
-Error occurred prerendering page "/contact". Read more: https://nextjs.org/docs/messages/prerender-error
-SyntaxError: Unexpected token u in JSON at position 0
-    at JSON.parse (<anonymous>)
-    at U (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:22:53)
-    at c (C:\git\Portfolio\node_modules\next\dist\compiled\react-server-dom-webpack\cjs\react-server-dom-webpack-client.edge.production.min.js:24:307)
-info  - Generating static pages (1/6)
-info  - Generating static pages (2/6)
-info  - Generating static pages (4/6)
-info  - Generating static pages (6/6)
-
-> Export encountered errors on following paths:
-	/contact/page: /contact

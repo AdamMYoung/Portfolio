@@ -2,16 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { ElementProps, ImageGrid as InternalImageGrid } from "components";
-import { SelectedImageProvider } from "../src/providers";
 
 export * from "components";
 
 export { GridImage } from "../src/components";
 
-export const ImageGrid = ({
-  numberOfImages,
-  ...rest
-}: ElementProps<typeof InternalImageGrid> & ElementProps<typeof SelectedImageProvider>) => {
+export const ImageGrid = ({ ...rest }: ElementProps<typeof InternalImageGrid>) => {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -20,9 +16,5 @@ export const ImageGrid = ({
 
   if (!isClient) return null;
 
-  return (
-    <SelectedImageProvider numberOfImages={numberOfImages}>
-      <InternalImageGrid {...rest} />
-    </SelectedImageProvider>
-  );
+  return <InternalImageGrid {...rest} />;
 };

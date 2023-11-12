@@ -7,7 +7,7 @@ import hike from "../src/images/hike.png";
 import photography from "../src/images/photography.png";
 
 import React from "../src/svg/react.svg";
-import Checkout from "../src/svg/checkout.svg";
+import NineFin from "../src/svg/9fin.png";
 import Next from "../src/svg/next.svg";
 import Head from "next/head";
 
@@ -29,18 +29,15 @@ export default function Home() {
             <p>
               I&apos;m a software developer, photographer, hiker, and occasional blogger. I currently work as a Software
               Engineer at{" "}
-              <IconLink href="https://checkout.com" target="_blank" rel="noreferrer" icon={<Checkout />}>
-                Checkout.com
+              <IconLink href="https://checkout.com" target="_blank" rel="noreferrer" icon={<Image height="12" width="12" src={NineFin} alt="" />}>
+                9fin
               </IconLink>{" "}
-              where I&apos;ve been developing our marketing and documentation platforms using{" "}
+              where I&apos;m working on a wide range of sites built in <IconLink href="https://react.dev/" target="_blank" rel="noreferrer" icon={<React />}>
+                React
+              </IconLink> and {" "}
               <IconLink href="https://nextjs.org/" target="_blank" rel="noreferrer" icon={<Next />}>
                 Next.js
-              </IconLink>
-              , a powerful web-framework built with{" "}
-              <IconLink href="https://react.dev/" target="_blank" rel="noreferrer" icon={<React />}>
-                React
-              </IconLink>
-              .
+              </IconLink>.
             </p>
           </div>
         </div>

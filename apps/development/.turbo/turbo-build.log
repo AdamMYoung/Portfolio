@@ -1,5 +1,5 @@
    Linting and checking validity of types ...
-(node:11356) ExperimentalWarning: The Fetch API is an experimental feature. This feature could change at any time
+(node:20912) ExperimentalWarning: The Fetch API is an experimental feature. This feature could change at any time
 (Use `node --trace-warnings ...` to show where the warning was created)
    ▲ Next.js 14.0.2
 

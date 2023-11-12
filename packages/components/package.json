@@ -1,23 +1,17 @@
 {
+  "name": "components",
+  "author": "adammyoung",
   "version": "0.2.0",
   "license": "MIT",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "dev": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests",
     "lint": "eslint src",
-    "prepare": "tsdx build",
-    "size": "size-limit",
-    "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
@@ -34,19 +28,6 @@
       "pre-commit": "tsdx lint"
     }
   },
-  "name": "components",
-  "author": "adammyoung",
-  "module": "dist/components.esm.js",
-  "size-limit": [
-    {
-      "path": "dist/components.cjs.production.min.js",
-      "limit": "10 KB"
-    },
-    {
-      "path": "dist/components.esm.js",
-      "limit": "10 KB"
-    }
-  ],
   "devDependencies": {
     "@babel/core": "^7.23.3",
     "@fontsource/biz-udpmincho": "^5.0.7",

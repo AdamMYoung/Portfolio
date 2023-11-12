@@ -2,7 +2,11 @@
 module.exports = {
   reactStrictMode: true,
   swcMinify: true,
+  transpilePackages: ["components"],
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
+  experimental: {
+    optimizePackageImports: ["components"],
+  },
   images: {
     remotePatterns: [
       {

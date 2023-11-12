@@ -25,7 +25,7 @@ import {
   LayoutDesktopTitle,
   Link,
   IconList,
-} from "./client-components";
+} from "components";
 
 const baskerville = Baskervville({
   weight: ["400"],

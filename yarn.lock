@@ -11752,6 +11752,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fast-xml-parser@npm:^4.3.5":
+  version: 4.3.5
+  resolution: "fast-xml-parser@npm:4.3.5"
+  dependencies:
+    strnum: ^1.0.5
+  bin:
+    fxparser: src/cli/cli.js
+  checksum: 852064985ca56aa2078be02c92509a675408b57bb9862f696689301bf7df786f9ce9116b812b032c627979a4de5755f9cbfeecc4b90ed9d56be76deccd97c0c6
+  languageName: node
+  linkType: hard
+
 "fastq@npm:^1.6.0":
   version: 1.15.0
   resolution: "fastq@npm:1.15.0"
@@ -16859,6 +16870,7 @@ __metadata:
     eslint-config-custom: "*"
     eslint-config-next: 14.0.2
     exifreader: ^4.16.0
+    fast-xml-parser: ^4.3.5
     next: ^14.0.2
     plaiceholder: ^3.0.0
     postcss: ^8.4.31

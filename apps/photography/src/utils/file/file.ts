@@ -4,7 +4,7 @@ import ExifReader from "exifreader";
 
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
-import { IImageRepository, LocalImageRepository, AWSImageRepository } from "../image";
+import { AWSImageRepository } from "../image";
 
 dayjs.extend(customParseFormat);
 
@@ -27,15 +27,14 @@ export type Image = {
   exif: ImageExif;
 };
 
-const imageRepository: IImageRepository =
-  process.env.NODE_ENV === "development" ? new LocalImageRepository() : new AWSImageRepository();
+const imageRepository = new AWSImageRepository();
 
 const getExifData = (exif: any, keys: string[]): string[] => {
   return keys.map((key) => exif?.[key]?.description ?? "N/A");
 };
 
-export const getImagesByFolder = async (folderName: string): Promise<Image[]> => {
-  const files = await imageRepository.getImagesByFolder(folderName);
+export const getImages = async (): Promise<Image[]> => {
+  const files = await imageRepository.getImages();
 
   const images = await Promise.all(
     files.map(async (file) => {

@@ -3,7 +3,3 @@ export type ImageData = {
   placeholder: `data:image/${string}`;
   path: string;
 };
-
-export interface IImageRepository {
-  getImagesByFolder(folderName: string): Promise<ImageData[]>;
-}

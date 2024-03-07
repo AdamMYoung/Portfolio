@@ -1,12 +1,12 @@
 import React from "react";
 import { ImageGrid } from "components";
 
-import { getImagesByFolder } from "../src/utils";
+import { getImages } from "../src/utils";
 import { Metadata } from "next";
 import { GridImage } from "../src/components";
 
 export default async function Home() {
-  const images = await getImagesByFolder("home");
+  const images = await getImages();
 
   return (
     <ImageGrid className="md:mr-2">
@@ -25,3 +25,4 @@ export const metadata: Metadata = {
 };
 
 export const revalidate = 60;
+export const dynamic = "force-dynamic";

@@ -12,9 +12,7 @@ module.exports = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: process.env.AWS_S3_BUCKET_HOSTNAME,
-        port: "",
-        pathname: `/${process.env.AWS_S3_BUCKET_NAME}/**`,
+        hostname: "images.photography.adammyoung.com",
       },
     ],
   },

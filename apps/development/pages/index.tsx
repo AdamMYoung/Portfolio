@@ -18,17 +18,17 @@ export default function Home() {
         <title>Adam Young | Development</title>
         <meta name="description" content="Development portfolio of Software Engineer, Adam Young" />
       </Head>
-      <div className="container mx-auto flex max-w-2xl flex-col gap-16 px-4 py-12 leading-8 text-gray-300 md:px-0">
+      <div className="container mx-auto flex max-w-2xl flex-col gap-16 px-4 py-12 text-gray-300 md:px-0">
         <nav>
           <span className="text-2xl font-semibold">Adam M. Young</span>
         </nav>
 
         <div className="flex flex-col gap-12">
           <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-semibold text-white">Hi, I&apos;m Adam Young!👋</h1>
+            <h1 className="text-3xl font-semibold text-white">Hi! 👋</h1>
             <p>
-              I&apos;m a software developer, photographer, hiker, and occasional blogger. I currently work as a Software
-              Engineer at{" "}
+              I&apos;m Adam Young, a software developer, photographer, hiker, and <i>occasional</i> runner. I currently
+              work as a Software Engineer at{" "}
               <IconLink
                 href="https://checkout.com"
                 target="_blank"
@@ -37,11 +37,14 @@ export default function Home() {
               >
                 9fin
               </IconLink>{" "}
-              where I&apos;m working on a bunch of cool tools and sites built in{" "}
+              where I&apos;m working on a bunch of incredible tools and sites built in{" "}
               <IconLink href="https://react.dev/" target="_blank" rel="noreferrer" icon={<React />}>
                 React
               </IconLink>
-              . In my spare time, I&apos;m working on{" "}
+              .
+            </p>
+            <p>
+              In my spare time, I&apos;m also working on{" "}
               <IconLink
                 href="https://trailwise.io"
                 target="_blank"
@@ -56,7 +59,7 @@ export default function Home() {
 
         <div className="flex flex-col gap-6">
           <h2 className="text-xl font-semibold text-white">Projects</h2>
-          <div className="flex flex-col gap-12 leading-6">
+          <div className="flex flex-col gap-12">
             <section className="flex flex-col gap-2">
               <Image
                 alt="Screenshot of the hike.aydev.uk platform"
@@ -68,7 +71,7 @@ export default function Home() {
               />
               <div className="flex flex-col gap-3 p-2">
                 <a
-                  className="text-lg text-white underline hover:no-underline"
+                  className="text-xl text-white underline hover:no-underline"
                   target="_blank"
                   href="https://trailwise.io"
                 >
@@ -93,7 +96,7 @@ export default function Home() {
               />
               <div className="flex flex-col gap-3 p-2">
                 <a
-                  className="text-lg text-white underline hover:no-underline"
+                  className="text-xl text-white underline hover:no-underline"
                   target="_blank"
                   href="https://photography.aydev.uk"
                 >
@@ -112,7 +115,7 @@ export default function Home() {
               />
               <div className="flex flex-col gap-3 p-2">
                 <a
-                  className="text-lg text-white underline hover:no-underline"
+                  className="text-xl text-white underline hover:no-underline"
                   target="_blank"
                   href="https://blurdle.aydev.uk"
                 >
@@ -146,7 +149,12 @@ export default function Home() {
             >
               Twitter
             </a>
-            <a className="underline hover:no-underline" target="_blank" rel="noreferrer" href="mailto:adam@aydev.uk">
+            <a
+              className="underline hover:no-underline"
+              target="_blank"
+              rel="noreferrer"
+              href="mailto:adam@adammyoung.com"
+            >
               Email
             </a>
           </div>

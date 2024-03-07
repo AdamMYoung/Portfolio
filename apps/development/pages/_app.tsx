@@ -8,7 +8,7 @@ const jost = Jost({ subsets: ["latin"], variable: "--font-jost" });
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <main className={twMerge(jost.className, "h-full min-h-screen bg-black text-white")}>
+    <main className={twMerge(jost.className, "h-full min-h-screen bg-black text-white text-lg leading-8")}>
       {/* @ts-ignore */}
       <Component {...pageProps} />
     </main>

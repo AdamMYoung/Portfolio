@@ -1,5 +1,5 @@
 import { getPlaiceholder } from "plaiceholder";
-import { IImageRepository, ImageData } from "./image.types";
+import { ImageData } from "./image.types";
 
 import { S3Client, ListObjectsCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 

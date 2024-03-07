@@ -8,7 +8,7 @@ import photography from "../src/images/photography.png";
 
 import React from "../src/svg/react.svg";
 import NineFin from "../src/svg/9fin.png";
-import Next from "../src/svg/next.svg";
+import TrailWise from "../src/svg/trailwise.png";
 import Head from "next/head";
 
 export default function Home() {
@@ -29,15 +29,27 @@ export default function Home() {
             <p>
               I&apos;m a software developer, photographer, hiker, and occasional blogger. I currently work as a Software
               Engineer at{" "}
-              <IconLink href="https://checkout.com" target="_blank" rel="noreferrer" icon={<Image height="12" width="12" src={NineFin} alt="" />}>
+              <IconLink
+                href="https://checkout.com"
+                target="_blank"
+                rel="noreferrer"
+                icon={<Image height="12" width="12" src={NineFin} alt="" />}
+              >
                 9fin
               </IconLink>{" "}
-              where I&apos;m working on a wide range of sites built in <IconLink href="https://react.dev/" target="_blank" rel="noreferrer" icon={<React />}>
+              where I&apos;m working on a bunch of cool tools and sites built in{" "}
+              <IconLink href="https://react.dev/" target="_blank" rel="noreferrer" icon={<React />}>
                 React
-              </IconLink> and {" "}
-              <IconLink href="https://nextjs.org/" target="_blank" rel="noreferrer" icon={<Next />}>
-                Next.js
-              </IconLink>.
+              </IconLink>
+              . In my spare time, I&apos;m working on{" "}
+              <IconLink
+                href="https://trailwise.io"
+                target="_blank"
+                icon={<Image height="12" width="12" src={TrailWise} alt="" />}
+              >
+                TrailWise
+              </IconLink>
+              , which you can read about below!
             </p>
           </div>
         </div>
@@ -63,9 +75,9 @@ export default function Home() {
                   trailwise.io
                 </a>
                 <p>
-                  TrailWise is a UK-based hiking and gear platform used to track fell completion across the Lake District and
-                  Scotland. Features include Strava integration and tracking, interactive 3D maps, timeline playback,
-                  and gear management and sharing.
+                  TrailWise is a hiking, gear, and social platform used to track mountain peak summits and trail routes
+                  worldwide. Features historical timeline tracking, gear management, trip planning, social integrations
+                  and much more!
                 </p>
                 <p>The site is built with Next.js Server Components, backed by Planetscale, Redis, and Vercel.</p>
               </div>

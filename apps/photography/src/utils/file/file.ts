@@ -21,7 +21,6 @@ export type ImageExif = {
 
 export type Image = {
   path: string;
-  placeholder: `data:image/${string}`;
   exif: ImageExif;
 };
 
@@ -56,7 +55,6 @@ export const getImages = async (): Promise<Image[]> => {
 
       return {
         path: file.path,
-        placeholder: file.placeholder,
         exif: {
           height: parseInt(height),
           width: parseInt(width),

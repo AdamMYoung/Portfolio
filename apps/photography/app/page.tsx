@@ -9,11 +9,15 @@ export default async function Home() {
   const images = await getImages();
 
   return (
-    <ImageGrid className="md:mr-2">
+    <ImageGrid>
       {images.map((image, index) => (
-        <div key={image.path} className="h-fit w-full">
-          <GridImage index={index} image={image} placeholder={image.placeholder} isPriority={index <= 30} />
-        </div>
+        <GridImage
+          key={image.path}
+          index={index}
+          image={image}
+          placeholder={image.placeholder}
+          isPriority={index <= 30}
+        />
       ))}
     </ImageGrid>
   );

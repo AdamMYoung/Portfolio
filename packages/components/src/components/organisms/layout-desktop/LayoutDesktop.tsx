@@ -59,7 +59,7 @@ export const LayoutDesktopSubheading = ({ children, className, ...rest }: Elemen
 
 export const LayoutDesktopBody = ({ children, className, ...rest }: ElementProps<"main">) => {
   return (
-    <main className={twMerge("overflow-y-auto tracking-normal", className)} {...rest}>
+    <main className={twMerge("overflow-y-auto w-full tracking-normal", className)} {...rest}>
       {children}
     </main>
   );

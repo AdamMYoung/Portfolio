@@ -12,16 +12,15 @@ type GridImageProps = {
 
 export const GridImage = async ({ image, placeholder, isPriority }: GridImageProps) => {
   return (
-    <div className="relative w-full" style={{ aspectRatio: image.exif.width / image.exif.height }}>
-      <NextImage
-        priority={isPriority}
-        alt=""
-        placeholder="blur"
-        blurDataURL={placeholder}
-        src={image.path}
-        fill
-        sizes="(max-width: 1024px) 50vw, 25vw"
-      />
-    </div>
+    <NextImage
+      className="mb-2 w-full"
+      priority={isPriority}
+      alt=""
+      placeholder="blur"
+      blurDataURL={placeholder}
+      src={image.path}
+      width={image.exif.width}
+      height={image.exif.height}
+    />
   );
 };

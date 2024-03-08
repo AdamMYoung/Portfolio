@@ -10,11 +10,10 @@ type GridImageProps = {
   isPriority?: boolean;
 };
 
-export const GridImage = async ({ image, placeholder, isPriority }: GridImageProps) => {
+export const GridImage = ({ image, placeholder, isPriority }: GridImageProps) => {
   return (
     <NextImage
       className="mb-2 w-full"
-      priority={isPriority}
       alt=""
       placeholder="blur"
       blurDataURL={placeholder}

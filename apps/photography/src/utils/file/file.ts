@@ -1,5 +1,3 @@
-import "server-only";
-
 import ExifReader from "exifreader";
 
 import dayjs from "dayjs";

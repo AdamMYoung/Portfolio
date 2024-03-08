@@ -11,14 +11,16 @@ type GridImageProps = {
 
 export const GridImage = ({ image, isPriority }: GridImageProps) => {
   return (
-    <NextImage
-      className="mb-2 w-full"
-      priority={isPriority}
-      alt=""
-      src={image.path}
-      width={image.exif.width}
-      height={image.exif.height}
-      sizes="(max-width: 1024px) 50vw, 25vw"
-    />
+    <a href={image.path} target="_blank">
+      <NextImage
+        className="mb-2 w-full"
+        priority={isPriority}
+        alt=""
+        src={image.path}
+        width={image.exif.width}
+        height={image.exif.height}
+        sizes="(max-width: 1024px) 50vw, 25vw"
+      />
+    </a>
   );
 };

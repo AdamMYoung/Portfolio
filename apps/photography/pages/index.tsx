@@ -14,7 +14,7 @@ export default function Home({ images }: HomeProps) {
   return (
     <ImageGrid>
       {images.map((image, index) => (
-        <GridImage key={image.path} index={index} image={image} placeholder={image.placeholder} />
+        <GridImage key={image.path} index={index} image={image} isPriority={index <= 10} />
       ))}
     </ImageGrid>
   );

@@ -27,7 +27,6 @@
     "fast-xml-parser": "^4.3.5",
     "mini-css-extract-plugin": "^2.8.1",
     "next": "^14.0.2",
-    "plaiceholder": "^3.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.11.0",

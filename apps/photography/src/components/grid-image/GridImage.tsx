@@ -18,6 +18,7 @@ export const GridImage = ({ image, isPriority }: GridImageProps) => {
       src={image.path}
       width={image.exif.width}
       height={image.exif.height}
+      sizes="(max-width: 1024px) 50vw, 25vw"
     />
   );
 };

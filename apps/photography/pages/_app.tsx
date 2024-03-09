@@ -2,6 +2,7 @@ import { Baskervville } from "next/font/google";
 import type { AppProps } from "next/app";
 
 import "../styles/globals.css";
+
 import { twMerge } from "tailwind-merge";
 import {
   LayoutDesktop,
@@ -18,13 +19,9 @@ import {
   LayoutMobileTitle,
   LayoutMobileHeading,
   LayoutMobileSubheading,
-  LayoutMobileDrawerButton,
-  LayoutMobileDrawer,
-  LayoutMobileDrawerItem,
   LayoutMobileBody,
 } from "components";
-import Script from "next/script";
-import { FiInstagram, FiTwitter, FiMenu } from "react-icons/fi";
+import { FiInstagram, FiTwitter } from "react-icons/fi";
 
 const baskerville = Baskervville({
   weight: ["400"],
@@ -64,22 +61,19 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         </LayoutDesktopBody>
       </LayoutDesktop>
       <LayoutMobile>
-        <LayoutMobileNavigation className="bg-white">
-          <LayoutMobileTitle role="button">
+        <LayoutMobileNavigation className="items-center bg-white">
+          <LayoutMobileTitle>
             <LayoutMobileHeading>Adam Young</LayoutMobileHeading>
             <LayoutMobileSubheading>Photography</LayoutMobileSubheading>
           </LayoutMobileTitle>
-          <LayoutMobileDrawerButton aria-label="Open menu">
-            <FiMenu className="h-8 w-8" />
-          </LayoutMobileDrawerButton>
-          <LayoutMobileDrawer className="bg-white">
-            <LayoutMobileDrawerItem className="hover:bg-slate-100" href="/">
-              Home
-            </LayoutMobileDrawerItem>
-            <LayoutMobileDrawerItem className="hover:bg-slate-100" href="/contact">
-              Contact
-            </LayoutMobileDrawerItem>
-          </LayoutMobileDrawer>
+          <IconList>
+            <Link target="_blank" rel="noreferrer" aria-label="Instagram" href="https://www.instagram.com/adammyoung_/">
+              <FiInstagram className="h-6 w-6" />
+            </Link>
+            <Link target="_blank" rel="noreferrer" aria-label="Twitter" href="https://twitter.com/AdamMYoung_">
+              <FiTwitter className="h-6 w-6" />
+            </Link>
+          </IconList>
         </LayoutMobileNavigation>
         <LayoutMobileBody>
           <Component {...pageProps} />

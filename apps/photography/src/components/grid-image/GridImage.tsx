@@ -11,7 +11,7 @@ type GridImageProps = {
 
 export const GridImage = ({ image, isPriority }: GridImageProps) => {
   return (
-    <a href={image.path} target="_blank">
+    <a href={image.path} target="_blank" title="View original image">
       <NextImage
         className="mb-2 w-full"
         priority={isPriority}

@@ -1,11 +1,7 @@
-"use client";
-
-import React from "react";
+import React, { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
-import { ElementProps } from "../../../utils";
-
-export const ImageGrid = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const ImageGrid = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div
       className={twMerge(

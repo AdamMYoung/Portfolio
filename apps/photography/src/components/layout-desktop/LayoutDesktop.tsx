@@ -1,9 +1,7 @@
-import React from "react";
+import React, { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
-import { ElementProps } from "../../../utils";
-
-export const LayoutDesktop = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const LayoutDesktop = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div
       className={twMerge("hidden h-[100vh] grid-cols-[minmax(0,300px)_1fr] py-2 tracking-widest md:grid", className)}
@@ -14,7 +12,7 @@ export const LayoutDesktop = ({ children, className, ...rest }: ElementProps<"di
   );
 };
 
-export const LayoutDesktopSidebar = ({ children, className, ...rest }: ElementProps<"nav">) => {
+export const LayoutDesktopSidebar = ({ children, className, ...rest }: ComponentProps<"nav">) => {
   return (
     <nav
       className={twMerge("flex w-full max-w-xl flex-col gap-4 overflow-y-auto p-6 pt-12 font-bold", className)}
@@ -25,7 +23,7 @@ export const LayoutDesktopSidebar = ({ children, className, ...rest }: ElementPr
   );
 };
 
-export const LayoutDesktopNavigation = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const LayoutDesktopNavigation = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div className={twMerge("flex flex-col gap-6 px-2", className)} {...rest}>
       {children}
@@ -33,7 +31,7 @@ export const LayoutDesktopNavigation = ({ children, className, ...rest }: Elemen
   );
 };
 
-export const LayoutDesktopTitle = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const LayoutDesktopTitle = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div className={twMerge("grid gap-1 pb-6", className)} {...rest}>
       {children}
@@ -41,7 +39,7 @@ export const LayoutDesktopTitle = ({ children, className, ...rest }: ElementProp
   );
 };
 
-export const LayoutDesktopHeading = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const LayoutDesktopHeading = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div className={twMerge("text-4xl font-bold", className)} {...rest}>
       {children}
@@ -49,7 +47,7 @@ export const LayoutDesktopHeading = ({ children, className, ...rest }: ElementPr
   );
 };
 
-export const LayoutDesktopSubheading = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const LayoutDesktopSubheading = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div className={twMerge("text-xl font-light", className)} {...rest}>
       {children}
@@ -57,7 +55,7 @@ export const LayoutDesktopSubheading = ({ children, className, ...rest }: Elemen
   );
 };
 
-export const LayoutDesktopBody = ({ children, className, ...rest }: ElementProps<"main">) => {
+export const LayoutDesktopBody = ({ children, className, ...rest }: ComponentProps<"main">) => {
   return (
     <main className={twMerge("overflow-y-auto w-full tracking-normal", className)} {...rest}>
       {children}

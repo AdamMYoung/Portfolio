@@ -1,11 +1,11 @@
 import React from "react";
-import { ImageGrid } from "components";
 
 import { Image, getImages } from "../src/utils";
 
 import { GridImage } from "../src/components";
 import { GetStaticProps } from "next";
 import Head from "next/head";
+import { ImageGrid } from "../src/components/image-grid";
 
 type HomeProps = {
   images: Image[];

@@ -6,7 +6,7 @@ import { twMerge } from "tailwind-merge";
 
 const jost = Jost({ subsets: ["latin"], variable: "--font-jost" });
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps }: AppProps) {
   return (
     <main className={twMerge(jost.className, "h-full min-h-screen bg-black text-white text-lg leading-8")}>
       {/* @ts-ignore */}

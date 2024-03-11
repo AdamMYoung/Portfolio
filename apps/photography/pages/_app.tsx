@@ -4,24 +4,28 @@ import type { AppProps } from "next/app";
 import "../styles/globals.css";
 
 import { twMerge } from "tailwind-merge";
+
+import { FiInstagram, FiTwitter } from "react-icons/fi";
+
+import { IconList } from "../src/components/icon-list";
 import {
   LayoutDesktop,
   LayoutDesktopSidebar,
-  Link,
   LayoutDesktopTitle,
   LayoutDesktopHeading,
   LayoutDesktopSubheading,
   LayoutDesktopNavigation,
-  IconList,
   LayoutDesktopBody,
+} from "../src/components/layout-desktop";
+import {
   LayoutMobile,
   LayoutMobileNavigation,
   LayoutMobileTitle,
   LayoutMobileHeading,
   LayoutMobileSubheading,
   LayoutMobileBody,
-} from "components";
-import { FiInstagram, FiTwitter } from "react-icons/fi";
+} from "../src/components/layout-mobile";
+import { Link } from "../src/components/link";
 
 const baskerville = Baskervville({
   weight: ["400"],
@@ -34,12 +38,10 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     <div className={twMerge(`${baskerville.variable} font-sans`)}>
       <LayoutDesktop>
         <LayoutDesktopSidebar>
-          <Link href="/">
-            <LayoutDesktopTitle role="button">
-              <LayoutDesktopHeading>Adam Young</LayoutDesktopHeading>
-              <LayoutDesktopSubheading>Photography</LayoutDesktopSubheading>
-            </LayoutDesktopTitle>
-          </Link>
+          <LayoutDesktopTitle role="button">
+            <LayoutDesktopHeading>Adam Young</LayoutDesktopHeading>
+            <LayoutDesktopSubheading>Photography</LayoutDesktopSubheading>
+          </LayoutDesktopTitle>
           <LayoutDesktopNavigation>
             <IconList>
               <Link

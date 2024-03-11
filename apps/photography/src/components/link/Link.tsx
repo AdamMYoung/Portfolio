@@ -1,18 +1,8 @@
-import React from "react";
+import React, { ComponentProps } from "react";
 import NextLink from "next/link";
 import { twMerge } from "tailwind-merge";
 
-import { ElementProps, ExtractProps } from "../../../utils";
-
-type InternalLinkProps = ExtractProps<typeof NextLink> & {
-  type?: "internal";
-};
-
-type ExternalLinkProps = ElementProps<"a"> & {
-  type?: "external";
-};
-
-type LinkProps = (InternalLinkProps | ExternalLinkProps) & { href: string };
+type LinkProps = ComponentProps<typeof NextLink> & { href: string; type?: "external" | "internal" };
 
 export const Link = ({ children, className, type = "internal", ...rest }: LinkProps) => {
   const _className = twMerge(typeof children === "string" && "hover:underline", className);

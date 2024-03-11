@@ -68,6 +68,7 @@ export default function Home() {
                 priority
                 quality={50}
                 placeholder="blur"
+                sizes="(max-width: 1024px) 90vw, 50vw"
               />
               <div className="flex flex-col gap-3 p-2">
                 <a
@@ -93,16 +94,17 @@ export default function Home() {
                 quality={50}
                 priority
                 placeholder="blur"
+                sizes="(max-width: 1024px) 90vw, 50vw"
               />
               <div className="flex flex-col gap-3 p-2">
                 <a
                   className="text-xl text-white underline hover:no-underline"
                   target="_blank"
-                  href="https://photography.aydev.uk"
+                  href="https://photography.adammyoung.com"
                 >
-                  photography.aydev.uk
+                  photography.adammyoung.com
                 </a>
-                <p>My personal photography site, serving images from an AWS S3 bucket and built on Next.js.</p>
+                <p>My personal photography site, serving images from Cloudflare R2 and built on Next.js.</p>
               </div>
             </section>
             <section className="flex flex-col gap-2">
@@ -112,6 +114,7 @@ export default function Home() {
                 className="rounded-lg border border-gray-700"
                 quality={50}
                 placeholder="blur"
+                sizes="(max-width: 1024px) 90vw, 50vw"
               />
               <div className="flex flex-col gap-3 p-2">
                 <a

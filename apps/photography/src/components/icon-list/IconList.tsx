@@ -1,9 +1,7 @@
-import React from "react";
+import React, { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
-import { ElementProps } from "../../../utils";
-
-export const IconList = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const IconList = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div className={twMerge("flex gap-4 text-xl", className)} {...rest}>
       {children}

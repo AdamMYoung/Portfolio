@@ -1,14 +1,11 @@
-"use client";
-
-import React from "react";
+import React, { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 import { Menu } from "@headlessui/react";
 import Link from "next/link";
 
-import { ElementProps, ExtractProps } from "../../../utils";
 import { LayoutMobileProvider, useLayoutMobileContext } from "./LayoutMobile.context";
 
-export const LayoutMobile = ({ children, className, as = "div", ...rest }: ExtractProps<typeof Menu>) => {
+export const LayoutMobile = ({ children, className, as = "div", ...rest }: ComponentProps<typeof Menu>) => {
   return (
     <LayoutMobileProvider>
       <Menu as={as} className={twMerge("relative block md:hidden", className)} {...rest}>
@@ -18,7 +15,7 @@ export const LayoutMobile = ({ children, className, as = "div", ...rest }: Extra
   );
 };
 
-export const LayoutMobileNavigation = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const LayoutMobileNavigation = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div className={twMerge("gap sticky top-0 z-10 flex w-full justify-between p-2", className)} {...rest}>
       {children}
@@ -26,7 +23,7 @@ export const LayoutMobileNavigation = ({ children, className, ...rest }: Element
   );
 };
 
-export const LayoutMobileDrawer = ({ children, className, as = "div", ...rest }: ExtractProps<typeof Menu.Items>) => {
+export const LayoutMobileDrawer = ({ children, className, as = "div", ...rest }: ComponentProps<typeof Menu.Items>) => {
   const { popper, setPopperElement } = useLayoutMobileContext();
 
   return (
@@ -47,7 +44,7 @@ export const LayoutMobileDrawerItem = ({
   children,
   className,
   ...rest
-}: ExtractProps<typeof Menu.Item> & ExtractProps<typeof Link>) => {
+}: ComponentProps<typeof Menu.Item> & ComponentProps<typeof Link>) => {
   return (
     <Menu.Item as={Link} className={twMerge("p-4 hover:bg-slate-100", className)} {...rest}>
       {children}
@@ -55,7 +52,7 @@ export const LayoutMobileDrawerItem = ({
   );
 };
 
-export const LayoutMobileDrawerButton = ({ children, className, ...rest }: ExtractProps<typeof Menu.Button>) => {
+export const LayoutMobileDrawerButton = ({ children, className, ...rest }: ComponentProps<typeof Menu.Button>) => {
   const { setReferenceElement } = useLayoutMobileContext();
 
   return (
@@ -65,7 +62,7 @@ export const LayoutMobileDrawerButton = ({ children, className, ...rest }: Extra
   );
 };
 
-export const LayoutMobileTitle = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const LayoutMobileTitle = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div className={twMerge("grid gap-0 px-2 text-center", className)} {...rest}>
       {children}
@@ -73,7 +70,7 @@ export const LayoutMobileTitle = ({ children, className, ...rest }: ElementProps
   );
 };
 
-export const LayoutMobileHeading = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const LayoutMobileHeading = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div className={twMerge("text-xl font-bold", className)} {...rest}>
       {children}
@@ -81,7 +78,7 @@ export const LayoutMobileHeading = ({ children, className, ...rest }: ElementPro
   );
 };
 
-export const LayoutMobileSubheading = ({ children, className, ...rest }: ElementProps<"div">) => {
+export const LayoutMobileSubheading = ({ children, className, ...rest }: ComponentProps<"div">) => {
   return (
     <div className={twMerge("text-xs font-light", className)} {...rest}>
       {children}
@@ -89,7 +86,7 @@ export const LayoutMobileSubheading = ({ children, className, ...rest }: Element
   );
 };
 
-export const LayoutMobileBody = ({ children, className, ...rest }: ElementProps<"main">) => {
+export const LayoutMobileBody = ({ children, className, ...rest }: ComponentProps<"main">) => {
   return (
     <main className={twMerge("w-full p-2 tracking-normal", className)} {...rest}>
       {children}

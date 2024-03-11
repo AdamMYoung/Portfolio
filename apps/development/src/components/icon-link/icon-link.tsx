@@ -1,8 +1,7 @@
-import { ElementProps } from "components";
-import { ReactElement } from "react";
+import { ComponentProps, ReactElement } from "react";
 import { twMerge } from "tailwind-merge";
 
-type IconLinkProps = ElementProps<"a"> & {
+type IconLinkProps = ComponentProps<"a"> & {
   icon: ReactElement;
 };
 

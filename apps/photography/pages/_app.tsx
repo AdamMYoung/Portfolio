@@ -38,7 +38,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     <div className={twMerge(`${baskerville.variable} font-sans`)}>
       <LayoutDesktop>
         <LayoutDesktopSidebar>
-          <LayoutDesktopTitle role="button">
+          <LayoutDesktopTitle>
             <LayoutDesktopHeading>Adam Young</LayoutDesktopHeading>
             <LayoutDesktopSubheading>Photography</LayoutDesktopSubheading>
           </LayoutDesktopTitle>
@@ -68,7 +68,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
             <LayoutMobileHeading>Adam Young</LayoutMobileHeading>
             <LayoutMobileSubheading>Photography</LayoutMobileSubheading>
           </LayoutMobileTitle>
-          <IconList>
+          <IconList className="px-2">
             <Link target="_blank" rel="noreferrer" aria-label="Instagram" href="https://www.instagram.com/adammyoung_/">
               <FiInstagram className="h-6 w-6" />
             </Link>

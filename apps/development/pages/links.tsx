@@ -38,7 +38,7 @@ export default function Links() {
                 Development Showcase
               </Link>
               <a className="underline hover:no-underline" href="https://photography.adammyoung.com" target="_blank">
-                Photography Portfolio
+                Photography
               </a>
               <a className="underline hover:no-underline" href="https://trailwise.io" target="_blank">
                 TrailWise

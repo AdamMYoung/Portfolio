@@ -10,6 +10,7 @@ import React from "../src/svg/react.svg";
 import NineFin from "../src/svg/9fin.png";
 import TrailWise from "../src/svg/trailwise.png";
 import Head from "next/head";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -136,6 +137,9 @@ export default function Home() {
         <div>
           <h2 className="text-xl font-semibold text-white">Links</h2>
           <div className="flex gap-2">
+            <Link className="underline hover:no-underline" href="/links">
+              My Links
+            </Link>
             <a
               className="underline hover:no-underline"
               target="_blank"

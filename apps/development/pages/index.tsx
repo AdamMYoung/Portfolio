@@ -62,7 +62,7 @@ export default function Home() {
           <div className="flex flex-col gap-12">
             <section className="flex flex-col gap-2">
               <Image
-                alt="Screenshot of the hike.aydev.uk platform"
+                alt="Screenshot of the trailwise.io dashboard, with a map in centre and lists of hill groups to the side."
                 src={hike}
                 className="rounded-lg border border-gray-700"
                 priority
@@ -88,7 +88,7 @@ export default function Home() {
             </section>
             <section className="flex flex-col gap-2">
               <Image
-                alt="Screenshot of the photography.aydev.uk site"
+                alt="Screenshot of the photography.adammyoung.com site, with a collage of images filling the screen."
                 src={photography}
                 className="rounded-lg border border-gray-700"
                 quality={50}
@@ -109,7 +109,7 @@ export default function Home() {
             </section>
             <section className="flex flex-col gap-2">
               <Image
-                alt="Screenshot of the blurdle.aydev.uk site"
+                alt="Screenshot of the blurdle.adammyoung.com site, with a blurred out picture in the middle of the screen."
                 src={blurdle}
                 className="rounded-lg border border-gray-700"
                 quality={50}
@@ -120,9 +120,9 @@ export default function Home() {
                 <a
                   className="text-xl text-white underline hover:no-underline"
                   target="_blank"
-                  href="https://blurdle.aydev.uk"
+                  href="https://blurdle.adammyoung.com"
                 >
-                  blurdle.aydev.uk
+                  blurdle.adammyoung.com
                 </a>
                 <p>
                   Blurdle is a daily browser-based game based on Wordle, in which players try and guess a daily blurred

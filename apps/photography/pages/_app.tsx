@@ -26,6 +26,7 @@ import {
   LayoutMobileBody,
 } from "../src/components/layout-mobile";
 import { Link } from "../src/components/link";
+import { Analytics } from "@vercel/analytics/react";
 
 const baskerville = Baskervville({
   weight: ["400"],
@@ -81,6 +82,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </LayoutMobileBody>
       </LayoutMobile>
+      <Analytics />
     </div>
   );
 }

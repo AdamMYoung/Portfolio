@@ -18,7 +18,7 @@ export default function Links() {
 
         <div className="flex flex-col gap-12">
           <div className="flex flex-col gap-4">
-            <h1 className="text-3xl font-semibold text-white">My Links</h1>
+            <h1 className="text-3xl font-semibold text-white">Socials</h1>
             <div className="flex flex-wrap gap-x-4 gap-y-2 text-2xl font-semibold">
               <a className="underline hover:no-underline" href="https://twitter.com/AdamMYoung_" target="_blank">
                 Twitter
@@ -35,7 +35,7 @@ export default function Links() {
             </div>
           </div>
           <div className="flex flex-col gap-4">
-            <h2 className="text-3xl font-semibold text-white">Projects</h2>
+            <h2 className="text-3xl font-semibold text-white">My Sites</h2>
             <div className="flex flex-wrap gap-x-4 gap-y-2 text-2xl font-semibold">
               <Link className="underline hover:no-underline" href="/">
                 Software Development

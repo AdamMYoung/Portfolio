@@ -20,14 +20,17 @@ export default function Links() {
           <div className="flex flex-col gap-4">
             <h1 className="text-3xl font-semibold text-white">My Links</h1>
             <div className="flex flex-wrap gap-x-4 gap-y-2 text-2xl font-semibold">
-              <a className="underline hover:no-underline" href="https://photography.adammyoung.com" target="_blank">
+              <a className="underline hover:no-underline" href="https://twitter.com/AdamMYoung_" target="_blank">
                 Twitter
               </a>
-              <a className="underline hover:no-underline" href="https://photography.adammyoung.com" target="_blank">
+              <a className="underline hover:no-underline" href="https://www.instagram.com/adammyoung_/" target="_blank">
                 Instagram
               </a>
-              <a className="underline hover:no-underline" href="https://photography.adammyoung.com" target="_blank">
+              <a className="underline hover:no-underline" href="https://github.com/AdamMYoung" target="_blank">
                 GitHub
+              </a>
+              <a className="underline hover:no-underline" href="mailto:adam@adammyoung.com" target="_blank">
+                Email
               </a>
             </div>
           </div>
@@ -35,7 +38,7 @@ export default function Links() {
             <h2 className="text-3xl font-semibold text-white">Projects</h2>
             <div className="flex flex-wrap gap-x-4 gap-y-2 text-2xl font-semibold">
               <Link className="underline hover:no-underline" href="/">
-                Development Showcase
+                Software Development
               </Link>
               <a className="underline hover:no-underline" href="https://photography.adammyoung.com" target="_blank">
                 Photography

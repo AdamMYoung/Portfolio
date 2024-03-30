@@ -53,7 +53,7 @@ export default function Home() {
               >
                 TrailWise
               </IconLink>
-              , which you can read about below!
+              , which you can check out in the projects section below!
             </p>
           </div>
         </div>
@@ -84,7 +84,7 @@ export default function Home() {
                   worldwide. Features historical timeline tracking, gear management, trip planning, social integrations
                   and much more!
                 </p>
-                <p>The site is built with Next.js Server Components, backed by fly.io, Redis, and Vercel.</p>
+                <p>The site is built with Next.js Server Components, backed by Postgres, Redis, and Vercel.</p>
               </div>
             </section>
             <section className="flex flex-col gap-2">

@@ -29,9 +29,9 @@ export default function Home() {
             <h1 className="text-3xl font-semibold text-white">Hi! 👋</h1>
             <p>
               I&apos;m Adam Young, a software developer, photographer, hiker, and <i>occasional</i> runner. I currently
-              work as a Software Engineer at{" "}
+              work as a Senior Software Engineer at{" "}
               <IconLink
-                href="https://checkout.com"
+                href="https://9fin.com"
                 target="_blank"
                 rel="noreferrer"
                 icon={<Image height="12" width="12" src={NineFin} alt="" />}

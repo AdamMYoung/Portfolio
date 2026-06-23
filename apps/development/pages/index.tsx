@@ -3,7 +3,7 @@ import { IconLink } from "../src/components/icon-link";
 import Image from "next/image";
 
 import blurdle from "../src/images/blurdle.png";
-import hike from "../src/images/hike.png";
+import hike from "../src/images/hike.jpg";
 import photography from "../src/images/photography.png";
 
 import React from "../src/svg/react.svg";

@@ -7,19 +7,31 @@ type Options = {
   disabled?: boolean;
   /** Ease factor toward the target per frame (0..1). Higher = snappier. */
   friction?: number;
+  /** Pointer over an element matching this selector => don't rotate, zoom in
+   *  slightly instead (so the CRT isn't a moving target while you're on it). */
+  quietSelector?: string;
+  /** Zoom amount applied over the quiet zone (fraction, e.g. 0.04 = +4%). */
+  quietZoom?: number;
 };
 
 /**
- * Writes normalised pointer position (-1..1) to `--pan-x` / `--pan-y` on the
- * target. CSS turns those into ONE compositor-only transform on the monitor and
- * a translate on the backdrop — nothing that forces re-layout or re-projection.
+ * Writes `--pan-x` / `--pan-y` (-1..1) and `--crt-zoom` to the target. CSS turns
+ * those into ONE compositor-only transform on the monitor and a translate on the
+ * backdrop — nothing that forces re-layout or re-projection.
  *
- * The rAF loop only runs while the value is still settling toward the pointer;
- * at rest it stops completely, so an idle page does zero per-frame work.
- * Coarse pointers (touch) pan only during an active drag.
+ * Over the quiet zone (the screen) the rotation eases out to 0 and `--crt-zoom`
+ * eases in, so the content holds still and pushes gently toward the viewer.
+ *
+ * The rAF loop only runs while values are still settling; at rest it stops
+ * completely. Coarse pointers (touch) pan only during an active drag.
  */
 export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Options = {}) {
-  const { disabled = false, friction = 0.15 } = opts;
+  const {
+    disabled = false,
+    friction = 0.15,
+    quietSelector = ".crt-monitor",
+    quietZoom = 0.045,
+  } = opts;
 
   useEffect(() => {
     const el = target.current;
@@ -28,28 +40,36 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
     if (disabled) {
       el.style.setProperty("--pan-x", "0");
       el.style.setProperty("--pan-y", "0");
+      el.style.setProperty("--crt-zoom", "1");
       return;
     }
 
     const coarse = window.matchMedia("(hover: none)").matches;
     let tx = 0;
     let ty = 0;
+    let tz = 0; // zoom target: 0 = none, 1 = full quietZoom
     let cx = 0;
     let cy = 0;
+    let cz = 0;
     let raf = 0;
     let running = false;
     let dragging = !coarse;
 
+    const near = (a: number, b: number) => Math.abs(a - b) < 0.0015;
+
     const step = () => {
       cx += (tx - cx) * friction;
       cy += (ty - cy) * friction;
-      const settled = Math.abs(tx - cx) < 0.0015 && Math.abs(ty - cy) < 0.0015;
+      cz += (tz - cz) * friction;
+      const settled = near(tx, cx) && near(ty, cy) && near(tz, cz);
       if (settled) {
         cx = tx;
         cy = ty;
+        cz = tz;
       }
       el.style.setProperty("--pan-x", cx.toFixed(4));
       el.style.setProperty("--pan-y", cy.toFixed(4));
+      el.style.setProperty("--crt-zoom", (1 + cz * quietZoom).toFixed(4));
       if (settled) {
         running = false;
         return;
@@ -63,23 +83,32 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
       raf = requestAnimationFrame(step);
     };
 
-    const setTarget = (clientX: number, clientY: number) => {
-      tx = Math.max(-1, Math.min(1, (clientX / window.innerWidth) * 2 - 1));
-      ty = Math.max(-1, Math.min(1, (clientY / window.innerHeight) * 2 - 1));
+    const setTarget = (e: PointerEvent) => {
+      const overScreen = !!(e.target as Element | null)?.closest?.(quietSelector);
+      if (overScreen) {
+        tx = 0;
+        ty = 0;
+        tz = 1;
+      } else {
+        tx = Math.max(-1, Math.min(1, (e.clientX / window.innerWidth) * 2 - 1));
+        ty = Math.max(-1, Math.min(1, (e.clientY / window.innerHeight) * 2 - 1));
+        tz = 0;
+      }
       kick();
     };
 
     const onMove = (e: PointerEvent) => {
-      if (dragging) setTarget(e.clientX, e.clientY);
+      if (dragging) setTarget(e);
     };
     const onDown = (e: PointerEvent) => {
       if (coarse) dragging = true;
-      setTarget(e.clientX, e.clientY);
+      setTarget(e);
     };
     const recentre = () => {
       if (coarse) dragging = false;
       tx = 0;
       ty = 0;
+      tz = 0;
       kick();
     };
 
@@ -97,5 +126,5 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
       window.removeEventListener("blur", recentre);
       document.removeEventListener("pointerleave", recentre);
     };
-  }, [target, disabled, friction]);
+  }, [target, disabled, friction, quietSelector, quietZoom]);
 }

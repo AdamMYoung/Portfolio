@@ -131,23 +131,24 @@
     0 0 40px 8px rgba(255, 46, 151, 0.5);
 }
 
-/* The floor grid — perspective-projected, scrolling toward the viewer.
-   `perspective()` in the transform shorthand creates a *local* 3D context, so
-   this works regardless of ancestor transform-style. */
+/* The floor grid. Scrolled with a `transform: translateY` loop of exactly one
+   cell (compositor-only, no per-frame background repaint) — animating
+   `background-position` instead made the near rows shimmer/flicker. */
 .sw-bg__grid {
   position: absolute;
   left: -75%;
   right: -75%;
   top: var(--grid-horizon);
-  bottom: -5%;
+  bottom: -20%;
   background-image:
     linear-gradient(to right, var(--grid-color) 2px, transparent 2px),
     linear-gradient(to bottom, var(--grid-color) 2px, transparent 2px);
   background-size: var(--grid-cell) var(--grid-cell);
-  background-position: 50% 100%;
-  transform: rotateX(85deg);
+  transform: rotateX(85deg) translateY(0);
   transform-origin: 50% 100%;
-  mask-image: linear-gradient(to top, #000 0, #000 30%, transparent 92%);
+  backface-visibility: hidden;
+  will-change: transform;
+  mask-image: linear-gradient(to top, transparent 0, #000 8%, #000 30%, transparent 92%);
   animation: sw-grid-scroll var(--grid-speed) linear infinite;
 }
 
@@ -156,22 +157,34 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(to top, var(--grid-glow) 0, transparent 55%);
-  mix-blend-mode: screen;
+  opacity: 0.8;
 }
 
 /* mirrored grid on the "ceiling" for the tunnel effect */
 .sw-bg__grid--ceiling {
-  top: -5%;
+  top: -20%;
   bottom: var(--grid-horizon);
-  transform: rotateX(-85deg);
+  transform: rotateX(-85deg) translateY(0);
   transform-origin: 50% 0;
-  mask-image: linear-gradient(to bottom, #000 0, #000 30%, transparent 92%);
-  opacity: 0.25;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 30%, transparent 92%);
+  opacity: 0.22;
+  animation: sw-grid-scroll-ceiling var(--grid-speed) linear infinite;
 }
 
 @keyframes sw-grid-scroll {
+  from {
+    transform: rotateX(85deg) translateY(0);
+  }
   to {
-    background-position: 50% calc(100% + var(--grid-cell));
+    transform: rotateX(85deg) translateY(var(--grid-cell));
+  }
+}
+@keyframes sw-grid-scroll-ceiling {
+  from {
+    transform: rotateX(-85deg) translateY(0);
+  }
+  to {
+    transform: rotateX(-85deg) translateY(calc(var(--grid-cell) * -1));
   }
 }
 @keyframes sw-sun-breathe {
@@ -206,6 +219,7 @@
   transform-origin: 50% 50% calc(var(--crt-depth) * -0.5);
   transform: translate3d(calc(var(--pan-x) * 24px), calc(var(--pan-y) * 18px), 0)
     translateZ(calc(var(--crt-depth) * -0.2))
+    scale(var(--crt-zoom, 1))
     rotateX(calc(var(--pan-y) * var(--pan-max-deg) * -1))
     rotateY(calc(var(--pan-x) * var(--pan-max-deg)));
   will-change: transform;
@@ -234,6 +248,7 @@
 .crt-wall {
   position: absolute;
   background: linear-gradient(to left, #24242f, #3a3a48 90%);
+  /* --wr (outer-corner radius) is inherited from the parent .crt-seg */
 }
 .crt-wall--r {
   top: 0;
@@ -243,6 +258,7 @@
   transform-origin: right center;
   transform: rotateY(-90deg);
   background: linear-gradient(to left, #1a1a24, #34343f 92%);
+  border-radius: 0 var(--wr) var(--wr) 0;
 }
 .crt-wall--l {
   top: 0;
@@ -252,6 +268,7 @@
   transform-origin: left center;
   transform: rotateY(90deg);
   background: linear-gradient(to right, #1a1a24, #3d3d4b 92%);
+  border-radius: var(--wr) 0 0 var(--wr);
 }
 .crt-wall--t {
   top: 0;
@@ -261,6 +278,7 @@
   transform-origin: top center;
   transform: rotateX(-90deg);
   background: linear-gradient(to bottom, #8f8fa6, #1c1c28 82%);
+  border-radius: var(--wr) var(--wr) 0 0;
 }
 .crt-wall--b {
   bottom: 0;
@@ -270,6 +288,7 @@
   transform-origin: bottom center;
   transform: rotateX(90deg);
   background: linear-gradient(to top, #0c0c13, #23232f);
+  border-radius: 0 0 var(--wr) var(--wr);
 }
 .crt-wall--back {
   position: absolute;
@@ -277,6 +296,7 @@
   transform: translateZ(calc(var(--seg-d) * -1));
   background: radial-gradient(120% 120% at 50% 45%, #16161f, #060609 75%);
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9);
+  border-radius: calc(var(--crt-bezel-radius) * 0.7);
 }
 
 /* ---- the three tube segments ---- */
@@ -287,16 +307,19 @@
 .crt-seg--bezel {
   inset: 0;
   --seg-d: calc(var(--crt-depth) * 0.2);
+  --wr: var(--crt-bezel-radius);
 }
 .crt-seg--funnel {
   inset: 20%;
   transform: translateZ(calc(var(--crt-depth) * -0.2));
   --seg-d: calc(var(--crt-depth) * 0.46);
+  --wr: calc(var(--crt-bezel-radius) * 0.65);
 }
 .crt-seg--neck {
   inset: 36%;
   transform: translateZ(calc(var(--crt-depth) * -0.66));
   --seg-d: calc(var(--crt-depth) * 0.34);
+  --wr: calc(var(--crt-bezel-radius) * 0.45);
 }
 
 /* ---- shoulder rings: solid panel with a rectangular hole so the
@@ -305,6 +328,7 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(160deg, #1c1c28, #0a0a0f);
+  border-radius: var(--crt-bezel-radius);
   clip-path: polygon(
     0% 0%,
     100% 0%,
@@ -341,9 +365,6 @@
     inset 0 -10px 26px rgba(0, 0, 0, 0.55),
     0 44px 74px -24px rgba(0, 0, 0, 0.85),
     var(--crt-glow);
-}
-.crt-seg--bezel .crt-wall {
-  border-radius: 0 0 6px 6px;
 }
 
 /* pedestal + neck, sitting behind the case's mid-plane */

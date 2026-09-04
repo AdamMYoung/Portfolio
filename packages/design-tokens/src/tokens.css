@@ -97,16 +97,19 @@
   --crt-flicker-duration: 6s;
   --crt-static-opacity: 0.06;
 
-  /* ---- Real-3D monitor geometry ------------------------------- */
-  --crt-depth: clamp(70px, 11vw, 150px); /* how deep the case sits back in Z */
+  /* ---- Real-3D monitor geometry ------------------------------- *
+   * The case is a tapered tube: full-size bezel -> funnel -> neck ->
+   * back cap, receding into -Z. `--crt-depth` is the total tube length. */
+  --crt-depth: clamp(120px, 20vw, 280px);
 
   /* ---- Parallax / pan rig ------------------------------------- *
    * `--pan-x` / `--pan-y` (-1..1) are written to `.crt-stage` by
    * useParallaxPan (rAF, only while settling). They feed ONE
-   * compositor-only transform on `.crt-monitor` and one translate on
-   * `.sw-bg` — never `perspective-origin`, which re-projects the world. */
-  --pan-max-deg: 10deg; /* max case rotation — reveals the side panels */
-  --pan-max-shift: 18px; /* max background counter-parallax (translate only) */
+   * compositor-only transform on `.crt-monitor` (which orbits a pivot
+   * set *inside* the tube via `transform-origin`'s z value) and one
+   * translate on `.sw-bg` — never `perspective-origin`. */
+  --pan-max-deg: 30deg; /* big enough to see around the sides / top / bottom */
+  --pan-max-shift: 22px; /* max background counter-parallax (translate only) */
   --pan-x: 0;
   --pan-y: 0;
 

@@ -2,6 +2,8 @@
 
 import { type ReactNode, useEffect, useState } from "react";
 
+const WALLS = ["t", "b", "l", "r"] as const;
+
 type Props = {
   children: ReactNode;
   /** Accessible name for the screen's scrollable content region. */
@@ -37,29 +39,45 @@ export function CrtScreen({
 
   return (
     <div className={`crt-monitor${className ? ` ${className}` : ""}`}>
-      <div className="crt-monitor__case">
-        <div className="crt-face crt-face--back" aria-hidden="true" />
-        <div className="crt-face crt-face--top" aria-hidden="true" />
-        <div className="crt-face crt-face--bottom" aria-hidden="true" />
-        <div className="crt-face crt-face--left" aria-hidden="true" />
-        <div className="crt-face crt-face--right" aria-hidden="true" />
-        <div className="crt-face crt-face--front">
-          <div className={`crt-screen${booting ? " crt-screen--booting" : ""}`}>
-            <section className="crt-screen__content" aria-label={label} tabIndex={0}>
-              {children}
-            </section>
-            <div className="crt-screen__mask" aria-hidden="true" />
-            <div className="crt-screen__scanlines" aria-hidden="true" />
-            <div className="crt-screen__static" aria-hidden="true" />
-            <div className="crt-screen__flicker" aria-hidden="true" />
-            <div className="crt-screen__sheen" aria-hidden="true" />
-          </div>
-          <span className="crt-monitor__badge" aria-hidden="true">
-            {badge}
-          </span>
-          <span className="crt-monitor__led" aria-hidden="true" />
+      <div className="crt-monitor__case" aria-hidden="true">
+        {/* deepest first — preserve-3d paints by z, DOM order is just a fallback */}
+        <div className="crt-seg crt-seg--neck">
+          {WALLS.map((w) => (
+            <div key={w} className={`crt-face crt-wall crt-wall--${w}`} />
+          ))}
+          <div className="crt-face crt-wall--back" />
+        </div>
+        <div className="crt-shoulder crt-shoulder--2" />
+        <div className="crt-seg crt-seg--funnel">
+          {WALLS.map((w) => (
+            <div key={w} className={`crt-face crt-wall crt-wall--${w}`} />
+          ))}
+        </div>
+        <div className="crt-shoulder crt-shoulder--1" />
+        <div className="crt-seg crt-seg--bezel">
+          {WALLS.map((w) => (
+            <div key={w} className={`crt-face crt-wall crt-wall--${w}`} />
+          ))}
         </div>
       </div>
+
+      <div className="crt-face crt-face--front">
+        <div className={`crt-screen${booting ? " crt-screen--booting" : ""}`}>
+          <section className="crt-screen__content" aria-label={label} tabIndex={0}>
+            {children}
+          </section>
+          <div className="crt-screen__mask" aria-hidden="true" />
+          <div className="crt-screen__scanlines" aria-hidden="true" />
+          <div className="crt-screen__static" aria-hidden="true" />
+          <div className="crt-screen__flicker" aria-hidden="true" />
+          <div className="crt-screen__sheen" aria-hidden="true" />
+        </div>
+        <span className="crt-monitor__badge" aria-hidden="true">
+          {badge}
+        </span>
+        <span className="crt-monitor__led" aria-hidden="true" />
+      </div>
+
       <div className="crt-monitor__stand" aria-hidden="true" />
       <div className="crt-monitor__shadow" aria-hidden="true" />
     </div>

@@ -108,7 +108,7 @@
    * compositor-only transform on `.crt-monitor` (which orbits a pivot
    * set *inside* the tube via `transform-origin`'s z value) and one
    * translate on `.sw-bg` — never `perspective-origin`. */
-  --pan-max-deg: 30deg; /* big enough to see around the sides / top / bottom */
+  --pan-max-deg: 22deg; /* big enough to see around the sides / top / bottom */
   --pan-max-shift: 22px; /* max background counter-parallax (translate only) */
   --pan-x: 0;
   --pan-y: 0;

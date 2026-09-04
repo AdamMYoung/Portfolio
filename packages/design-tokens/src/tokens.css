@@ -97,11 +97,18 @@
   --crt-flicker-duration: 6s;
   --crt-static-opacity: 0.06;
 
-  /* ---- Parallax / pan rig -------------------------------------- */
-  --pan-max-deg: 6deg; /* max monitor tilt on pointer travel */
-  --pan-max-shift: 14px; /* max background counter-parallax */
-  --pan-x: 0; /* -1..1, written by useParallaxPan */
-  --pan-y: 0; /* -1..1 */
+  /* ---- Real-3D monitor geometry ------------------------------- */
+  --crt-depth: clamp(70px, 11vw, 150px); /* how deep the case sits back in Z */
+
+  /* ---- Parallax / pan rig ------------------------------------- *
+   * `--pan-x` / `--pan-y` (-1..1) are written to `.crt-stage` by
+   * useParallaxPan (rAF, only while settling). They feed ONE
+   * compositor-only transform on `.crt-monitor` and one translate on
+   * `.sw-bg` — never `perspective-origin`, which re-projects the world. */
+  --pan-max-deg: 10deg; /* max case rotation — reveals the side panels */
+  --pan-max-shift: 18px; /* max background counter-parallax (translate only) */
+  --pan-x: 0;
+  --pan-y: 0;
 
   /* ---- Background synthwave grid ------------------------------- */
   --grid-color: rgba(89, 240, 255, 0.7);

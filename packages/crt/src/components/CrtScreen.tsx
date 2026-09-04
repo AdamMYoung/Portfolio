@@ -37,22 +37,31 @@ export function CrtScreen({
 
   return (
     <div className={`crt-monitor${className ? ` ${className}` : ""}`}>
-      <div className="crt-monitor__shell">
-        <div className={`crt-screen${booting ? " crt-screen--booting" : ""}`}>
-          <section className="crt-screen__content" aria-label={label} tabIndex={0}>
-            {children}
-          </section>
-          <div className="crt-screen__mask" aria-hidden="true" />
-          <div className="crt-screen__scanlines" aria-hidden="true" />
-          <div className="crt-screen__static" aria-hidden="true" />
-          <div className="crt-screen__flicker" aria-hidden="true" />
-          <div className="crt-screen__sheen" aria-hidden="true" />
+      <div className="crt-monitor__case">
+        <div className="crt-face crt-face--back" aria-hidden="true" />
+        <div className="crt-face crt-face--top" aria-hidden="true" />
+        <div className="crt-face crt-face--bottom" aria-hidden="true" />
+        <div className="crt-face crt-face--left" aria-hidden="true" />
+        <div className="crt-face crt-face--right" aria-hidden="true" />
+        <div className="crt-face crt-face--front">
+          <div className={`crt-screen${booting ? " crt-screen--booting" : ""}`}>
+            <section className="crt-screen__content" aria-label={label} tabIndex={0}>
+              {children}
+            </section>
+            <div className="crt-screen__mask" aria-hidden="true" />
+            <div className="crt-screen__scanlines" aria-hidden="true" />
+            <div className="crt-screen__static" aria-hidden="true" />
+            <div className="crt-screen__flicker" aria-hidden="true" />
+            <div className="crt-screen__sheen" aria-hidden="true" />
+          </div>
+          <span className="crt-monitor__badge" aria-hidden="true">
+            {badge}
+          </span>
+          <span className="crt-monitor__led" aria-hidden="true" />
         </div>
       </div>
-      <span className="crt-monitor__badge" aria-hidden="true">
-        {badge}
-      </span>
-      <span className="crt-monitor__led" aria-hidden="true" />
+      <div className="crt-monitor__stand" aria-hidden="true" />
+      <div className="crt-monitor__shadow" aria-hidden="true" />
     </div>
   );
 }

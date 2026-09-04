@@ -3,6 +3,7 @@
 import { type ReactNode, useRef } from "react";
 import { useMotionPreference } from "../hooks/useMotionPreference";
 import { useParallaxPan } from "../hooks/useParallaxPan";
+import { GlowCursor } from "./GlowCursor";
 import { SynthwaveBackground } from "./SynthwaveBackground";
 
 type Props = {
@@ -24,6 +25,7 @@ export function CrtStage({ children, controls }: Props) {
       <SynthwaveBackground />
       {controls ? <div className="crt-stage__controls">{controls}</div> : null}
       {children}
+      <GlowCursor />
     </div>
   );
 }

@@ -9,6 +9,8 @@
   "exports": {
     "./snake": "./src/snake.tsx",
     "./space-invaders": "./src/space-invaders.tsx",
+    "./matrix": "./src/matrix.tsx",
+    "./hacker": "./src/hacker.tsx",
     "./styles.css": "./src/styles.css"
   },
   "scripts": {

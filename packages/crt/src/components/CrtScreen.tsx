@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
   children: ReactNode;
@@ -11,10 +11,14 @@ type Props = {
   className?: string;
 };
 
-/** The tube: plastic shell, curved glass, scanlines, shadow-mask, TV static,
- *  flicker + hum bar, glass sheen, and a power-on sweep on mount. Content is
- *  a normal scrollable region so keyboard + screen-reader users are unaffected
- *  by the effects layered above it. */
+const prefersReducedMotion = () =>
+  typeof document !== "undefined" &&
+  (document.documentElement.dataset.motion === "off" ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+/** The tube: plastic case, glass, scanlines, shadow-mask, TV static, flicker +
+ *  hum bar, glass sheen, a power-on sweep on mount, and a working power button
+ *  (bottom-right of the bezel) with the classic collapse-to-a-dot power-off. */
 export function CrtScreen({
   children,
   label = "Screen contents",
@@ -22,18 +26,41 @@ export function CrtScreen({
   className,
 }: Props) {
   const [booting, setBooting] = useState(true);
+  const [powered, setPowered] = useState(true);
+  const bootTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
-    const prefersReduced =
-      document.documentElement.dataset.motion === "off" ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (prefersReduced) {
+    if (prefersReducedMotion()) {
       setBooting(false);
       return;
     }
-    const t = setTimeout(() => setBooting(false), 640);
-    return () => clearTimeout(t);
+    bootTimer.current = setTimeout(() => setBooting(false), 640);
+    return () => clearTimeout(bootTimer.current);
   }, []);
+
+  const togglePower = useCallback(() => {
+    setPowered((on) => {
+      const next = !on;
+      clearTimeout(bootTimer.current);
+      if (next) {
+        if (prefersReducedMotion()) {
+          setBooting(false);
+        } else {
+          setBooting(true);
+          bootTimer.current = setTimeout(() => setBooting(false), 700);
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  const screenClass = [
+    "crt-screen",
+    booting && powered ? "crt-screen--booting" : "",
+    powered ? "" : "crt-screen--off",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div className={`crt-monitor${className ? ` ${className}` : ""}`}>
@@ -43,14 +70,17 @@ export function CrtScreen({
         <div className="crt-wall crt-wall--b" />
         <div className="crt-wall crt-wall--l" />
         <div className="crt-wall crt-wall--r" />
-        {/* square baffle just behind the bezel — plugs the rounded-corner
-            voids so you can't see into the case */}
         <div className="crt-monitor__baffle" />
       </div>
 
       <div className="crt-face--front">
-        <div className={`crt-screen${booting ? " crt-screen--booting" : ""}`}>
-          <section className="crt-screen__content" aria-label={label} tabIndex={0}>
+        <div className={screenClass}>
+          <section
+            className="crt-screen__content"
+            aria-label={label}
+            aria-hidden={!powered || undefined}
+            tabIndex={powered ? 0 : -1}
+          >
             {children}
           </section>
           <div className="crt-screen__mask" aria-hidden="true" />
@@ -58,11 +88,19 @@ export function CrtScreen({
           <div className="crt-screen__static" aria-hidden="true" />
           <div className="crt-screen__flicker" aria-hidden="true" />
           <div className="crt-screen__sheen" aria-hidden="true" />
+          <div className="crt-screen__off" aria-hidden="true" />
         </div>
         <span className="crt-monitor__badge" aria-hidden="true">
           {badge}
         </span>
-        <span className="crt-monitor__led" aria-hidden="true" />
+        <button
+          type="button"
+          className="crt-power"
+          aria-pressed={powered}
+          aria-label={powered ? "Turn the monitor off" : "Turn the monitor on"}
+          onClick={togglePower}
+        />
+        <span className="crt-monitor__led" data-power={powered ? "on" : "off"} aria-hidden="true" />
       </div>
 
       <div className="crt-monitor__stand" aria-hidden="true" />

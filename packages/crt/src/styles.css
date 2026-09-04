@@ -289,29 +289,27 @@
 }
 
 /* ---- interior baffle ----
- * A square, opaque panel sitting a few px behind the bezel. The bezel,
- * the walls and the back panel are all rounded, so at each corner they
- * curve away and leave a small void; without this you'd see straight
- * into the case (or through it). The baffle's square corners fill those
- * voids, and being dark it just reads as corner shadow. */
+ * A dark panel matching the bezel footprint exactly (no protrusion),
+ * sitting a few px behind it. Any angled sightline that clears the
+ * bezel's rounded corner hits this instead of the case interior /
+ * background. It reads as the screen being recessed a few mm. */
 .crt-monitor__baffle {
   position: absolute;
-  /* slightly larger than the bezel so its rounded edge fills the corner
-     voids and reads as a thin dark frame around the screen */
-  inset: calc(var(--crt-bezel-radius) * -0.55);
+  inset: 0;
   border-radius: var(--crt-bezel-radius);
-  transform: translateZ(calc(var(--crt-depth) * -0.05));
-  background: radial-gradient(120% 120% at 50% 40%, #14141c, #07070c 82%);
+  transform: translateZ(calc(var(--crt-depth) * -0.06));
+  background: radial-gradient(120% 120% at 50% 40%, #14141c, #06060b 84%);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
   backface-visibility: hidden;
 }
 
-/* ---- rounded back panel ---- */
+/* ---- back panel: square + opaque so nothing shows through to the
+       backdrop when the case is panned ---- */
 .crt-face--back {
   position: absolute;
   inset: 0;
   transform: translateZ(calc(var(--crt-depth) * -1));
   background: radial-gradient(120% 120% at 50% 40%, #17171f, #050508 78%);
-  border-radius: var(--crt-bezel-radius);
   box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.92);
 }
 
@@ -394,9 +392,112 @@
   box-shadow: 0 0 8px 2px var(--sw-cyan-400);
   animation: crt-led-pulse 4s ease-in-out infinite;
 }
+.crt-monitor__led[data-power="off"] {
+  background: #3a1a1a;
+  box-shadow: none;
+  animation: none;
+}
 @keyframes crt-led-pulse {
   50% {
     opacity: 0.45;
+  }
+}
+
+/* ---- power button on the bezel (bottom-right) ---- */
+.crt-power {
+  position: absolute;
+  right: calc(var(--crt-screen-inset) * 1.9);
+  bottom: calc(var(--crt-screen-inset) * 0.2);
+  width: clamp(16px, 2.2vmin, 24px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid #000;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #40404c, #15151b 78%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.16),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.55);
+  color: var(--sw-cyan-300);
+  cursor: pointer;
+}
+.crt-power::before {
+  content: "⏻";
+  font-size: 0.62em;
+  line-height: 1;
+  text-shadow: 0 0 6px currentColor;
+}
+.crt-power[aria-pressed="false"] {
+  color: #4a4a52;
+}
+.crt-power[aria-pressed="false"]::before {
+  text-shadow: none;
+}
+.crt-power:active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+.crt-power:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ---- CRT power-off: image collapses to a bright line, then a dot ---- */
+.crt-screen__off {
+  position: absolute;
+  inset: 0;
+  background: #050506;
+  opacity: 0;
+  pointer-events: none;
+}
+.crt-screen--off .crt-screen__off {
+  opacity: 1;
+}
+.crt-screen--off .crt-screen__off::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d8fff0;
+  box-shadow: 0 0 14px 5px rgba(150, 235, 255, 0.9);
+  transform: translate(-50%, -50%);
+  animation: crt-dot-fade 1s 320ms var(--ease-crt) forwards;
+}
+.crt-screen--off .crt-screen__content,
+.crt-screen--off .crt-screen__scanlines,
+.crt-screen--off .crt-screen__mask,
+.crt-screen--off .crt-screen__static,
+.crt-screen--off .crt-screen__flicker {
+  animation: crt-collapse 380ms var(--ease-crt) forwards;
+}
+@keyframes crt-collapse {
+  0% {
+    transform: scale(1, 1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1.06, 0.006);
+    filter: brightness(2.6);
+    opacity: 1;
+  }
+  82% {
+    transform: scale(0.002, 0.006);
+    filter: brightness(4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0, 0);
+    opacity: 0;
+  }
+}
+@keyframes crt-dot-fade {
+  to {
+    opacity: 0;
+    box-shadow: 0 0 0 0 rgba(150, 235, 255, 0);
   }
 }
 
@@ -726,8 +827,17 @@
   }
   .crt-screen--booting .crt-screen__content,
   .crt-screen--booting .crt-screen__scanlines,
-  .crt-screen--booting .crt-screen__mask {
+  .crt-screen--booting .crt-screen__mask,
+  .crt-screen--off .crt-screen__content,
+  .crt-screen--off .crt-screen__scanlines,
+  .crt-screen--off .crt-screen__mask,
+  .crt-screen--off .crt-screen__static,
+  .crt-screen--off .crt-screen__flicker,
+  .crt-screen--off .crt-screen__off::after {
     animation: none !important;
+  }
+  .crt-screen--off .crt-screen__content {
+    opacity: 0 !important;
   }
 }
 
@@ -746,4 +856,78 @@
 }
 :root[data-motion="off"] .crt-monitor {
   transform: none !important;
+}
+:root[data-motion="off"] .crt-screen--off .crt-screen__content,
+:root[data-motion="off"] .crt-screen--off .crt-screen__scanlines,
+:root[data-motion="off"] .crt-screen--off .crt-screen__mask,
+:root[data-motion="off"] .crt-screen--off .crt-screen__static,
+:root[data-motion="off"] .crt-screen--off .crt-screen__flicker,
+:root[data-motion="off"] .crt-screen--off .crt-screen__off::after {
+  animation: none !important;
+}
+:root[data-motion="off"] .crt-screen--off .crt-screen__content {
+  opacity: 0 !important;
+}
+
+/* ------------------------------------------------------------------ *
+ * Glowing cursor
+ * ------------------------------------------------------------------ */
+.has-glow-cursor,
+.has-glow-cursor * {
+  cursor: none !important;
+}
+.crt-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  pointer-events: none;
+  contain: strict;
+}
+.crt-cursor__dot,
+.crt-cursor__ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  will-change: transform;
+}
+.crt-cursor__dot {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  background: #fff;
+  box-shadow:
+    0 0 6px 1px var(--sw-cyan-200),
+    0 0 16px 5px var(--sw-magenta-500),
+    0 0 30px 10px rgba(255, 46, 151, 0.35);
+}
+.crt-cursor__ring {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1px solid var(--sw-cyan-300);
+  box-shadow:
+    0 0 12px var(--sw-cyan-400),
+    inset 0 0 8px var(--sw-magenta-400);
+  opacity: 0.65;
+  transition:
+    width var(--dur-fast) var(--ease-crt),
+    height var(--dur-fast) var(--ease-crt),
+    margin var(--dur-fast) var(--ease-crt),
+    opacity var(--dur-fast) linear;
+}
+.glow-cursor-down .crt-cursor__ring {
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  opacity: 1;
+}
+@media (hover: none) {
+  .crt-cursor {
+    display: none;
+  }
+  .has-glow-cursor,
+  .has-glow-cursor * {
+    cursor: auto !important;
+  }
 }

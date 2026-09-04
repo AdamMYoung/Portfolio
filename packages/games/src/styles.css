@@ -109,3 +109,213 @@
   background: var(--sw-magenta-500);
   color: #fff;
 }
+
+/* ================================================================= *
+ * Matrix rain easter egg — namespace mx-*
+ * ================================================================= */
+.mx {
+  position: relative;
+  height: 100%;
+  min-height: 260px;
+  overflow: hidden;
+  background: #020804;
+}
+.mx__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.mx__tag {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  font: 400 var(--text-xs) / 1 var(--font-mono);
+  color: rgba(37, 240, 138, 0.7);
+  text-shadow: 0 0 8px rgba(37, 240, 138, 0.6);
+  letter-spacing: 0.12em;
+  pointer-events: none;
+}
+
+/* ================================================================= *
+ * Hacker console easter egg — namespace hx-*
+ * ================================================================= */
+.hx {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 6px;
+  height: 100%;
+  min-height: 300px;
+  padding: 8px;
+  background: #04060a;
+  color: #37f08a;
+  font: 400 11px / 1.4 var(--font-mono);
+  text-shadow: 0 0 6px rgba(55, 240, 138, 0.35);
+  overflow: hidden;
+}
+.hx__bar {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 6px;
+  border: 1px solid rgba(55, 240, 138, 0.4);
+  background: rgba(55, 240, 138, 0.06);
+  letter-spacing: 0.14em;
+}
+.hx__title {
+  font-weight: 700;
+}
+.hx__blink {
+  color: var(--sw-amber-400);
+  text-shadow: 0 0 8px var(--sw-amber-400);
+  animation: hx-blink 1s steps(1) infinite;
+}
+@keyframes hx-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+.hx__log {
+  grid-row: 2 / 4;
+  margin: 0;
+  padding: 6px;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-all;
+  border: 1px solid rgba(55, 240, 138, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+}
+.hx__caret {
+  animation: hx-blink 0.8s steps(1) infinite;
+}
+.hx__side {
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+.hx__trace {
+  display: grid;
+  gap: 3px;
+  padding: 5px 6px;
+  border: 1px solid rgba(55, 240, 138, 0.25);
+}
+.hx__label {
+  font-size: 10px;
+  color: var(--sw-amber-400);
+  letter-spacing: 0.1em;
+}
+.hx__meter {
+  height: 10px;
+  border: 1px solid rgba(55, 240, 138, 0.5);
+  background: rgba(0, 0, 0, 0.5);
+}
+.hx__meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1c7, #37f08a);
+  box-shadow: 0 0 10px #37f08a;
+}
+.hx__ip {
+  font-size: 10px;
+  color: rgba(55, 240, 138, 0.7);
+}
+.hx__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 46px;
+  padding: 4px;
+  border: 1px solid rgba(55, 240, 138, 0.25);
+}
+.hx__bars span {
+  flex: 1;
+  background: linear-gradient(to top, #0a5, #37f08a);
+  animation: hx-bar 1.1s ease-in-out infinite alternate;
+}
+@keyframes hx-bar {
+  from {
+    height: 12%;
+  }
+  to {
+    height: 100%;
+  }
+}
+.hx__map {
+  flex: 1;
+  min-height: 70px;
+  border: 1px solid rgba(55, 240, 138, 0.25);
+  background: rgba(0, 0, 0, 0.4);
+}
+.hx__grid {
+  stroke: rgba(55, 240, 138, 0.18);
+  stroke-width: 0.4;
+}
+.hx__arc {
+  stroke: rgba(255, 46, 151, 0.7);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 1.5;
+}
+.hx__node {
+  fill: var(--sw-amber-400);
+  filter: drop-shadow(0 0 3px var(--sw-amber-400));
+  animation: hx-blink 0.9s steps(1) infinite;
+}
+.hx__hex {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 2px 4px;
+  border: 1px solid rgba(55, 240, 138, 0.2);
+  color: rgba(55, 240, 138, 0.55);
+  font-size: 10px;
+}
+.hx__flash {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 700 clamp(1.4rem, 5vw, 2.6rem) / 1 var(--font-mono);
+  letter-spacing: 0.2em;
+  color: #050;
+  background: rgba(55, 240, 138, 0.92);
+  text-shadow: none;
+  animation: hx-flash 1.6s steps(1) forwards;
+}
+.hx__flash--deny {
+  color: #500;
+  background: rgba(255, 60, 90, 0.92);
+}
+@keyframes hx-flash {
+  0%,
+  20%,
+  40% {
+    opacity: 1;
+  }
+  10%,
+  30% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hx__blink,
+  .hx__caret,
+  .hx__bars span,
+  .hx__node,
+  .hx__flash {
+    animation: none;
+  }
+}
+:root[data-motion="off"] .hx__blink,
+:root[data-motion="off"] .hx__caret,
+:root[data-motion="off"] .hx__bars span,
+:root[data-motion="off"] .hx__node,
+:root[data-motion="off"] .hx__flash {
+  animation: none;
+}

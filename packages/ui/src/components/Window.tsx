@@ -44,11 +44,17 @@ export function Window({
 
   const cascade = Math.max(0, zIndexOf(id)) * 26;
   const [pos, setPos] = useState(() => initial ?? { x: 120 + cascade, y: 90 + cascade });
+  const [maximized, setMaximized] = useState(false);
   const drag = useRef<{ dx: number; dy: number } | null>(null);
 
   const open = isOpen(id);
   const minimized = stack.find((w) => w.id === id)?.minimized ?? false;
   const focused = focusedId === id;
+
+  const toggleMaximize = useCallback(() => {
+    setMaximized((m) => !m);
+    focus(id);
+  }, [focus, id]);
 
   useFocusTrap(ref, open && !minimized && modal);
 
@@ -68,6 +74,7 @@ export function Window({
   const onTitlePointerDown = (e: ReactPointerEvent) => {
     if ((e.target as HTMLElement).closest("button")) return;
     focus(id);
+    if (maximized) return;
     drag.current = { dx: e.clientX - pos.x, dy: e.clientY - pos.y };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
@@ -101,18 +108,14 @@ export function Window({
 
   if (!open) return null;
 
-  const style: CSSProperties = {
-    left: pos.x,
-    top: pos.y,
-    width,
-    height,
-    zIndex: 100 + zIndexOf(id),
-  };
+  const style: CSSProperties = maximized
+    ? { inset: 0, width: "auto", height: "auto", zIndex: 100 + zIndexOf(id) }
+    : { left: pos.x, top: pos.y, width, height, zIndex: 100 + zIndexOf(id) };
 
   return (
     <div
       ref={ref}
-      className={cn("rd-window", focused && "rd-window--focused")}
+      className={cn("rd-window", focused && "rd-window--focused", maximized && "rd-window--max")}
       style={style}
       role="dialog"
       aria-modal={modal || undefined}
@@ -127,6 +130,7 @@ export function Window({
         onPointerDown={onTitlePointerDown}
         onPointerMove={onTitlePointerMove}
         onPointerUp={onTitlePointerUp}
+        onDoubleClick={toggleMaximize}
         tabIndex={0}
         aria-label={`${title} — drag or use arrow keys to move`}
       >
@@ -142,6 +146,15 @@ export function Window({
             aria-label={`Minimise ${title}`}
           >
             _
+          </button>
+          <button
+            type="button"
+            className="rd-window__btn"
+            onClick={toggleMaximize}
+            aria-pressed={maximized}
+            aria-label={maximized ? `Restore ${title}` : `Maximise ${title}`}
+          >
+            {maximized ? "❐" : "▢"}
           </button>
           <button
             type="button"

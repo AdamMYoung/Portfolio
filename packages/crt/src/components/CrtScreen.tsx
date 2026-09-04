@@ -90,17 +90,23 @@ export function CrtScreen({
           <div className="crt-screen__sheen" aria-hidden="true" />
           <div className="crt-screen__off" aria-hidden="true" />
         </div>
-        <span className="crt-monitor__badge" aria-hidden="true">
-          {badge}
-        </span>
-        <button
-          type="button"
-          className="crt-power"
-          aria-pressed={powered}
-          aria-label={powered ? "Turn the monitor off" : "Turn the monitor on"}
-          onClick={togglePower}
-        />
-        <span className="crt-monitor__led" data-power={powered ? "on" : "off"} aria-hidden="true" />
+        <div className="crt-monitor__panel">
+          <button
+            type="button"
+            className="crt-power"
+            aria-pressed={powered}
+            aria-label={powered ? "Turn the monitor off" : "Turn the monitor on"}
+            onClick={togglePower}
+          />
+          <span
+            className="crt-monitor__led"
+            data-power={powered ? "on" : "off"}
+            aria-hidden="true"
+          />
+          <span className="crt-monitor__badge" aria-hidden="true">
+            {badge}
+          </span>
+        </div>
       </div>
 
       <div className="crt-monitor__stand" aria-hidden="true" />

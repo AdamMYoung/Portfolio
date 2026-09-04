@@ -30,7 +30,7 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
     disabled = false,
     friction = 0.15,
     quietSelector = ".crt-monitor",
-    quietZoom = 0.1,
+    quietZoom = 0.32,
   } = opts;
 
   useEffect(() => {

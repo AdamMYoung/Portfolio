@@ -141,6 +141,17 @@
     0 0 0 1px var(--color-accent-2);
 }
 
+/* Maximised — fills the desktop surface (double-click the titlebar, or the
+   ▢ button, to toggle). */
+.rd-window--max {
+  border-width: 1px;
+  box-shadow: none;
+  animation: none;
+}
+.rd-window--max .rd-window__titlebar {
+  cursor: default;
+}
+
 .rd-window__titlebar {
   display: flex;
   align-items: center;

@@ -369,22 +369,24 @@
   pointer-events: none;
 }
 
-/* little brand nub + power LED on the bezel */
-.crt-monitor__badge {
+/* control strip on the bottom bezel — power switch, LED, brand — centred */
+.crt-monitor__panel {
   position: absolute;
   left: 50%;
-  bottom: calc(var(--crt-screen-inset) * 0.28);
+  bottom: calc(var(--crt-screen-inset) * 0.16);
   translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vmin, 12px);
+}
+.crt-monitor__badge {
   font: 700 var(--text-2xs) / 1 var(--font-mono);
-  letter-spacing: 0.35em;
+  letter-spacing: 0.32em;
   color: var(--rd-plastic-100);
   opacity: 0.4;
   text-transform: uppercase;
 }
 .crt-monitor__led {
-  position: absolute;
-  right: calc(var(--crt-screen-inset) * 0.9);
-  bottom: calc(var(--crt-screen-inset) * 0.36);
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -403,11 +405,8 @@
   }
 }
 
-/* ---- power button on the bezel (bottom-right) ---- */
+/* ---- power button (in the centred bezel strip) ---- */
 .crt-power {
-  position: absolute;
-  right: calc(var(--crt-screen-inset) * 1.9);
-  bottom: calc(var(--crt-screen-inset) * 0.2);
   width: clamp(16px, 2.2vmin, 24px);
   aspect-ratio: 1;
   display: grid;
@@ -870,64 +869,39 @@
 }
 
 /* ------------------------------------------------------------------ *
- * Glowing cursor
+ * Glowing cursor — a standard arrow / hand shape with a neon bloom
+ * baked into the SVG. No JS, no overlay: nothing to intercept hover.
  * ------------------------------------------------------------------ */
-.has-glow-cursor,
-.has-glow-cursor * {
-  cursor: none !important;
+:root {
+  --crt-cursor-arrow: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='36'%20height='36'%20viewBox='0%200%2036%2036'%3E%3Cfilter%20id='g'%20x='-60%25'%20y='-60%25'%20width='220%25'%20height='220%25'%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='1.4'%20flood-color='%232de2e6'/%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='2.8'%20flood-color='%23ff2e97'%20flood-opacity='0.85'/%3E%3C/filter%3E%3Cpath%20filter='url(%23g)'%20d='M6%204%20L6%2025%20L11.7%2019.3%20L15.4%2027%20L19%2025.2%20L15.3%2017.6%20L23%2017.6%20Z'%20fill='%23ffffff'%20stroke='%23090912'%20stroke-width='1'/%3E%3C/svg%3E")
+    6 4, auto;
+  --crt-cursor-hand: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%3E%3Cfilter%20id='g'%20x='-60%25'%20y='-60%25'%20width='220%25'%20height='220%25'%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='1.4'%20flood-color='%232de2e6'/%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='2.8'%20flood-color='%23ff2e97'%20flood-opacity='0.85'/%3E%3C/filter%3E%3Cpath%20filter='url(%23g)'%20d='M14%204c-1.1%200-2%20.9-2%202v11l-2.3-2.4c-.8-.8-2-.8-2.8%200s-.8%202%200%202.8l5.4%206.3c1%201.2%202.5%201.9%204%201.9h5.4c2.5%200%204.5-2%204.5-4.5V13c0-1.1-.9-2-2-2-.4%200-.8.1-1.1.3V10c0-1.1-.9-2-2-2-.4%200-.8.1-1.1.3-.2-1-1.1-1.8-2.1-1.8-.4%200-.8.1-1.1.3V6c0-1.1-.9-2-2-2z'%20fill='%23ffffff'%20stroke='%23090912'%20stroke-width='1'/%3E%3C/svg%3E")
+    13 4, pointer;
 }
-.crt-cursor {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-overlay);
-  pointer-events: none;
-  contain: strict;
+body {
+  cursor: var(--crt-cursor-arrow);
 }
-.crt-cursor__dot,
-.crt-cursor__ring {
-  position: absolute;
-  top: 0;
-  left: 0;
-  border-radius: 50%;
-  will-change: transform;
+:where(
+    a[href],
+    button,
+    summary,
+    label,
+    select,
+    [role="button"],
+    [role="switch"],
+    [role="tab"],
+    .rd-icon,
+    .rd-taskbar__item,
+    .crt-power
+  ):not(:disabled) {
+  cursor: var(--crt-cursor-hand);
 }
-.crt-cursor__dot {
-  width: 9px;
-  height: 9px;
-  margin: -4.5px 0 0 -4.5px;
-  background: #fff;
-  box-shadow:
-    0 0 6px 1px var(--sw-cyan-200),
-    0 0 16px 5px var(--sw-magenta-500),
-    0 0 30px 10px rgba(255, 46, 151, 0.35);
-}
-.crt-cursor__ring {
-  width: 34px;
-  height: 34px;
-  margin: -17px 0 0 -17px;
-  border: 1px solid var(--sw-cyan-300);
-  box-shadow:
-    0 0 12px var(--sw-cyan-400),
-    inset 0 0 8px var(--sw-magenta-400);
-  opacity: 0.65;
-  transition:
-    width var(--dur-fast) var(--ease-crt),
-    height var(--dur-fast) var(--ease-crt),
-    margin var(--dur-fast) var(--ease-crt),
-    opacity var(--dur-fast) linear;
-}
-.glow-cursor-down .crt-cursor__ring {
-  width: 22px;
-  height: 22px;
-  margin: -11px 0 0 -11px;
-  opacity: 1;
+:where(input, textarea, [contenteditable]) {
+  cursor: text;
 }
 @media (hover: none) {
-  .crt-cursor {
-    display: none;
-  }
-  .has-glow-cursor,
-  .has-glow-cursor * {
-    cursor: auto !important;
+  body,
+  :where(a[href], button, .rd-icon) {
+    cursor: auto;
   }
 }

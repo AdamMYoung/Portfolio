@@ -30,7 +30,7 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
     disabled = false,
     friction = 0.15,
     quietSelector = ".crt-monitor",
-    quietZoom = 0.045,
+    quietZoom = 0.1,
   } = opts;
 
   useEffect(() => {
@@ -104,6 +104,18 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
       if (coarse) dragging = true;
       setTarget(e);
     };
+    // Fine pointers: a click must NOT snap the CRT back (that read as a zoom-out
+    // on every interaction). Only end a touch drag here; the next pointermove
+    // re-evaluates state for mice.
+    const onUp = () => {
+      if (!coarse) return;
+      dragging = false;
+      tx = 0;
+      ty = 0;
+      tz = 0;
+      kick();
+    };
+    // Pointer genuinely left the page / window lost focus -> fully recentre.
     const recentre = () => {
       if (coarse) dragging = false;
       tx = 0;
@@ -114,7 +126,7 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
 
     window.addEventListener("pointermove", onMove, { passive: true });
     el.addEventListener("pointerdown", onDown, { passive: true });
-    window.addEventListener("pointerup", recentre, { passive: true });
+    window.addEventListener("pointerup", onUp, { passive: true });
     window.addEventListener("blur", recentre);
     document.addEventListener("pointerleave", recentre, { passive: true });
 
@@ -122,7 +134,7 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerdown", onDown);
-      window.removeEventListener("pointerup", recentre);
+      window.removeEventListener("pointerup", onUp);
       window.removeEventListener("blur", recentre);
       document.removeEventListener("pointerleave", recentre);
     };

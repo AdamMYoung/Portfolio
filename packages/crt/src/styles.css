@@ -202,11 +202,12 @@
 }
 
 /* ------------------------------------------------------------------ *
- * The monitor — a real preserve-3d CRT tube that recedes into -Z:
- *   full-size bezel  ->  funnel  ->  neck  ->  back cap
- * with shoulder rings closing each step. It orbits a pivot set INSIDE
- * the tube (transform-origin z), so rotation shows the sides / top /
- * bottom / back instead of the front lunging toward the viewer.
+ * The monitor — a solid preserve-3d box that recedes into -Z: a
+ * rounded front bezel + four full-footprint side walls + a rounded
+ * back panel. The walls share every box edge exactly, so it reads as
+ * one solid object from any pan angle (no seams, no floating panel).
+ * It orbits a pivot set INSIDE the case (transform-origin z), so the
+ * front never lunges toward the viewer.
  * Only ONE transform changes on pointer move: this element's.
  * ------------------------------------------------------------------ */
 .crt-monitor {
@@ -239,120 +240,67 @@
   transform-style: preserve-3d;
 }
 
-/* ---- shared face + wall styling ---- *
- * Walls are double-sided: as the tube rotates we view some of them from
- * outside, so `backface-visibility` must stay visible or they'd vanish. */
-.crt-face {
-  position: absolute;
-}
+/* ---- four full-footprint side walls ----
+ * Each wall spans the whole face and its depth = --crt-depth, so
+ * adjacent walls share their entire common edge: no gaps, no seams.
+ * They round their front + back edges to match the bezel/back radius;
+ * because every wall rounds by the same radius the box silhouette
+ * rounds cleanly at all eight corners without opening a hole. */
 .crt-wall {
   position: absolute;
-  background: linear-gradient(to left, #24242f, #3a3a48 90%);
-  /* --wr (outer-corner radius) is inherited from the parent .crt-seg */
-}
-.crt-wall--r {
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: var(--seg-d);
-  transform-origin: right center;
-  transform: rotateY(-90deg);
-  background: linear-gradient(to left, #1a1a24, #34343f 92%);
-  border-radius: 0 var(--wr) var(--wr) 0;
-}
-.crt-wall--l {
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: var(--seg-d);
-  transform-origin: left center;
-  transform: rotateY(90deg);
-  background: linear-gradient(to right, #1a1a24, #3d3d4b 92%);
-  border-radius: var(--wr) 0 0 var(--wr);
+  background: linear-gradient(120deg, #2a2a36, #14141d);
+  border-radius: var(--crt-bezel-radius);
 }
 .crt-wall--t {
   top: 0;
   left: 0;
   width: 100%;
-  height: var(--seg-d);
+  height: var(--crt-depth);
   transform-origin: top center;
   transform: rotateX(-90deg);
-  background: linear-gradient(to bottom, #8f8fa6, #1c1c28 82%);
-  border-radius: var(--wr) var(--wr) 0 0;
+  background: linear-gradient(to bottom, #7d7d92, #17171f 76%);
 }
 .crt-wall--b {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: var(--seg-d);
+  height: var(--crt-depth);
   transform-origin: bottom center;
   transform: rotateX(90deg);
-  background: linear-gradient(to top, #0c0c13, #23232f);
-  border-radius: 0 0 var(--wr) var(--wr);
+  background: linear-gradient(to top, #08080c, #20202b);
 }
-.crt-wall--back {
-  position: absolute;
-  inset: 0;
-  transform: translateZ(calc(var(--seg-d) * -1));
-  background: radial-gradient(120% 120% at 50% 45%, #16161f, #060609 75%);
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9);
-  border-radius: calc(var(--crt-bezel-radius) * 0.7);
+.crt-wall--l {
+  top: 0;
+  left: 0;
+  width: var(--crt-depth);
+  height: 100%;
+  transform-origin: left center;
+  transform: rotateY(90deg);
+  background: linear-gradient(to right, #101017, #34343f 92%);
 }
-
-/* ---- the three tube segments ---- */
-.crt-seg {
-  position: absolute;
-  transform-style: preserve-3d;
-}
-.crt-seg--bezel {
-  inset: 0;
-  --seg-d: calc(var(--crt-depth) * 0.2);
-  --wr: var(--crt-bezel-radius);
-}
-.crt-seg--funnel {
-  inset: 20%;
-  transform: translateZ(calc(var(--crt-depth) * -0.2));
-  --seg-d: calc(var(--crt-depth) * 0.46);
-  --wr: calc(var(--crt-bezel-radius) * 0.65);
-}
-.crt-seg--neck {
-  inset: 36%;
-  transform: translateZ(calc(var(--crt-depth) * -0.66));
-  --seg-d: calc(var(--crt-depth) * 0.34);
-  --wr: calc(var(--crt-bezel-radius) * 0.45);
+.crt-wall--r {
+  top: 0;
+  right: 0;
+  width: var(--crt-depth);
+  height: 100%;
+  transform-origin: right center;
+  transform: rotateY(-90deg);
+  background: linear-gradient(to left, #101017, #2c2c37 92%);
 }
 
-/* ---- shoulder rings: solid panel with a rectangular hole so the
-       narrower segment behind stays visible from a 3/4 view ---- */
-.crt-shoulder {
+/* ---- rounded back panel ---- */
+.crt-face--back {
   position: absolute;
   inset: 0;
-  background: linear-gradient(160deg, #1c1c28, #0a0a0f);
+  transform: translateZ(calc(var(--crt-depth) * -1));
+  background: radial-gradient(120% 120% at 50% 40%, #17171f, #050508 78%);
   border-radius: var(--crt-bezel-radius);
-  clip-path: polygon(
-    0% 0%,
-    100% 0%,
-    100% 100%,
-    0% 100%,
-    0% 0%,
-    var(--hole) var(--hole),
-    var(--hole) calc(100% - var(--hole)),
-    calc(100% - var(--hole)) calc(100% - var(--hole)),
-    calc(100% - var(--hole)) var(--hole),
-    var(--hole) var(--hole)
-  );
-}
-.crt-shoulder--1 {
-  --hole: 20%;
-  transform: translateZ(calc(var(--crt-depth) * -0.2));
-}
-.crt-shoulder--2 {
-  --hole: 36%;
-  transform: translateZ(calc(var(--crt-depth) * -0.66));
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.92);
 }
 
-/* ---- the front bezel (holds the screen) ---- */
+/* ---- rounded front bezel (holds the screen) ---- */
 .crt-face--front {
+  position: absolute;
   inset: 0;
   border-radius: var(--crt-bezel-radius);
   background: radial-gradient(
@@ -363,8 +311,7 @@
   box-shadow:
     inset 0 2px 0 rgba(255, 255, 255, 0.07),
     inset 0 -10px 26px rgba(0, 0, 0, 0.55),
-    0 44px 74px -24px rgba(0, 0, 0, 0.85),
-    var(--crt-glow);
+    0 44px 74px -24px rgba(0, 0, 0, 0.85);
 }
 
 /* pedestal + neck, sitting behind the case's mid-plane */

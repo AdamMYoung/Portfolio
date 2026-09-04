@@ -98,9 +98,9 @@
   --crt-static-opacity: 0.06;
 
   /* ---- Real-3D monitor geometry ------------------------------- *
-   * The case is a tapered tube: full-size bezel -> funnel -> neck ->
-   * back cap, receding into -Z. `--crt-depth` is the total tube length. */
-  --crt-depth: clamp(120px, 20vw, 280px);
+   * The case is a solid box receding into -Z; `--crt-depth` is how far
+   * back the rear panel sits. */
+  --crt-depth: clamp(90px, 15vw, 210px);
 
   /* ---- Parallax / pan rig ------------------------------------- *
    * `--pan-x` / `--pan-y` (-1..1) are written to `.crt-stage` by

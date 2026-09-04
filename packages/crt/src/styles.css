@@ -1,0 +1,925 @@
+/**
+ * @portfolio/crt — all visual chrome for the CRT + synthwave stage.
+ * Pure CSS: no canvas, no WebGL. Every animation is gated behind both the OS
+ * `prefers-reduced-motion` setting and an in-app `:root[data-motion="off"]`
+ * toggle (see the block at the end of this file).
+ *
+ * Class namespaces:  crt-*  (monitor / screen)   sw-*  (synthwave background)
+ */
+
+/* ------------------------------------------------------------------ *
+ * Stage — establishes the 3D space the monitor tilts within
+ * ------------------------------------------------------------------ */
+.crt-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  width: 100%;
+  padding: clamp(1rem, 4vmin, 4rem) clamp(1rem, 4vmin, 4rem) clamp(3rem, 9vmin, 7rem);
+  overflow: hidden;
+  background: var(--color-bg);
+  /* Static perspective — the vanishing point never moves, so panning the
+     monitor never re-projects the whole 3D subtree. */
+  perspective: 1600px;
+  perspective-origin: 50% 42%;
+  isolation: isolate;
+}
+
+/* ------------------------------------------------------------------ *
+ * Synthwave background
+ * ------------------------------------------------------------------ */
+.sw-bg {
+  position: absolute;
+  inset: -12%;
+  z-index: var(--z-background);
+  pointer-events: none;
+  perspective: 520px;
+  background: radial-gradient(
+    120% 75% at 50% var(--grid-horizon),
+    rgba(255, 46, 151, 0.22) 0%,
+    var(--sw-void-700) 26%,
+    var(--sw-void-800) 55%,
+    var(--sw-void-900) 100%
+  );
+  /* Counter-parallax is a plain translate — compositor only, no transition
+     (the pointer easing in JS is the smoothing). */
+  transform: translate3d(
+    calc(var(--pan-x) * var(--pan-max-shift) * -1),
+    calc(var(--pan-y) * var(--pan-max-shift) * -0.6),
+    0
+  );
+  will-change: transform;
+}
+
+.sw-bg__stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.8) 50%, transparent),
+    radial-gradient(1px 1px at 75% 15%, rgba(255, 255, 255, 0.6) 50%, transparent),
+    radial-gradient(1.5px 1.5px at 50% 45%, rgba(200, 255, 244, 0.7) 50%, transparent),
+    radial-gradient(1px 1px at 85% 55%, rgba(255, 255, 255, 0.5) 50%, transparent),
+    radial-gradient(1px 1px at 12% 60%, rgba(255, 255, 255, 0.5) 50%, transparent);
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0 var(--grid-horizon),
+    transparent var(--grid-horizon)
+  );
+  animation: sw-twinkle 4s steps(2) infinite alternate;
+}
+
+/* Retro sun sitting on the horizon, sliced by horizontal bands */
+.sw-bg__sun {
+  position: absolute;
+  left: 50%;
+  top: var(--grid-horizon);
+  width: min(60vmin, 560px);
+  aspect-ratio: 1;
+  translate: -50% -58%;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    var(--sw-sun-top) 0%,
+    var(--sw-sun-mid) 45%,
+    var(--sw-sun-low) 100%
+  );
+  /* horizontal slats: transparent gaps widen toward the base */
+  mask-image: repeating-linear-gradient(
+    180deg,
+    #000 0 8px,
+    transparent 8px 10px,
+    #000 10px 22px,
+    transparent 22px 26px,
+    #000 26px 44px,
+    transparent 44px 52px,
+    #000 52px 74px,
+    transparent 74px 88px
+  );
+  filter: drop-shadow(0 0 44px rgba(255, 106, 193, 0.55));
+  animation: sw-sun-breathe 8s var(--ease-crt) infinite alternate;
+  will-change: opacity;
+}
+
+.sw-bg__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    60% 40% at 50% var(--grid-horizon),
+    rgba(255, 90, 170, 0.28) 0%,
+    transparent 70%
+  );
+}
+
+/* bright bloom where floor meets sky */
+.sw-bg__horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--grid-horizon);
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--sw-cyan-200) 20%,
+    #fff 50%,
+    var(--sw-magenta-400) 80%,
+    transparent
+  );
+  box-shadow:
+    0 0 12px 2px var(--sw-cyan-300),
+    0 0 40px 8px rgba(255, 46, 151, 0.5);
+}
+
+/* The floor grid. Scrolled with a `transform: translateY` loop of exactly one
+   cell (compositor-only, no per-frame background repaint) — animating
+   `background-position` instead made the near rows shimmer/flicker. */
+.sw-bg__grid {
+  position: absolute;
+  left: -75%;
+  right: -75%;
+  top: var(--grid-horizon);
+  bottom: -20%;
+  background-image:
+    linear-gradient(to right, var(--grid-color) 2px, transparent 2px),
+    linear-gradient(to bottom, var(--grid-color) 2px, transparent 2px);
+  background-size: var(--grid-cell) var(--grid-cell);
+  transform: rotateX(85deg) translateY(0);
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+  will-change: transform;
+  mask-image: linear-gradient(to top, transparent 0, #000 8%, #000 30%, transparent 92%);
+  animation: sw-grid-scroll var(--grid-speed) linear infinite;
+}
+
+.sw-bg__grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--grid-glow) 0, transparent 55%);
+  opacity: 0.8;
+}
+
+/* mirrored grid on the "ceiling" for the tunnel effect */
+.sw-bg__grid--ceiling {
+  top: -20%;
+  bottom: var(--grid-horizon);
+  transform: rotateX(-85deg) translateY(0);
+  transform-origin: 50% 0;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 8%, #000 30%, transparent 92%);
+  opacity: 0.22;
+  animation: sw-grid-scroll-ceiling var(--grid-speed) linear infinite;
+}
+
+@keyframes sw-grid-scroll {
+  from {
+    transform: rotateX(85deg) translateY(0);
+  }
+  to {
+    transform: rotateX(85deg) translateY(var(--grid-cell));
+  }
+}
+@keyframes sw-grid-scroll-ceiling {
+  from {
+    transform: rotateX(-85deg) translateY(0);
+  }
+  to {
+    transform: rotateX(-85deg) translateY(calc(var(--grid-cell) * -1));
+  }
+}
+@keyframes sw-sun-breathe {
+  from {
+    opacity: 0.82;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sw-twinkle {
+  to {
+    opacity: 0.55;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * The monitor — a solid preserve-3d box that recedes into -Z: a
+ * rounded front bezel + four full-footprint side walls + a rounded
+ * back panel. The walls share every box edge exactly, so it reads as
+ * one solid object from any pan angle (no seams, no floating panel).
+ * It orbits a pivot set INSIDE the case (transform-origin z), so the
+ * front never lunges toward the viewer.
+ * Only ONE transform changes on pointer move: this element's.
+ * ------------------------------------------------------------------ */
+.crt-monitor {
+  position: relative;
+  z-index: var(--z-stage);
+  width: min(78vw, 820px);
+  max-height: 78dvh;
+  aspect-ratio: 4 / 3;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50% calc(var(--crt-depth) * -0.5);
+  transform: translate3d(calc(var(--pan-x) * 24px), calc(var(--pan-y) * 18px), 0)
+    translateZ(calc(var(--crt-depth) * -0.2))
+    scale(var(--crt-zoom, 1))
+    rotateX(calc(var(--pan-y) * var(--pan-max-deg) * -1))
+    rotateY(calc(var(--pan-x) * var(--pan-max-deg)));
+  will-change: transform;
+}
+
+@media (max-width: 640px) {
+  .crt-monitor {
+    width: 92vw;
+    aspect-ratio: 3 / 4;
+    --crt-depth: 90px;
+  }
+}
+
+.crt-monitor__case {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+/* ---- four full-footprint side walls ----
+ * Each wall spans the whole face and its depth = --crt-depth, so
+ * adjacent walls share their entire common edge: no gaps, no seams.
+ * They round their front + back edges to match the bezel/back radius;
+ * because every wall rounds by the same radius the box silhouette
+ * rounds cleanly at all eight corners without opening a hole. */
+.crt-wall {
+  position: absolute;
+  background: linear-gradient(120deg, #2a2a36, #14141d);
+  border-radius: var(--crt-bezel-radius);
+}
+.crt-wall--t {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--crt-depth);
+  transform-origin: top center;
+  transform: rotateX(-90deg);
+  background: linear-gradient(to bottom, #7d7d92, #17171f 76%);
+}
+.crt-wall--b {
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--crt-depth);
+  transform-origin: bottom center;
+  transform: rotateX(90deg);
+  background: linear-gradient(to top, #08080c, #20202b);
+}
+.crt-wall--l {
+  top: 0;
+  left: 0;
+  width: var(--crt-depth);
+  height: 100%;
+  transform-origin: left center;
+  transform: rotateY(90deg);
+  background: linear-gradient(to right, #101017, #34343f 92%);
+}
+.crt-wall--r {
+  top: 0;
+  right: 0;
+  width: var(--crt-depth);
+  height: 100%;
+  transform-origin: right center;
+  transform: rotateY(-90deg);
+  background: linear-gradient(to left, #101017, #2c2c37 92%);
+}
+
+/* ---- interior baffle ----
+ * A dark panel matching the bezel footprint exactly (no protrusion),
+ * sitting a few px behind it. Any angled sightline that clears the
+ * bezel's rounded corner hits this instead of the case interior /
+ * background. It reads as the screen being recessed a few mm. */
+.crt-monitor__baffle {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--crt-bezel-radius);
+  transform: translateZ(calc(var(--crt-depth) * -0.06));
+  background: radial-gradient(120% 120% at 50% 40%, #14141c, #06060b 84%);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
+  backface-visibility: hidden;
+}
+
+/* ---- back panel: square + opaque so nothing shows through to the
+       backdrop when the case is panned ---- */
+.crt-face--back {
+  position: absolute;
+  inset: 0;
+  transform: translateZ(calc(var(--crt-depth) * -1));
+  background: radial-gradient(120% 120% at 50% 40%, #17171f, #050508 78%);
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.92);
+}
+
+/* ---- rounded front bezel (holds the screen) ---- */
+.crt-face--front {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--crt-bezel-radius);
+  background: radial-gradient(
+    130% 120% at 28% 16%,
+    var(--rd-plastic-700),
+    var(--rd-plastic-900) 74%
+  );
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.07),
+    inset 0 -10px 26px rgba(0, 0, 0, 0.55),
+    0 44px 74px -24px rgba(0, 0, 0, 0.85);
+}
+
+/* pedestal + neck, sitting behind the case's mid-plane */
+.crt-monitor__stand {
+  position: absolute;
+  left: 50%;
+  bottom: -7%;
+  width: 30%;
+  height: 7%;
+  translate: -50% 0;
+  transform: translateZ(calc(var(--crt-depth) * -0.5)) rotateX(20deg);
+  background: linear-gradient(to bottom, var(--rd-plastic-700), var(--rd-plastic-900));
+  border-radius: 8px 8px 4px 4px;
+  box-shadow: 0 24px 34px -12px rgba(0, 0, 0, 0.75);
+}
+.crt-monitor__stand::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 60%;
+  width: 46%;
+  height: 220%;
+  translate: -50% 0;
+  background: linear-gradient(to bottom, var(--rd-plastic-800), var(--rd-plastic-700));
+  border-radius: 4px;
+  z-index: -1;
+}
+
+/* ground contact shadow */
+.crt-monitor__shadow {
+  position: absolute;
+  left: 50%;
+  bottom: -4%;
+  width: 78%;
+  height: 16%;
+  translate: -50% 0;
+  transform: translateZ(calc(var(--crt-depth) * -0.5)) rotateX(85deg);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.6), transparent 70%);
+  filter: blur(12px);
+  pointer-events: none;
+}
+
+/* control strip on the bottom bezel — power switch, LED, brand — centred */
+.crt-monitor__panel {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--crt-screen-inset) * 0.16);
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vmin, 12px);
+}
+.crt-monitor__badge {
+  font: 700 var(--text-2xs) / 1 var(--font-mono);
+  letter-spacing: 0.32em;
+  color: var(--rd-plastic-100);
+  opacity: 0.4;
+  text-transform: uppercase;
+}
+.crt-monitor__led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sw-cyan-400);
+  box-shadow: 0 0 8px 2px var(--sw-cyan-400);
+  animation: crt-led-pulse 4s ease-in-out infinite;
+}
+.crt-monitor__led[data-power="off"] {
+  background: #3a1a1a;
+  box-shadow: none;
+  animation: none;
+}
+@keyframes crt-led-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ---- power button (in the centred bezel strip) ---- */
+.crt-power {
+  width: clamp(16px, 2.2vmin, 24px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid #000;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #40404c, #15151b 78%);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.16),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.6),
+    0 1px 2px rgba(0, 0, 0, 0.55);
+  color: var(--sw-cyan-300);
+  cursor: var(--crt-cursor-hand, pointer);
+}
+.crt-power::before {
+  content: "⏻";
+  font-size: 0.62em;
+  line-height: 1;
+  text-shadow: 0 0 6px currentColor;
+}
+.crt-power[aria-pressed="false"] {
+  color: #4a4a52;
+}
+.crt-power[aria-pressed="false"]::before {
+  text-shadow: none;
+}
+.crt-power:active {
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+.crt-power:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ---- CRT power-off: image collapses to a bright line, then a dot ---- */
+.crt-screen__off {
+  position: absolute;
+  inset: 0;
+  background: #050506;
+  opacity: 0;
+  pointer-events: none;
+}
+.crt-screen--off .crt-screen__off {
+  opacity: 1;
+}
+.crt-screen--off .crt-screen__off::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d8fff0;
+  box-shadow: 0 0 14px 5px rgba(150, 235, 255, 0.9);
+  transform: translate(-50%, -50%);
+  animation: crt-dot-fade 1s 320ms var(--ease-crt) forwards;
+}
+.crt-screen--off .crt-screen__content,
+.crt-screen--off .crt-screen__scanlines,
+.crt-screen--off .crt-screen__mask,
+.crt-screen--off .crt-screen__static,
+.crt-screen--off .crt-screen__flicker {
+  animation: crt-collapse 380ms var(--ease-crt) forwards;
+}
+@keyframes crt-collapse {
+  0% {
+    transform: scale(1, 1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1.06, 0.006);
+    filter: brightness(2.6);
+    opacity: 1;
+  }
+  82% {
+    transform: scale(0.002, 0.006);
+    filter: brightness(4);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0, 0);
+    opacity: 0;
+  }
+}
+@keyframes crt-dot-fade {
+  to {
+    opacity: 0;
+    box-shadow: 0 0 0 0 rgba(150, 235, 255, 0);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * The screen — glass, scanlines, static, vignette, phosphor content
+ * ------------------------------------------------------------------ */
+.crt-screen {
+  position: absolute;
+  inset: var(--crt-screen-inset);
+  border-radius: calc(var(--crt-bezel-radius) * 0.6);
+  background: var(--color-screen);
+  overflow: hidden;
+  /* faux barrel curvature: bulge the corners with a big inset shadow */
+  box-shadow:
+    inset 0 0 var(--crt-curvature) rgba(0, 0, 0, 0.9),
+    inset 0 0 80px rgba(0, 0, 0, calc(var(--crt-vignette) * 1)),
+    inset 0 0 200px rgba(0, 0, 0, 0.55);
+}
+
+.crt-screen__content {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: clamp(1rem, 3.5vmin, 2.25rem);
+  color: var(--color-phosphor);
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  line-height: 1.6;
+  text-shadow:
+    0 0 1px currentColor,
+    0 0 6px rgba(45, 226, 230, 0.35);
+  scrollbar-color: var(--sw-cyan-400) transparent;
+  scrollbar-width: thin;
+}
+
+/* scanlines — plain alpha over the dark tube (no blend mode: blend modes
+   force a full re-raster whenever the 3D case moves) */
+.crt-screen__scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--crt-scanline-size) - 1px),
+    rgba(0, 0, 0, calc(var(--crt-scanline-opacity) + 0.14)) var(--crt-scanline-size)
+  );
+  animation: crt-scanline-drift 8s linear infinite;
+}
+@keyframes crt-scanline-drift {
+  to {
+    background-position: 0 var(--crt-scanline-size);
+  }
+}
+
+/* aperture-grille RGB stripes — faint, no blend mode */
+.crt-screen__mask {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 60, 60, 0.05) 0 1px,
+    rgba(60, 255, 120, 0.04) 1px 2px,
+    rgba(80, 120, 255, 0.06) 2px 3px
+  );
+}
+
+/* TV static — small SVG-noise tile, translated in steps (compositor only) */
+.crt-screen__static {
+  position: absolute;
+  inset: -12%;
+  pointer-events: none;
+  opacity: calc(var(--crt-static-opacity) + 0.04);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  animation: crt-static-jitter 0.6s steps(4) infinite;
+}
+@keyframes crt-static-jitter {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(-3%, 2%, 0);
+  }
+  50% {
+    transform: translate3d(2%, -4%, 0);
+  }
+  75% {
+    transform: translate3d(-2%, 3%, 0);
+  }
+  100% {
+    transform: translate3d(3%, -1%, 0);
+  }
+}
+
+/* rolling brightness flicker + a slow horizontal hum bar */
+.crt-screen__flicker {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(200, 255, 244, 0.03);
+  animation: crt-flicker var(--crt-flicker-duration) steps(60) infinite;
+}
+.crt-screen__flicker::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 22%;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.045), transparent);
+  animation: crt-hum-bar 9s linear infinite;
+  will-change: transform;
+}
+@keyframes crt-flicker {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  10% {
+    opacity: 0.16;
+  }
+  20% {
+    opacity: 0.08;
+  }
+  40% {
+    opacity: 0.2;
+  }
+  60% {
+    opacity: 0.1;
+  }
+  80% {
+    opacity: 0.18;
+  }
+}
+@keyframes crt-hum-bar {
+  from {
+    transform: translateY(-120%);
+  }
+  to {
+    transform: translateY(560%);
+  }
+}
+
+/* glass sheen highlight */
+.crt-screen__sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    80% 55% at 28% 12%,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    transparent 60%
+  );
+}
+
+/* power-on sweep: a bright line expands from centre when the screen mounts */
+.crt-screen--booting .crt-screen__content,
+.crt-screen--booting .crt-screen__scanlines,
+.crt-screen--booting .crt-screen__mask {
+  animation: crt-power-on 620ms var(--ease-crt) both;
+}
+@keyframes crt-power-on {
+  0% {
+    transform: scale(1, 0.004);
+    filter: brightness(6);
+    opacity: 0.9;
+  }
+  35% {
+    transform: scale(1, 0.02);
+    filter: brightness(3);
+  }
+  70% {
+    transform: scale(1.02, 1);
+    filter: brightness(1.4);
+  }
+  100% {
+    transform: scale(1, 1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+}
+
+/* phosphor styling for content authored as plain / MDX markup */
+.crt-screen__content :is(h1, h2, h3) {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.1;
+  color: #fff;
+  text-shadow:
+    0 0 6px var(--color-accent-2),
+    0 0 18px var(--color-accent);
+  letter-spacing: 0.02em;
+}
+.crt-screen__content h1 {
+  font-size: var(--text-2xl);
+}
+.crt-screen__content h2 {
+  font-size: var(--text-xl);
+  margin-block: var(--space-6) var(--space-3);
+}
+.crt-screen__content h3 {
+  font-size: var(--text-lg);
+  margin-block: var(--space-4) var(--space-2);
+}
+.crt-screen__content p {
+  margin-block: var(--space-3);
+}
+.crt-screen__content a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.crt-screen__content a:hover {
+  color: #fff;
+  background: rgba(45, 226, 230, 0.15);
+}
+.crt-screen__content ul {
+  padding-left: 1.4em;
+  list-style: "▸ ";
+}
+.crt-screen__content li {
+  margin-block: var(--space-1);
+}
+.crt-screen__content code {
+  font-family: var(--font-mono);
+  background: rgba(45, 226, 230, 0.12);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+}
+.crt-screen__content pre {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(45, 226, 230, 0.25);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+.crt-screen__content hr {
+  border: 0;
+  border-top: 1px dashed rgba(45, 226, 230, 0.35);
+  margin-block: var(--space-6);
+}
+.crt-screen__content blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: var(--space-3);
+  color: var(--color-phosphor-dim);
+}
+
+/* ------------------------------------------------------------------ *
+ * Stage controls (motion toggle etc.)
+ * ------------------------------------------------------------------ */
+.crt-stage__controls {
+  position: absolute;
+  top: clamp(0.75rem, 3vmin, 1.75rem);
+  right: clamp(0.75rem, 3vmin, 1.75rem);
+  z-index: var(--z-overlay);
+  display: flex;
+  gap: var(--space-2);
+}
+
+.crt-motion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  font: 600 var(--text-2xs) / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sw-cyan-200);
+  background: rgba(5, 1, 15, 0.82);
+  border: 1px solid rgba(45, 226, 230, 0.4);
+  border-radius: var(--radius-sm);
+  cursor: var(--crt-cursor-hand, pointer);
+}
+.crt-motion-toggle:hover {
+  border-color: var(--sw-cyan-400);
+  color: #fff;
+}
+.crt-motion-toggle:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.crt-motion-toggle__track {
+  position: relative;
+  width: 26px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background var(--dur-fast) linear;
+}
+.crt-motion-toggle[data-on="true"] .crt-motion-toggle__track {
+  background: var(--sw-magenta-500);
+}
+.crt-motion-toggle__thumb {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform var(--dur-fast) var(--ease-crt);
+}
+.crt-motion-toggle[data-on="true"] .crt-motion-toggle__thumb {
+  transform: translateX(14px);
+}
+
+/* ------------------------------------------------------------------ *
+ * Motion opt-out — OS setting OR in-app toggle
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .sw-bg__grid,
+  .sw-bg__sun,
+  .sw-bg__stars,
+  .crt-monitor__led,
+  .crt-screen__scanlines,
+  .crt-screen__static,
+  .crt-screen__flicker,
+  .crt-screen__flicker::after,
+  .crt-monitor,
+  .sw-bg {
+    animation: none !important;
+    transition: none !important;
+  }
+  .crt-screen--booting .crt-screen__content,
+  .crt-screen--booting .crt-screen__scanlines,
+  .crt-screen--booting .crt-screen__mask,
+  .crt-screen--off .crt-screen__content,
+  .crt-screen--off .crt-screen__scanlines,
+  .crt-screen--off .crt-screen__mask,
+  .crt-screen--off .crt-screen__static,
+  .crt-screen--off .crt-screen__flicker,
+  .crt-screen--off .crt-screen__off::after {
+    animation: none !important;
+  }
+  .crt-screen--off .crt-screen__content {
+    opacity: 0 !important;
+  }
+}
+
+:root[data-motion="off"] .sw-bg__grid,
+:root[data-motion="off"] .sw-bg__sun,
+:root[data-motion="off"] .sw-bg__stars,
+:root[data-motion="off"] .crt-monitor__led,
+:root[data-motion="off"] .crt-screen__scanlines,
+:root[data-motion="off"] .crt-screen__static,
+:root[data-motion="off"] .crt-screen__flicker,
+:root[data-motion="off"] .crt-screen__flicker::after,
+:root[data-motion="off"] .crt-monitor,
+:root[data-motion="off"] .sw-bg {
+  animation: none !important;
+  transition: none !important;
+}
+:root[data-motion="off"] .crt-monitor {
+  transform: none !important;
+}
+:root[data-motion="off"] .crt-screen--off .crt-screen__content,
+:root[data-motion="off"] .crt-screen--off .crt-screen__scanlines,
+:root[data-motion="off"] .crt-screen--off .crt-screen__mask,
+:root[data-motion="off"] .crt-screen--off .crt-screen__static,
+:root[data-motion="off"] .crt-screen--off .crt-screen__flicker,
+:root[data-motion="off"] .crt-screen--off .crt-screen__off::after {
+  animation: none !important;
+}
+:root[data-motion="off"] .crt-screen--off .crt-screen__content {
+  opacity: 0 !important;
+}
+
+/* ------------------------------------------------------------------ *
+ * Glowing cursor — a standard arrow / hand shape with a neon bloom
+ * baked into the SVG. No JS, no overlay: nothing to intercept hover.
+ * ------------------------------------------------------------------ */
+:root {
+  --crt-cursor-arrow: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='36'%20height='36'%20viewBox='0%200%2036%2036'%3E%3Cfilter%20id='g'%20x='-60%25'%20y='-60%25'%20width='220%25'%20height='220%25'%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='1.4'%20flood-color='%232de2e6'/%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='2.8'%20flood-color='%23ff2e97'%20flood-opacity='0.85'/%3E%3C/filter%3E%3Cpath%20filter='url(%23g)'%20d='M6%204%20L6%2025%20L11.7%2019.3%20L15.4%2027%20L19%2025.2%20L15.3%2017.6%20L23%2017.6%20Z'%20fill='%23ffffff'%20stroke='%23090912'%20stroke-width='1'/%3E%3C/svg%3E")
+    6 4, auto;
+  --crt-cursor-hand: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%3E%3Cfilter%20id='g'%20x='-60%25'%20y='-60%25'%20width='220%25'%20height='220%25'%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='1.4'%20flood-color='%232de2e6'/%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='2.8'%20flood-color='%23ff2e97'%20flood-opacity='0.85'/%3E%3C/filter%3E%3Cpath%20filter='url(%23g)'%20d='M14%204c-1.1%200-2%20.9-2%202v11l-2.3-2.4c-.8-.8-2-.8-2.8%200s-.8%202%200%202.8l5.4%206.3c1%201.2%202.5%201.9%204%201.9h5.4c2.5%200%204.5-2%204.5-4.5V13c0-1.1-.9-2-2-2-.4%200-.8.1-1.1.3V10c0-1.1-.9-2-2-2-.4%200-.8.1-1.1.3-.2-1-1.1-1.8-2.1-1.8-.4%200-.8.1-1.1.3V6c0-1.1-.9-2-2-2z'%20fill='%23ffffff'%20stroke='%23090912'%20stroke-width='1'/%3E%3C/svg%3E")
+    13 4, pointer;
+  --crt-cursor-text: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%3E%3Cfilter%20id='g'%20x='-70%25'%20y='-70%25'%20width='240%25'%20height='240%25'%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='1.2'%20flood-color='%232de2e6'/%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='2.4'%20flood-color='%23ff2e97'%20flood-opacity='0.85'/%3E%3C/filter%3E%3Cg%20filter='url(%23g)'%20fill='none'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M12%207h8M12%2025h8M16%207v18'%20stroke='%23090912'%20stroke-width='4.2'/%3E%3Cpath%20d='M12%207h8M12%2025h8M16%207v18'%20stroke='%23ffffff'%20stroke-width='2'/%3E%3C/g%3E%3C/svg%3E")
+    16 16, text;
+  --crt-cursor-grab: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%3E%3Cfilter%20id='g'%20x='-70%25'%20y='-70%25'%20width='240%25'%20height='240%25'%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='1.4'%20flood-color='%232de2e6'/%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='2.8'%20flood-color='%23ff2e97'%20flood-opacity='0.85'/%3E%3C/filter%3E%3Cpath%20filter='url(%23g)'%20d='M9%2021v-9a1.6%201.6%200%200%201%203.2%200v5M12.2%2018V8a1.6%201.6%200%200%201%203.2%200v7M15.4%2016V9a1.6%201.6%200%200%201%203.2%200v6M18.6%2016v-4a1.6%201.6%200%200%201%203.2%200v9c0%203.3-2.7%205.6-6.4%205.6h-3.2c-2.2%200-4.1-1-5.3-2.9l-3-4.7c-.7-1.1-.4-2.3.8-2.9%201.1-.5%202.3-.2%203%201z'%20fill='%23ffffff'%20stroke='%23090912'%20stroke-width='1'%20stroke-linejoin='round'/%3E%3C/svg%3E")
+    16 12, grab;
+  --crt-cursor-grabbing: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%3E%3Cfilter%20id='g'%20x='-70%25'%20y='-70%25'%20width='240%25'%20height='240%25'%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='1.4'%20flood-color='%232de2e6'/%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='2.8'%20flood-color='%23ff2e97'%20flood-opacity='0.85'/%3E%3C/filter%3E%3Cpath%20filter='url(%23g)'%20d='M9%2016v-2.6a1.6%201.6%200%200%201%203.2%200M12.2%2015v-2.6a1.6%201.6%200%200%201%203.2%200M15.4%2015v-2.6a1.6%201.6%200%200%201%203.2%200M18.6%2015v-1.6a1.6%201.6%200%200%201%203.2%200v7.6c0%203.3-2.7%205.6-6.4%205.6h-3.2c-2.6%200-4.8-1.6-5.9-4l-1.6-3.3c-.6-1.2%200-2.5%201.3-2.9%201.1-.3%202.3.2%203%201.4z'%20fill='%23ffffff'%20stroke='%23090912'%20stroke-width='1'%20stroke-linejoin='round'/%3E%3C/svg%3E")
+    16 12, grabbing;
+  --crt-cursor-crosshair: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%3E%3Cfilter%20id='g'%20x='-70%25'%20y='-70%25'%20width='240%25'%20height='240%25'%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='1.2'%20flood-color='%232de2e6'/%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='2.4'%20flood-color='%23ff2e97'%20flood-opacity='0.85'/%3E%3C/filter%3E%3Cg%20filter='url(%23g)'%20fill='none'%20stroke-linecap='round'%20stroke-linejoin='round'%3E%3Cpath%20d='M16%203v8M16%2021v8M3%2016h8M21%2016h8'%20stroke='%23090912'%20stroke-width='4.2'/%3E%3Cpath%20d='M16%203v8M16%2021v8M3%2016h8M21%2016h8'%20stroke='%23ffffff'%20stroke-width='2'/%3E%3C/g%3E%3Ccircle%20filter='url(%23g)'%20cx='16'%20cy='16'%20r='4.2'%20fill='none'%20stroke='%23ffffff'%20stroke-width='2'/%3E%3C/svg%3E")
+    16 16, crosshair;
+  --crt-cursor-blocked: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='32'%20height='32'%20viewBox='0%200%2032%2032'%3E%3Cfilter%20id='g'%20x='-70%25'%20y='-70%25'%20width='240%25'%20height='240%25'%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='1.2'%20flood-color='%232de2e6'/%3E%3CfeDropShadow%20dx='0'%20dy='0'%20stdDeviation='2.4'%20flood-color='%23ff2e97'%20flood-opacity='0.85'/%3E%3C/filter%3E%3Cg%20filter='url(%23g)'%20fill='none'%20stroke-linecap='round'%3E%3Ccircle%20cx='16'%20cy='16'%20r='9'%20stroke='%23090912'%20stroke-width='4.6'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='9'%20stroke='%23ffffff'%20stroke-width='2.4'/%3E%3Cpath%20d='M9.6%209.6l12.8%2012.8'%20stroke='%23090912'%20stroke-width='4.6'/%3E%3Cpath%20d='M9.6%209.6l12.8%2012.8'%20stroke='%23ffffff'%20stroke-width='2.4'/%3E%3C/g%3E%3C/svg%3E")
+    16 16, not-allowed;
+}
+body {
+  cursor: var(--crt-cursor-arrow);
+}
+/* text zones first — interactive descendants below override at equal
+   (`:where`, 0) specificity by source order */
+:where(.crt-screen__content, .rd-window__body, .noscript-fallback, p, li, h1, h2, h3) {
+  cursor: var(--crt-cursor-text);
+}
+:where(input, textarea, [contenteditable]) {
+  cursor: var(--crt-cursor-text);
+}
+:where(
+    a[href],
+    button,
+    summary,
+    label,
+    select,
+    [role="button"],
+    [role="switch"],
+    [role="tab"],
+    .rd-icon,
+    .rd-taskbar__item,
+    .crt-power
+  ):not(:disabled) {
+  cursor: var(--crt-cursor-hand);
+}
+:where(:disabled, [aria-disabled="true"]) {
+  cursor: var(--crt-cursor-blocked);
+}
+@media (hover: none) {
+  body,
+  :where(a[href], button, .rd-icon, input, textarea, .crt-screen__content) {
+    cursor: auto;
+  }
+}

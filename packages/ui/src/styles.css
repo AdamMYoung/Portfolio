@@ -1,0 +1,430 @@
+/**
+ * @portfolio/ui — retro-desktop chrome that lives *inside* the CRT screen.
+ * Namespace: rd-*  (retro desktop). Colours come from @portfolio/design-tokens.
+ */
+
+/* ---- Desktop surface ------------------------------------------------ */
+.rd-desktop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-mono);
+}
+
+/* The desktop is nested inside the CRT prose scope — neutralise inherited
+   prose list styling for its own structural lists. */
+.rd-desktop ul,
+.rd-desktop ol,
+.rd-desktop li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rd-desktop__surface {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background-image: radial-gradient(rgba(45, 226, 230, 0.14) 1px, transparent 1.5px);
+  background-size: 22px 22px;
+  background-position: center;
+}
+
+.rd-desktop__prompt {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-phosphor-dim);
+  letter-spacing: 0.1em;
+  pointer-events: none;
+}
+/* On a short/narrow screen the diversions column can reach almost to the
+   bottom edge — the decorative prompt would overlap the last icon's label. */
+@media (max-width: 640px), (max-height: 640px) {
+  .rd-desktop__prompt {
+    display: none;
+  }
+}
+.rd-desktop__prompt::after {
+  content: "_";
+  animation: rd-caret 1s steps(1) infinite;
+}
+@keyframes rd-caret {
+  50% {
+    opacity: 0;
+  }
+}
+:root[data-motion="off"] .rd-desktop__prompt::after {
+  animation: none;
+}
+
+.rd-desktop__icons {
+  position: absolute;
+  inset: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: var(--space-4);
+  max-height: 100%;
+}
+
+/* Diversions column — pinned to the right edge, kept apart from the
+   portfolio icons on the left. */
+.rd-desktop__icons--right {
+  inset: var(--space-3) var(--space-4) var(--space-3) auto;
+  align-content: flex-end;
+  text-align: right;
+  padding-right: var(--space-2);
+}
+.rd-desktop__icons--right::before {
+  content: "diversions //";
+  align-self: flex-end;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-phosphor-dim);
+}
+
+/* Some diversions (the keyboard-driven games) are hidden on touch-only
+   devices — no real pointer/keyboard, and the PixiJS chunk they'd load
+   is never fetched. Passive ones (Matrix, the hacker console) stay. */
+@media (hover: none), (pointer: coarse) {
+  .rd-desktop__icon--touch-hide,
+  .rd-window--touch-hide {
+    display: none !important;
+  }
+}
+
+/* ---- Desktop icons ------------------------------------------------- */
+.rd-icon {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  width: 92px;
+  padding: var(--space-2);
+  background: transparent;
+  border: 1px dotted transparent;
+  color: var(--color-phosphor);
+  font: inherit;
+  cursor: var(--crt-cursor-hand, pointer);
+  text-align: center;
+}
+.rd-icon:hover {
+  border-color: rgba(45, 226, 230, 0.5);
+  background: rgba(45, 226, 230, 0.08);
+}
+.rd-icon:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+.rd-icon__glyph {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(45, 226, 230, 0.6));
+}
+.rd-icon__label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.03em;
+  background: rgba(5, 1, 15, 0.55);
+  padding: 0 4px;
+}
+
+/* ---- Windows ----------------------------------------------------- */
+.rd-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  min-height: 140px;
+  /* hard cap — a panel's fixed px width/height (set for a roomy desktop
+     window) must never exceed the desktop surface it's drawn in, or its
+     content is clipped off past the CRT screen on a small viewport */
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--window-bg);
+  color: var(--window-fg);
+  border: 2px solid var(--window-border);
+  box-shadow: var(--window-shadow);
+  animation: rd-window-in var(--dur-med) var(--ease-crt);
+}
+@keyframes rd-window-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+}
+.rd-window--focused {
+  box-shadow:
+    var(--window-shadow),
+    0 0 0 1px var(--color-accent-2);
+}
+
+/* Maximised — fills the desktop surface (double-click the titlebar, or the
+   ▢ button, to toggle). */
+.rd-window--max {
+  border-width: 1px;
+  box-shadow: none;
+  animation: none;
+}
+.rd-window--max .rd-window__titlebar {
+  cursor: var(--crt-cursor-arrow, default);
+}
+
+.rd-window__titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: 3px 4px 3px 8px;
+  background: var(--window-titlebar-inactive);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: var(--crt-cursor-grab, grab);
+  user-select: none;
+  touch-action: none;
+}
+.rd-window--focused .rd-window__titlebar {
+  background: var(--window-titlebar-active);
+}
+.rd-window__titlebar:active {
+  cursor: var(--crt-cursor-grabbing, grabbing);
+}
+.rd-window__titlebar:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+.rd-window__title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+.rd-window__controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  /* inset from the titlebar's right edge */
+  margin-inline-end: 4px;
+}
+.rd-window__btn {
+  width: 18px;
+  height: 16px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: var(--rd-plastic-100);
+  color: #16161f;
+  border: 1px solid var(--rd-bevel-dark);
+  border-top-color: #fff;
+  border-left-color: #fff;
+  cursor: var(--crt-cursor-hand, pointer);
+}
+.rd-window__btn:hover {
+  background: #fff;
+}
+.rd-window__btn:active {
+  border-top-color: var(--rd-bevel-dark);
+  border-left-color: var(--rd-bevel-dark);
+  border-bottom-color: #fff;
+  border-right-color: #fff;
+}
+.rd-window__btn--close:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+/* CSS-drawn glyphs — pixel-centred in the button, no font-baseline drift */
+.rd-window__ico {
+  position: relative;
+  display: block;
+  width: 9px;
+  height: 9px;
+  color: inherit;
+}
+.rd-window__ico--min::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: currentColor;
+}
+.rd-window__ico--max::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid currentColor;
+}
+.rd-window__ico--restore::before,
+.rd-window__ico--restore::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid currentColor;
+}
+.rd-window__ico--restore::before {
+  left: 0;
+  bottom: 0;
+}
+.rd-window__ico--restore::after {
+  right: 0;
+  top: 0;
+  background: var(--rd-plastic-100);
+}
+.rd-window__btn:hover .rd-window__ico--restore::after {
+  background: #fff;
+}
+.rd-window__ico--close::before,
+.rd-window__ico--close::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 2px;
+  background: currentColor;
+}
+.rd-window__ico--close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.rd-window__ico--close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+.rd-window__body {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-4);
+  background: var(--window-bg);
+  border-top: 2px solid var(--rd-bevel-light);
+  line-height: 1.5;
+}
+.rd-window__body :is(h1, h2, h3) {
+  font-family: var(--font-mono);
+  color: var(--sw-purple-500);
+  margin-block: var(--space-3) var(--space-2);
+  line-height: 1.2;
+}
+.rd-window__body h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 1.3rem + 2vw, 2.6rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--sw-magenta-500);
+  text-shadow: 2px 2px 0 rgba(123, 47, 247, 0.35);
+}
+.rd-window__body h2 {
+  font-size: 1.15rem;
+  border-bottom: 2px solid var(--rd-bevel-light);
+  padding-bottom: 2px;
+}
+.rd-window__body a {
+  color: var(--sw-purple-500);
+  text-underline-offset: 2px;
+}
+
+/* ---- Generic beveled button ------------------------------------ */
+.rd-btn {
+  padding: 4px 12px;
+  font: 600 var(--text-sm) / 1.2 var(--font-mono);
+  color: #16161f;
+  background: var(--rd-plastic-100);
+  border: 2px solid;
+  border-color: #fff var(--rd-bevel-dark) var(--rd-bevel-dark) #fff;
+  cursor: var(--crt-cursor-hand, pointer);
+}
+.rd-btn:active {
+  border-color: var(--rd-bevel-dark) #fff #fff var(--rd-bevel-dark);
+}
+.rd-btn:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.rd-btn--primary {
+  background: var(--sw-magenta-500);
+  color: #fff;
+}
+.rd-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-phosphor);
+}
+
+/* ---- Taskbar -------------------------------------------------- */
+.rd-taskbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px 6px;
+  background: var(--rd-plastic-800);
+  border-top: 2px solid var(--rd-bevel-light);
+  color: var(--color-phosphor);
+  font-size: var(--text-xs);
+}
+.rd-taskbar__brand {
+  flex: none;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #fff;
+  text-shadow: 0 0 8px var(--sw-cyan-400);
+  padding: 2px var(--space-3) 2px var(--space-2);
+  border-right: 1px solid var(--rd-bevel-light);
+}
+.rd-taskbar__list {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+.rd-taskbar__item {
+  padding: 3px 10px;
+  max-width: 160px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: var(--rd-plastic-700);
+  color: inherit;
+  border: 1px solid var(--rd-bevel-dark);
+  border-top-color: var(--rd-bevel-light);
+  font: inherit;
+  cursor: var(--crt-cursor-hand, pointer);
+}
+.rd-taskbar__item--active {
+  background: var(--sw-void-700);
+  border-color: var(--color-accent-2);
+  color: #fff;
+}
+.rd-taskbar__item:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+.rd-taskbar__tray {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-left: var(--space-2);
+  border-left: 1px solid var(--rd-bevel-light);
+}
+.rd-clock {
+  font-variant-numeric: tabular-nums;
+  color: var(--sw-cyan-200);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rd-window {
+    animation: none;
+  }
+}
+:root[data-motion="off"] .rd-window {
+  animation: none;
+}

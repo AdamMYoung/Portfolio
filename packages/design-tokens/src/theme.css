@@ -1,0 +1,27 @@
+/**
+ * Tailwind v4 theme bridge. Import this once (globals.css) to expose a curated
+ * slice of the token system as Tailwind utilities (`bg-void`, `text-phosphor`,
+ * `font-crt`, …). `@theme inline` keeps the primitives in `tokens.css` as the
+ * single source — these are aliases, not copies.
+ */
+
+@import "./tokens.css";
+
+@theme inline {
+  --color-void: var(--sw-void-900);
+  --color-void-soft: var(--sw-void-800);
+  --color-void-700: var(--sw-void-700);
+  --color-ink: #16161f;
+  --color-paper: var(--rd-plastic-100);
+  --color-phosphor: var(--sw-cyan-200);
+  --color-phosphor-dim: #6fb9b0;
+  --color-magenta: var(--sw-magenta-500);
+  --color-magenta-soft: var(--sw-magenta-400);
+  --color-cyan: var(--sw-cyan-400);
+  --color-purple: var(--sw-purple-500);
+  --color-purple-soft: var(--sw-purple-400);
+  --color-amber: var(--sw-amber-400);
+
+  --font-code: var(--font-mono);
+  --font-crt: var(--font-display);
+}

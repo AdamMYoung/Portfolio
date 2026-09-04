@@ -1,0 +1,144 @@
+/**
+ * @portfolio/design-tokens — single source of truth for the synthwave / CRT system.
+ *
+ * Only *primitive* values live here. Components read the semantic aliases below,
+ * never the raw scales, so the whole aesthetic can be retuned from one file.
+ */
+
+:root {
+  /* ---- Primitive palette : synthwave ------------------------------------ */
+  --sw-void-900: #05010f;
+  --sw-void-800: #0b0420;
+  --sw-void-700: #140a33;
+  --sw-void-600: #1d1046;
+
+  --sw-cyan-400: #2de2e6;
+  --sw-cyan-300: #6bdef0;
+  --sw-cyan-200: #c8fff4;
+
+  --sw-magenta-500: #ff2e97;
+  --sw-magenta-400: #ff5cc8;
+  --sw-purple-500: #7b2ff7;
+  --sw-purple-400: #a56bff;
+  --sw-amber-400: #ffce54;
+  --sw-orange-400: #ff6ac1;
+  --sw-sun-top: #ff6ac1;
+  --sw-sun-mid: #ff8f6a;
+  --sw-sun-low: #ffd166;
+
+  /* ---- Primitive palette : retro desktop chrome ----------------------- */
+  --rd-plastic-900: #14141b;
+  --rd-plastic-800: #1f1f2b;
+  --rd-plastic-700: #2b2b3a;
+  --rd-plastic-100: #d7d7e6;
+  --rd-bevel-light: #52526a;
+  --rd-bevel-dark: #08080c;
+
+  /* ---- Type scale (fluid) ------------------------------------------- */
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, "Menlo", monospace;
+  --font-display: "VT323", "IBM Plex Mono", ui-monospace, monospace;
+
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: clamp(1.5rem, 1.1rem + 1.8vw, 2.25rem);
+  --text-2xl: clamp(2rem, 1.4rem + 3vw, 3.5rem);
+
+  /* ---- Spacing / radius / motion ----------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+
+  --ease-crt: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-med: 260ms;
+  --dur-slow: 600ms;
+
+  /* ---- Semantic aliases : surfaces & text -------------------------- */
+  --color-bg: var(--sw-void-900);
+  --color-bg-elevated: var(--rd-plastic-800);
+  --color-screen: #071a1a;
+  --color-phosphor: var(--sw-cyan-200);
+  --color-phosphor-dim: #6fb9b0;
+  --color-accent: var(--sw-magenta-500);
+  --color-accent-2: var(--sw-cyan-400);
+  --color-accent-3: var(--sw-amber-400);
+  --color-link: var(--sw-cyan-300);
+  --color-focus: var(--sw-amber-400);
+  --color-selection-bg: var(--sw-magenta-500);
+  --color-selection-fg: #ffffff;
+
+  /* ---- Semantic aliases : retro window chrome -------------------- */
+  --window-bg: var(--rd-plastic-100);
+  --window-fg: #16161f;
+  --window-border: var(--rd-bevel-dark);
+  --window-titlebar-active: linear-gradient(90deg, var(--sw-purple-500), var(--sw-magenta-500));
+  --window-titlebar-inactive: linear-gradient(90deg, #4a4a5c, #6a6a7c);
+  --window-shadow: 0 0 0 1px var(--rd-bevel-dark), 6px 6px 0 0 rgba(0, 0, 0, 0.45);
+
+  /* ---- CRT physical params -------------------------------------- */
+  --crt-screen-inset: clamp(14px, 3.5vmin, 44px);
+  --crt-bezel-radius: clamp(18px, 4vmin, 40px);
+  --crt-curvature: 12px; /* barrel distortion strength */
+  --crt-scanline-opacity: 0.18;
+  --crt-scanline-size: 3px;
+  --crt-vignette: 0.55;
+  --crt-glow: 0 0 40px rgba(45, 226, 230, 0.25), 0 0 120px rgba(123, 47, 247, 0.2);
+  --crt-flicker-duration: 6s;
+  --crt-static-opacity: 0.06;
+
+  /* ---- Real-3D monitor geometry ------------------------------- *
+   * The case is a solid box receding into -Z; `--crt-depth` is how far
+   * back the rear panel sits. */
+  --crt-depth: clamp(90px, 15vw, 210px);
+
+  /* ---- Parallax / pan rig ------------------------------------- *
+   * `--pan-x` / `--pan-y` (-1..1) are written to `.crt-stage` by
+   * useParallaxPan (rAF, only while settling). They feed ONE
+   * compositor-only transform on `.crt-monitor` (which orbits a pivot
+   * set *inside* the tube via `transform-origin`'s z value) and one
+   * translate on `.sw-bg` — never `perspective-origin`. */
+  --pan-max-deg: 22deg; /* big enough to see around the sides / top / bottom */
+  --pan-max-shift: 22px; /* max background counter-parallax (translate only) */
+  --pan-x: 0;
+  --pan-y: 0;
+  --crt-zoom: 1; /* eased toward ~1.045 while the pointer is over the screen */
+
+  /* ---- Background synthwave grid ------------------------------- */
+  --grid-color: rgba(89, 240, 255, 0.7);
+  --grid-glow: rgba(255, 46, 151, 0.45);
+  --grid-cell: 48px;
+  --grid-speed: 6s;
+  --grid-horizon: 44%;
+
+  --z-background: 0;
+  --z-stage: 10;
+  --z-window: 100;
+  --z-taskbar: 200;
+  --z-overlay: 900;
+}
+
+/* Motion is opt-out: honour the OS setting *and* an in-app toggle
+   (`data-motion="off"` on <html>). Components must gate keyframes on
+   `.motion-safe-only` or the media query below. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --grid-speed: 0s;
+    --crt-flicker-duration: 0s;
+  }
+}
+
+:root[data-motion="off"] {
+  --grid-speed: 0s;
+  --crt-flicker-duration: 0s;
+}

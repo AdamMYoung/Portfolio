@@ -1,0 +1,334 @@
+/**
+ * @portfolio/games — layout for the easter-egg game shell. Namespace: pg-*
+ * The Pixi canvas itself is aria-hidden; all status goes through `.pg-game__status`
+ * (an aria-live region) so screen-reader users still get score + game-over.
+ */
+
+.pg-game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  height: 100%;
+  min-height: 0;
+  color: var(--window-fg);
+  font-family: var(--font-mono);
+}
+
+/* The stage takes whatever vertical space is left after the status line,
+   bar and d-pad — so nothing is ever pushed below the fold, at any window
+   size including maximised. `--pg-aspect` only caps how wide it gets. */
+.pg-game__stage {
+  cursor: var(--crt-cursor-crosshair, crosshair);
+  position: relative;
+  flex: 1 1 0;
+  min-height: 120px;
+  max-height: 100%;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: var(--pg-aspect, 1);
+  align-self: center;
+  background: radial-gradient(120% 120% at 50% 0%, #0a0a1e, #05010f);
+  border: 2px solid var(--rd-bevel-dark);
+  box-shadow: inset 0 0 40px rgba(123, 47, 247, 0.35);
+}
+.pg-game__stage:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.pg-game__stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* clicks focus the stage wrapper, not the (inert) canvas */
+  pointer-events: none;
+}
+
+.pg-game__status {
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  background: var(--sw-void-800);
+  color: var(--color-phosphor);
+  font-size: var(--text-sm);
+  min-height: 1.6em;
+}
+
+.pg-game__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.pg-game__hint {
+  font-size: var(--text-xs);
+  color: #4a4a5c;
+}
+
+/* on-screen controls (touch) */
+.pg-dpad {
+  display: none;
+  gap: var(--space-2);
+  align-self: center;
+  margin-top: var(--space-2);
+}
+@media (hover: none) {
+  .pg-dpad {
+    display: grid;
+  }
+}
+.pg-dpad--horizontal {
+  grid-auto-flow: column;
+}
+.pg-dpad--dpad {
+  grid-template-columns: repeat(3, 3rem);
+  grid-template-rows: repeat(3, 3rem);
+}
+.pg-dpad__btn {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.1rem;
+  background: var(--rd-plastic-100);
+  border: 2px solid;
+  border-color: #fff var(--rd-bevel-dark) var(--rd-bevel-dark) #fff;
+  color: #16161f;
+  touch-action: none;
+  user-select: none;
+}
+.pg-dpad__btn:active {
+  border-color: var(--rd-bevel-dark) #fff #fff var(--rd-bevel-dark);
+}
+.pg-dpad--dpad .pg-dpad__up {
+  grid-area: 1 / 2;
+}
+.pg-dpad--dpad .pg-dpad__left {
+  grid-area: 2 / 1;
+}
+.pg-dpad--dpad .pg-dpad__fire {
+  grid-area: 2 / 2;
+  background: var(--sw-magenta-500);
+  color: #fff;
+}
+.pg-dpad--dpad .pg-dpad__right {
+  grid-area: 2 / 3;
+}
+.pg-dpad--dpad .pg-dpad__down {
+  grid-area: 3 / 2;
+}
+.pg-dpad--horizontal .pg-dpad__fire {
+  background: var(--sw-magenta-500);
+  color: #fff;
+}
+
+/* ================================================================= *
+ * Matrix rain easter egg — namespace mx-*
+ * ================================================================= */
+.mx {
+  cursor: var(--crt-cursor-crosshair, crosshair);
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #020804;
+}
+.mx__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.mx__tag {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  font: 400 var(--text-xs) / 1 var(--font-mono);
+  color: rgba(37, 240, 138, 0.7);
+  text-shadow: 0 0 8px rgba(37, 240, 138, 0.6);
+  letter-spacing: 0.12em;
+  pointer-events: none;
+}
+
+/* ================================================================= *
+ * Hacker console easter egg — namespace hx-*
+ * ================================================================= */
+.hx {
+  cursor: var(--crt-cursor-crosshair, crosshair);
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 6px;
+  height: 100%;
+  min-height: 0;
+  padding: 8px;
+  background: #04060a;
+  color: #37f08a;
+  font: 400 11px / 1.4 var(--font-mono);
+  text-shadow: 0 0 6px rgba(55, 240, 138, 0.35);
+  overflow: hidden;
+}
+.hx__bar {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 6px;
+  border: 1px solid rgba(55, 240, 138, 0.4);
+  background: rgba(55, 240, 138, 0.06);
+  letter-spacing: 0.14em;
+}
+.hx__title {
+  font-weight: 700;
+}
+.hx__blink {
+  color: var(--sw-amber-400);
+  text-shadow: 0 0 8px var(--sw-amber-400);
+  animation: hx-blink 1s steps(1) infinite;
+}
+@keyframes hx-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+.hx__log {
+  grid-row: 2 / 4;
+  margin: 0;
+  padding: 6px;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-all;
+  border: 1px solid rgba(55, 240, 138, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+}
+.hx__caret {
+  animation: hx-blink 0.8s steps(1) infinite;
+}
+.hx__side {
+  grid-row: 2 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
+}
+.hx__trace {
+  display: grid;
+  gap: 3px;
+  padding: 5px 6px;
+  border: 1px solid rgba(55, 240, 138, 0.25);
+}
+.hx__label {
+  font-size: 10px;
+  color: var(--sw-amber-400);
+  letter-spacing: 0.1em;
+}
+.hx__meter {
+  height: 10px;
+  border: 1px solid rgba(55, 240, 138, 0.5);
+  background: rgba(0, 0, 0, 0.5);
+}
+.hx__meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1c7, #37f08a);
+  box-shadow: 0 0 10px #37f08a;
+}
+.hx__ip {
+  font-size: 10px;
+  color: rgba(55, 240, 138, 0.7);
+}
+.hx__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 46px;
+  padding: 4px;
+  border: 1px solid rgba(55, 240, 138, 0.25);
+}
+.hx__bars span {
+  flex: 1;
+  background: linear-gradient(to top, #0a5, #37f08a);
+  animation: hx-bar 1.1s ease-in-out infinite alternate;
+}
+@keyframes hx-bar {
+  from {
+    height: 12%;
+  }
+  to {
+    height: 100%;
+  }
+}
+.hx__map {
+  flex: 1;
+  min-height: 0;
+  border: 1px solid rgba(55, 240, 138, 0.25);
+  background: rgba(0, 0, 0, 0.4);
+}
+.hx__grid {
+  stroke: rgba(55, 240, 138, 0.18);
+  stroke-width: 0.4;
+}
+.hx__arc {
+  stroke: rgba(255, 46, 151, 0.7);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 1.5;
+}
+.hx__node {
+  fill: var(--sw-amber-400);
+  filter: drop-shadow(0 0 3px var(--sw-amber-400));
+  animation: hx-blink 0.9s steps(1) infinite;
+}
+.hx__hex {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 2px 4px;
+  border: 1px solid rgba(55, 240, 138, 0.2);
+  color: rgba(55, 240, 138, 0.55);
+  font-size: 10px;
+}
+.hx__flash {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 700 clamp(1.4rem, 5vw, 2.6rem) / 1 var(--font-mono);
+  letter-spacing: 0.2em;
+  color: #050;
+  background: rgba(55, 240, 138, 0.92);
+  text-shadow: none;
+  animation: hx-flash 1.6s steps(1) forwards;
+}
+.hx__flash--deny {
+  color: #500;
+  background: rgba(255, 60, 90, 0.92);
+}
+@keyframes hx-flash {
+  0%,
+  20%,
+  40% {
+    opacity: 1;
+  }
+  10%,
+  30% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hx__blink,
+  .hx__caret,
+  .hx__bars span,
+  .hx__node,
+  .hx__flash {
+    animation: none;
+  }
+}
+:root[data-motion="off"] .hx__blink,
+:root[data-motion="off"] .hx__caret,
+:root[data-motion="off"] .hx__bars span,
+:root[data-motion="off"] .hx__node,
+:root[data-motion="off"] .hx__flash {
+  animation: none;
+}

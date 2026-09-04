@@ -1,9 +1,26 @@
+# deps
 node_modules
-build
-dist
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
-.env
-.turbo
-.image-cache
+# build
 .next
+out
+dist
+.turbo
+*.tsbuildinfo
 next-env.d.ts
+
+# misc
+.DS_Store
+*.log
+.env
+.env.local
+.env.*.local
+.vercel
+coverage

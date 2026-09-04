@@ -3,6 +3,7 @@
 import { CrtScreen, CrtStage, MotionToggle } from "@portfolio/crt";
 import { DesktopIcon, Taskbar, useWindows, Window, WindowManagerProvider } from "@portfolio/ui";
 import dynamic from "next/dynamic";
+import posthog from "posthog-js";
 import type { ComponentType, ReactNode } from "react";
 
 const AppLoading = () => (
@@ -79,7 +80,13 @@ function IconColumn({
 
 function DesktopInner({ panels }: { panels: Panel[] }) {
   const { open } = useWindows();
-  const openPanel = (p: Panel) => open({ id: p.id, title: p.title, icon: p.icon });
+  const openPanel = (p: Panel) => {
+    open({ id: p.id, title: p.title, icon: p.icon });
+    posthog.capture("panel_opened", { panel_id: p.id, panel_title: p.title });
+    if (p.app) {
+      posthog.capture("game_launched", { game: p.app, game_title: p.title });
+    }
+  };
 
   const left = panels.filter((p) => (p.side ?? "left") === "left");
   const right = panels.filter((p) => p.side === "right");

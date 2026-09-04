@@ -1,6 +1,7 @@
 import Blurdle, { meta as blurdle } from "@/content/projects/blurdle.mdx";
 import Photography, { meta as photography } from "@/content/projects/photography.mdx";
 import TrailWise, { meta as trailwise } from "@/content/projects/trailwise.mdx";
+import { ProjectLink } from "./project-link";
 
 const PROJECTS = [
   { Body: TrailWise, meta: trailwise },
@@ -17,9 +18,9 @@ export function ProjectsPanel() {
         <article key={meta.title} className="projects__item">
           <header className="projects__head">
             <h2>
-              <a href={meta.url} target="_blank" rel="noopener noreferrer">
+              <ProjectLink href={meta.url ?? "#"} title={meta.title}>
                 {meta.title}
-              </a>
+              </ProjectLink>
             </h2>
             <p className="projects__year">{meta.year}</p>
           </header>

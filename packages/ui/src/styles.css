@@ -70,6 +70,7 @@
   inset: var(--space-3) var(--space-3) var(--space-3) auto;
   align-content: flex-end;
   text-align: right;
+  margin-left: var(--space-4);
   padding-left: var(--space-4);
   border-left: 1px dashed rgba(45, 226, 230, 0.25);
 }
@@ -185,11 +186,15 @@
 }
 .rd-window__controls {
   display: flex;
-  gap: 3px;
+  align-items: center;
+  gap: 4px;
+  /* inset from the titlebar's right edge */
+  margin-inline-end: 4px;
 }
 .rd-window__btn {
-  width: 20px;
-  height: 18px;
+  width: 18px;
+  height: 16px;
+  padding: 0;
   display: grid;
   place-items: center;
   background: var(--rd-plastic-100);
@@ -197,7 +202,6 @@
   border: 1px solid var(--rd-bevel-dark);
   border-top-color: #fff;
   border-left-color: #fff;
-  font: 700 13px / 1 var(--font-mono);
   cursor: var(--crt-cursor-hand, pointer);
 }
 .rd-window__btn:hover {
@@ -212,6 +216,67 @@
 .rd-window__btn--close:hover {
   background: var(--color-accent);
   color: #fff;
+}
+
+/* CSS-drawn glyphs — pixel-centred in the button, no font-baseline drift */
+.rd-window__ico {
+  position: relative;
+  display: block;
+  width: 9px;
+  height: 9px;
+  color: inherit;
+}
+.rd-window__ico--min::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: currentColor;
+}
+.rd-window__ico--max::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid currentColor;
+}
+.rd-window__ico--restore::before,
+.rd-window__ico--restore::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid currentColor;
+}
+.rd-window__ico--restore::before {
+  left: 0;
+  bottom: 0;
+}
+.rd-window__ico--restore::after {
+  right: 0;
+  top: 0;
+  background: var(--rd-plastic-100);
+}
+.rd-window__btn:hover .rd-window__ico--restore::after {
+  background: #fff;
+}
+.rd-window__ico--close::before,
+.rd-window__ico--close::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 2px;
+  background: currentColor;
+}
+.rd-window__ico--close::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.rd-window__ico--close::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 .rd-window__body {
   flex: 1;

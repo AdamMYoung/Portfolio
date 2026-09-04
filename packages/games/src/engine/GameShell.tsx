@@ -1,7 +1,7 @@
 "use client";
 
 import type { Application } from "pixi.js";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from "react";
 
 export type InputState = {
   /** -1 / 0 / 1 on each axis — held state, for continuous movement. */
@@ -196,7 +196,7 @@ export function GameShell({
         aria-roledescription="game"
         tabIndex={0}
         onPointerDown={() => hostRef.current?.focus()}
-        style={{ aspectRatio: String(aspect) }}
+        style={{ "--pg-aspect": aspect } as CSSProperties}
       />
       <p className="pg-game__status" role="status" aria-live="polite">
         {status}

@@ -145,7 +145,7 @@ export function Window({
             onClick={() => toggleMinimize(id)}
             aria-label={`Minimise ${title}`}
           >
-            _
+            <span className="rd-window__ico rd-window__ico--min" aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -154,7 +154,10 @@ export function Window({
             aria-pressed={maximized}
             aria-label={maximized ? `Restore ${title}` : `Maximise ${title}`}
           >
-            {maximized ? "❐" : "▢"}
+            <span
+              className={`rd-window__ico rd-window__ico--${maximized ? "restore" : "max"}`}
+              aria-hidden="true"
+            />
           </button>
           <button
             type="button"
@@ -162,7 +165,7 @@ export function Window({
             onClick={() => close(id)}
             aria-label={`Close ${title}`}
           >
-            ×
+            <span className="rd-window__ico rd-window__ico--close" aria-hidden="true" />
           </button>
         </span>
       </div>

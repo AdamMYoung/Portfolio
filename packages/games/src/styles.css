@@ -9,15 +9,24 @@
   flex-direction: column;
   gap: var(--space-2);
   height: 100%;
+  min-height: 0;
   color: var(--window-fg);
   font-family: var(--font-mono);
 }
 
+/* The stage takes whatever vertical space is left after the status line,
+   bar and d-pad — so nothing is ever pushed below the fold, at any window
+   size including maximised. `--pg-aspect` only caps how wide it gets. */
 .pg-game__stage {
   cursor: var(--crt-cursor-crosshair, crosshair);
   position: relative;
+  flex: 1 1 0;
+  min-height: 120px;
+  max-height: 100%;
   width: 100%;
-  max-height: 60vh;
+  max-width: 100%;
+  aspect-ratio: var(--pg-aspect, 1);
+  align-self: center;
   background: radial-gradient(120% 120% at 50% 0%, #0a0a1e, #05010f);
   border: 2px solid var(--rd-bevel-dark);
   box-shadow: inset 0 0 40px rgba(123, 47, 247, 0.35);
@@ -118,7 +127,7 @@
   cursor: var(--crt-cursor-crosshair, crosshair);
   position: relative;
   height: 100%;
-  min-height: 260px;
+  min-height: 0;
   overflow: hidden;
   background: #020804;
 }
@@ -149,7 +158,7 @@
   grid-template-rows: auto 1fr auto;
   gap: 6px;
   height: 100%;
-  min-height: 300px;
+  min-height: 0;
   padding: 8px;
   background: #04060a;
   color: #37f08a;
@@ -199,6 +208,7 @@
   flex-direction: column;
   gap: 6px;
   min-height: 0;
+  overflow: hidden;
 }
 .hx__trace {
   display: grid;
@@ -248,7 +258,7 @@
 }
 .hx__map {
   flex: 1;
-  min-height: 70px;
+  min-height: 0;
   border: 1px solid rgba(55, 240, 138, 0.25);
   background: rgba(0, 0, 0, 0.4);
 }

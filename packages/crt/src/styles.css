@@ -288,6 +288,23 @@
   background: linear-gradient(to left, #101017, #2c2c37 92%);
 }
 
+/* ---- interior baffle ----
+ * A square, opaque panel sitting a few px behind the bezel. The bezel,
+ * the walls and the back panel are all rounded, so at each corner they
+ * curve away and leave a small void; without this you'd see straight
+ * into the case (or through it). The baffle's square corners fill those
+ * voids, and being dark it just reads as corner shadow. */
+.crt-monitor__baffle {
+  position: absolute;
+  /* slightly larger than the bezel so its rounded edge fills the corner
+     voids and reads as a thin dark frame around the screen */
+  inset: calc(var(--crt-bezel-radius) * -0.55);
+  border-radius: var(--crt-bezel-radius);
+  transform: translateZ(calc(var(--crt-depth) * -0.05));
+  background: radial-gradient(120% 120% at 50% 40%, #14141c, #07070c 82%);
+  backface-visibility: hidden;
+}
+
 /* ---- rounded back panel ---- */
 .crt-face--back {
   position: absolute;

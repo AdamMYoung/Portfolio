@@ -43,6 +43,9 @@ export function CrtScreen({
         <div className="crt-wall crt-wall--b" />
         <div className="crt-wall crt-wall--l" />
         <div className="crt-wall crt-wall--r" />
+        {/* square baffle just behind the bezel — plugs the rounded-corner
+            voids so you can't see into the case */}
+        <div className="crt-monitor__baffle" />
       </div>
 
       <div className="crt-face--front">

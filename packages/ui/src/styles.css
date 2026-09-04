@@ -40,6 +40,13 @@
   letter-spacing: 0.1em;
   pointer-events: none;
 }
+/* On a short/narrow screen the diversions column can reach almost to the
+   bottom edge — the decorative prompt would overlap the last icon's label. */
+@media (max-width: 640px), (max-height: 640px) {
+  .rd-desktop__prompt {
+    display: none;
+  }
+}
 .rd-desktop__prompt::after {
   content: "_";
   animation: rd-caret 1s steps(1) infinite;
@@ -79,6 +86,16 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--color-phosphor-dim);
+}
+
+/* Some diversions (the keyboard-driven games) are hidden on touch-only
+   devices — no real pointer/keyboard, and the PixiJS chunk they'd load
+   is never fetched. Passive ones (Matrix, the hacker console) stay. */
+@media (hover: none), (pointer: coarse) {
+  .rd-desktop__icon--touch-hide,
+  .rd-window--touch-hide {
+    display: none !important;
+  }
 }
 
 /* ---- Desktop icons ------------------------------------------------- */
@@ -122,6 +139,11 @@
   flex-direction: column;
   min-width: 240px;
   min-height: 140px;
+  /* hard cap — a panel's fixed px width/height (set for a roomy desktop
+     window) must never exceed the desktop surface it's drawn in, or its
+     content is clipped off past the CRT screen on a small viewport */
+  max-width: 100%;
+  max-height: 100%;
   background: var(--window-bg);
   color: var(--window-fg);
   border: 2px solid var(--window-border);

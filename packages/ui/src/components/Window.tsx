@@ -6,6 +6,7 @@ import {
   type ReactNode,
   type PointerEvent as ReactPointerEvent,
   useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -24,6 +25,7 @@ type Props = {
   initial?: { x: number; y: number };
   width?: number;
   height?: number;
+  className?: string;
 };
 
 const STEP = 16;
@@ -37,6 +39,7 @@ export function Window({
   initial,
   width = 460,
   height = 380,
+  className,
 }: Props) {
   const { isOpen, close, focus, toggleMinimize, zIndexOf, focusedId, stack } = useWindows();
   const ref = useRef<HTMLDivElement>(null);
@@ -58,18 +61,39 @@ export function Window({
 
   useFocusTrap(ref, open && !minimized && modal);
 
+  // Clamp against the real desktop surface (the window's positioned
+  // ancestor), not the browser viewport — on a narrow/mobile screen the CRT
+  // screen is much smaller than the window, so viewport-based clamping let
+  // windows get dragged (or open) partly off the surface and clipped. Keeps
+  // the whole (width/height-capped) window inside the surface whenever it
+  // fits, rather than only guaranteeing a sliver stays visible.
   const clampToViewport = useCallback(
     (x: number, y: number) => {
-      const pad = 8;
-      const maxX = window.innerWidth - 120;
-      const maxY = window.innerHeight - 48;
+      const bounds = ref.current?.offsetParent as HTMLElement | null;
+      const boundsW = bounds?.clientWidth ?? window.innerWidth;
+      const boundsH = bounds?.clientHeight ?? window.innerHeight;
+      const effW = Math.min(width, boundsW);
+      const effH = Math.min(height, boundsH);
+      const maxX = Math.max(0, boundsW - effW);
+      const maxY = Math.max(0, boundsH - effH);
       return {
-        x: Math.min(Math.max(x, -width + 140), Math.min(maxX, window.innerWidth - pad)),
-        y: Math.min(Math.max(y, pad), maxY),
+        x: Math.min(Math.max(x, 0), maxX),
+        y: Math.min(Math.max(y, 0), maxY),
       };
     },
-    [width]
+    [width, height]
   );
+
+  // Correct the position whenever the window opens: it always exists in the
+  // tree (this component just renders null while closed), so a mount-only
+  // effect would run once before `ref` is ever attached and never again. An
+  // initial position sized for a wide desktop can start partly off-surface
+  // on a small screen — this pulls it back in bounds each time it's shown.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-clamp on open, not on every position change
+  useEffect(() => {
+    if (!open || !ref.current) return;
+    setPos((p) => clampToViewport(p.x, p.y));
+  }, [open]);
 
   const onTitlePointerDown = (e: ReactPointerEvent) => {
     if ((e.target as HTMLElement).closest("button")) return;
@@ -115,7 +139,12 @@ export function Window({
   return (
     <div
       ref={ref}
-      className={cn("rd-window", focused && "rd-window--focused", maximized && "rd-window--max")}
+      className={cn(
+        "rd-window",
+        focused && "rd-window--focused",
+        maximized && "rd-window--max",
+        className
+      )}
       style={style}
       role="dialog"
       aria-modal={modal || undefined}

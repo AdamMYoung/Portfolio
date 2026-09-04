@@ -36,6 +36,8 @@ export type Panel = {
   width?: number;
   height?: number;
   modal?: boolean;
+  /** Hide the icon and window on touch-only devices (no real keyboard/mouse). */
+  disableOnTouch?: boolean;
 };
 
 export function Desktop({ panels, defaultOpen }: { panels: Panel[]; defaultOpen?: string }) {
@@ -67,7 +69,7 @@ function IconColumn({
   return (
     <ul className={`rd-desktop__icons${className ? ` ${className}` : ""}`} aria-label={label}>
       {panels.map((p) => (
-        <li key={p.id}>
+        <li key={p.id} className={p.disableOnTouch ? "rd-desktop__icon--touch-hide" : undefined}>
           <DesktopIcon icon={p.icon} label={p.title} onOpen={() => onOpen(p)} />
         </li>
       ))}
@@ -108,6 +110,7 @@ function DesktopInner({ panels }: { panels: Panel[] }) {
               width={p.width}
               height={p.height}
               modal={p.modal}
+              className={p.disableOnTouch ? "rd-window--touch-hide" : undefined}
             >
               {App ? <App /> : p.node}
             </Window>

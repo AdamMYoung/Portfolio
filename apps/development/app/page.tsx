@@ -36,6 +36,7 @@ const panels: Panel[] = [
     side: "right",
     width: 430,
     height: 540,
+    disableOnTouch: true,
   },
   {
     id: "invaders",
@@ -45,6 +46,7 @@ const panels: Panel[] = [
     side: "right",
     width: 520,
     height: 540,
+    disableOnTouch: true,
   },
   {
     id: "matrix",

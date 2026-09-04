@@ -93,7 +93,7 @@
   border: 1px dotted transparent;
   color: var(--color-phosphor);
   font: inherit;
-  cursor: pointer;
+  cursor: var(--crt-cursor-hand, pointer);
   text-align: center;
 }
 .rd-icon:hover {
@@ -149,7 +149,7 @@
   animation: none;
 }
 .rd-window--max .rd-window__titlebar {
-  cursor: default;
+  cursor: var(--crt-cursor-arrow, default);
 }
 
 .rd-window__titlebar {
@@ -163,7 +163,7 @@
   font-size: var(--text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
-  cursor: grab;
+  cursor: var(--crt-cursor-grab, grab);
   user-select: none;
   touch-action: none;
 }
@@ -171,7 +171,7 @@
   background: var(--window-titlebar-active);
 }
 .rd-window__titlebar:active {
-  cursor: grabbing;
+  cursor: var(--crt-cursor-grabbing, grabbing);
 }
 .rd-window__titlebar:focus-visible {
   outline: 2px solid var(--color-focus);
@@ -198,7 +198,7 @@
   border-top-color: #fff;
   border-left-color: #fff;
   font: 700 13px / 1 var(--font-mono);
-  cursor: pointer;
+  cursor: var(--crt-cursor-hand, pointer);
 }
 .rd-window__btn:hover {
   background: #fff;
@@ -253,7 +253,7 @@
   background: var(--rd-plastic-100);
   border: 2px solid;
   border-color: #fff var(--rd-bevel-dark) var(--rd-bevel-dark) #fff;
-  cursor: pointer;
+  cursor: var(--crt-cursor-hand, pointer);
 }
 .rd-btn:active {
   border-color: var(--rd-bevel-dark) #fff #fff var(--rd-bevel-dark);
@@ -312,7 +312,7 @@
   border: 1px solid var(--rd-bevel-dark);
   border-top-color: var(--rd-bevel-light);
   font: inherit;
-  cursor: pointer;
+  cursor: var(--crt-cursor-hand, pointer);
 }
 .rd-taskbar__item--active {
   background: var(--sw-void-700);

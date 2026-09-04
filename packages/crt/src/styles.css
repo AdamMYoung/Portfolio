@@ -441,18 +441,27 @@
   outline-offset: 2px;
 }
 
-/* ---- CRT power-off: image collapses to a bright line, then a dot ---- */
+/* ---- CRT power-off: image collapses to a bright dash, then fades ----
+ * Deliberately `transition`-driven, not a fill-mode keyframe animation.
+ * `animation-fill-mode: forwards/both` toggled on and off by adding/
+ * removing a class is unreliable in Safari — it can leave the element
+ * stuck showing the animation's last frame (invisible/collapsed) even
+ * after the class is removed, since WebKit doesn't always replay or
+ * reset a named animation cleanly on rapid re-triggers. A transition
+ * has no such "replay" ambiguity: it always animates from the current
+ * computed value to whatever the active rules say right now. */
 .crt-screen__off {
   position: absolute;
   inset: 0;
   background: #050506;
   opacity: 0;
   pointer-events: none;
+  transition: opacity 420ms var(--ease-crt);
 }
 .crt-screen--off .crt-screen__off {
   opacity: 1;
 }
-.crt-screen--off .crt-screen__off::after {
+.crt-screen__off::after {
   content: "";
   position: absolute;
   left: 50%;
@@ -463,41 +472,33 @@
   background: #d8fff0;
   box-shadow: 0 0 14px 5px rgba(150, 235, 255, 0.9);
   transform: translate(-50%, -50%);
-  animation: crt-dot-fade 1s 320ms var(--ease-crt) forwards;
+  opacity: 0;
+  transition: opacity 260ms var(--ease-crt) 260ms;
+}
+.crt-screen--off .crt-screen__off::after {
+  opacity: 1;
+  transition:
+    opacity 200ms var(--ease-crt) 160ms,
+    box-shadow 700ms var(--ease-crt) 500ms;
+}
+.crt-screen__content,
+.crt-screen__scanlines,
+.crt-screen__mask,
+.crt-screen__static,
+.crt-screen__flicker {
+  transition:
+    transform 380ms var(--ease-crt),
+    opacity 380ms var(--ease-crt),
+    filter 380ms var(--ease-crt);
 }
 .crt-screen--off .crt-screen__content,
 .crt-screen--off .crt-screen__scanlines,
 .crt-screen--off .crt-screen__mask,
 .crt-screen--off .crt-screen__static,
 .crt-screen--off .crt-screen__flicker {
-  animation: crt-collapse 380ms var(--ease-crt) forwards;
-}
-@keyframes crt-collapse {
-  0% {
-    transform: scale(1, 1);
-    filter: brightness(1);
-    opacity: 1;
-  }
-  55% {
-    transform: scale(1.06, 0.006);
-    filter: brightness(2.6);
-    opacity: 1;
-  }
-  82% {
-    transform: scale(0.002, 0.006);
-    filter: brightness(4);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(0, 0);
-    opacity: 0;
-  }
-}
-@keyframes crt-dot-fade {
-  to {
-    opacity: 0;
-    box-shadow: 0 0 0 0 rgba(150, 235, 255, 0);
-  }
+  transform: scale(1, 0.006);
+  filter: brightness(3);
+  opacity: 0;
 }
 
 /* ------------------------------------------------------------------ *
@@ -656,31 +657,17 @@
   );
 }
 
-/* power-on sweep: a bright line expands from centre when the screen mounts */
+/* power-on sweep: starts collapsed + bright (the state present on first
+ * paint, or the instant `powered` flips back true), then the shared
+ * `.crt-screen__content` transition above eases it open as soon as this
+ * class is removed. Transition-driven for the same Safari-safety reason
+ * as the power-off effect — see the note above it. */
 .crt-screen--booting .crt-screen__content,
 .crt-screen--booting .crt-screen__scanlines,
 .crt-screen--booting .crt-screen__mask {
-  animation: crt-power-on 620ms var(--ease-crt) both;
-}
-@keyframes crt-power-on {
-  0% {
-    transform: scale(1, 0.004);
-    filter: brightness(6);
-    opacity: 0.9;
-  }
-  35% {
-    transform: scale(1, 0.02);
-    filter: brightness(3);
-  }
-  70% {
-    transform: scale(1.02, 1);
-    filter: brightness(1.4);
-  }
-  100% {
-    transform: scale(1, 1);
-    filter: brightness(1);
-    opacity: 1;
-  }
+  transform: scale(1, 0.004);
+  filter: brightness(6);
+  opacity: 0.9;
 }
 
 /* phosphor styling for content authored as plain / MDX markup */
@@ -824,16 +811,14 @@
     animation: none !important;
     transition: none !important;
   }
-  .crt-screen--booting .crt-screen__content,
-  .crt-screen--booting .crt-screen__scanlines,
-  .crt-screen--booting .crt-screen__mask,
-  .crt-screen--off .crt-screen__content,
-  .crt-screen--off .crt-screen__scanlines,
-  .crt-screen--off .crt-screen__mask,
-  .crt-screen--off .crt-screen__static,
-  .crt-screen--off .crt-screen__flicker,
-  .crt-screen--off .crt-screen__off::after {
-    animation: none !important;
+  .crt-screen__content,
+  .crt-screen__scanlines,
+  .crt-screen__mask,
+  .crt-screen__static,
+  .crt-screen__flicker,
+  .crt-screen__off,
+  .crt-screen__off::after {
+    transition: none !important;
   }
   .crt-screen--off .crt-screen__content {
     opacity: 0 !important;
@@ -856,13 +841,14 @@
 :root[data-motion="off"] .crt-monitor {
   transform: none !important;
 }
-:root[data-motion="off"] .crt-screen--off .crt-screen__content,
-:root[data-motion="off"] .crt-screen--off .crt-screen__scanlines,
-:root[data-motion="off"] .crt-screen--off .crt-screen__mask,
-:root[data-motion="off"] .crt-screen--off .crt-screen__static,
-:root[data-motion="off"] .crt-screen--off .crt-screen__flicker,
-:root[data-motion="off"] .crt-screen--off .crt-screen__off::after {
-  animation: none !important;
+:root[data-motion="off"] .crt-screen__content,
+:root[data-motion="off"] .crt-screen__scanlines,
+:root[data-motion="off"] .crt-screen__mask,
+:root[data-motion="off"] .crt-screen__static,
+:root[data-motion="off"] .crt-screen__flicker,
+:root[data-motion="off"] .crt-screen__off,
+:root[data-motion="off"] .crt-screen__off::after {
+  transition: none !important;
 }
 :root[data-motion="off"] .crt-screen--off .crt-screen__content {
   opacity: 0 !important;

@@ -24,6 +24,24 @@ const nextConfig = {
   compiler: {
     removeConsole: { exclude: ["error", "warn"] },
   },
+  async rewrites() {
+    return [
+      {
+        source: "/ingest/static/:path*",
+        destination: `${process.env.NEXT_PUBLIC_POSTHOG_HOST?.replace("eu.i.", "eu-assets.i.")}/static/:path*`,
+      },
+      {
+        source: "/ingest/array/:path*",
+        destination: `${process.env.NEXT_PUBLIC_POSTHOG_HOST?.replace("eu.i.", "eu-assets.i.")}/array/:path*`,
+      },
+      {
+        source: "/ingest/:path*",
+        destination: `${process.env.NEXT_PUBLIC_POSTHOG_HOST}/:path*`,
+      },
+    ];
+  },
+  // Required to support PostHog trailing slash API requests
+  skipTrailingSlashRedirect: true,
 };
 
 const withMDX = createMDX({

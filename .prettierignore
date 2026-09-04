@@ -1,9 +1,0 @@
-node_modules
-build
-dist
-
-.env
-.turbo
-.next
-.yarn
-next-env.d.ts

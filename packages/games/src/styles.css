@@ -1,0 +1,111 @@
+/**
+ * @portfolio/games — layout for the easter-egg game shell. Namespace: pg-*
+ * The Pixi canvas itself is aria-hidden; all status goes through `.pg-game__status`
+ * (an aria-live region) so screen-reader users still get score + game-over.
+ */
+
+.pg-game {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  height: 100%;
+  color: var(--window-fg);
+  font-family: var(--font-mono);
+}
+
+.pg-game__stage {
+  position: relative;
+  width: 100%;
+  max-height: 60vh;
+  background: radial-gradient(120% 120% at 50% 0%, #0a0a1e, #05010f);
+  border: 2px solid var(--rd-bevel-dark);
+  box-shadow: inset 0 0 40px rgba(123, 47, 247, 0.35);
+}
+.pg-game__stage:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.pg-game__stage canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* clicks focus the stage wrapper, not the (inert) canvas */
+  pointer-events: none;
+}
+
+.pg-game__status {
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  background: var(--sw-void-800);
+  color: var(--color-phosphor);
+  font-size: var(--text-sm);
+  min-height: 1.6em;
+}
+
+.pg-game__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.pg-game__hint {
+  font-size: var(--text-xs);
+  color: #4a4a5c;
+}
+
+/* on-screen controls (touch) */
+.pg-dpad {
+  display: none;
+  gap: var(--space-2);
+  align-self: center;
+  margin-top: var(--space-2);
+}
+@media (hover: none) {
+  .pg-dpad {
+    display: grid;
+  }
+}
+.pg-dpad--horizontal {
+  grid-auto-flow: column;
+}
+.pg-dpad--dpad {
+  grid-template-columns: repeat(3, 3rem);
+  grid-template-rows: repeat(3, 3rem);
+}
+.pg-dpad__btn {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.1rem;
+  background: var(--rd-plastic-100);
+  border: 2px solid;
+  border-color: #fff var(--rd-bevel-dark) var(--rd-bevel-dark) #fff;
+  color: #16161f;
+  touch-action: none;
+  user-select: none;
+}
+.pg-dpad__btn:active {
+  border-color: var(--rd-bevel-dark) #fff #fff var(--rd-bevel-dark);
+}
+.pg-dpad--dpad .pg-dpad__up {
+  grid-area: 1 / 2;
+}
+.pg-dpad--dpad .pg-dpad__left {
+  grid-area: 2 / 1;
+}
+.pg-dpad--dpad .pg-dpad__fire {
+  grid-area: 2 / 2;
+  background: var(--sw-magenta-500);
+  color: #fff;
+}
+.pg-dpad--dpad .pg-dpad__right {
+  grid-area: 2 / 3;
+}
+.pg-dpad--dpad .pg-dpad__down {
+  grid-area: 3 / 2;
+}
+.pg-dpad--horizontal .pg-dpad__fire {
+  background: var(--sw-magenta-500);
+  color: #fff;
+}

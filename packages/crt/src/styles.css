@@ -1,0 +1,600 @@
+/**
+ * @portfolio/crt — all visual chrome for the CRT + synthwave stage.
+ * Pure CSS: no canvas, no WebGL. Every animation is gated behind both the OS
+ * `prefers-reduced-motion` setting and an in-app `:root[data-motion="off"]`
+ * toggle (see the block at the end of this file).
+ *
+ * Class namespaces:  crt-*  (monitor / screen)   sw-*  (synthwave background)
+ */
+
+/* ------------------------------------------------------------------ *
+ * Stage — establishes the 3D space the monitor tilts within
+ * ------------------------------------------------------------------ */
+.crt-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  width: 100%;
+  padding: clamp(1rem, 4vmin, 4rem);
+  overflow: hidden;
+  background: var(--color-bg);
+  perspective: 1400px;
+  perspective-origin: calc(50% + var(--pan-x) * 12%) calc(50% + var(--pan-y) * 12%);
+  isolation: isolate;
+}
+
+/* ------------------------------------------------------------------ *
+ * Synthwave background
+ * ------------------------------------------------------------------ */
+.sw-bg {
+  position: absolute;
+  inset: -10%;
+  z-index: var(--z-background);
+  pointer-events: none;
+  perspective: 520px;
+  background: radial-gradient(
+    120% 75% at 50% var(--grid-horizon),
+    rgba(255, 46, 151, 0.22) 0%,
+    var(--sw-void-700) 26%,
+    var(--sw-void-800) 55%,
+    var(--sw-void-900) 100%
+  );
+  /* counter-parallax: drift the vanishing point against pointer travel */
+  perspective-origin: calc(50% + var(--pan-x) * -40px) calc(100% + var(--pan-y) * -24px);
+  transition: perspective-origin var(--dur-slow) var(--ease-crt);
+}
+
+.sw-bg__stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.8) 50%, transparent),
+    radial-gradient(1px 1px at 75% 15%, rgba(255, 255, 255, 0.6) 50%, transparent),
+    radial-gradient(1.5px 1.5px at 50% 45%, rgba(200, 255, 244, 0.7) 50%, transparent),
+    radial-gradient(1px 1px at 85% 55%, rgba(255, 255, 255, 0.5) 50%, transparent),
+    radial-gradient(1px 1px at 12% 60%, rgba(255, 255, 255, 0.5) 50%, transparent);
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0 var(--grid-horizon),
+    transparent var(--grid-horizon)
+  );
+  animation: sw-twinkle 4s steps(2) infinite alternate;
+}
+
+/* Retro sun sitting on the horizon, sliced by horizontal bands */
+.sw-bg__sun {
+  position: absolute;
+  left: 50%;
+  top: var(--grid-horizon);
+  width: min(60vmin, 560px);
+  aspect-ratio: 1;
+  translate: -50% -58%;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    var(--sw-sun-top) 0%,
+    var(--sw-sun-mid) 45%,
+    var(--sw-sun-low) 100%
+  );
+  /* horizontal slats: transparent gaps widen toward the base */
+  mask-image: repeating-linear-gradient(
+    180deg,
+    #000 0 8px,
+    transparent 8px 10px,
+    #000 10px 22px,
+    transparent 22px 26px,
+    #000 26px 44px,
+    transparent 44px 52px,
+    #000 52px 74px,
+    transparent 74px 88px
+  );
+  filter: drop-shadow(0 0 40px rgba(255, 106, 193, 0.55));
+  animation: sw-sun-breathe 8s var(--ease-crt) infinite alternate;
+}
+
+.sw-bg__glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    60% 40% at 50% var(--grid-horizon),
+    rgba(255, 90, 170, 0.28) 0%,
+    transparent 70%
+  );
+}
+
+/* bright bloom where floor meets sky */
+.sw-bg__horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--grid-horizon);
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--sw-cyan-200) 20%,
+    #fff 50%,
+    var(--sw-magenta-400) 80%,
+    transparent
+  );
+  box-shadow:
+    0 0 12px 2px var(--sw-cyan-300),
+    0 0 40px 8px rgba(255, 46, 151, 0.5);
+}
+
+/* The floor grid — perspective-projected, scrolling toward the viewer.
+   `perspective()` in the transform shorthand creates a *local* 3D context, so
+   this works regardless of ancestor transform-style. */
+.sw-bg__grid {
+  position: absolute;
+  left: -75%;
+  right: -75%;
+  top: var(--grid-horizon);
+  bottom: -5%;
+  background-image:
+    linear-gradient(to right, var(--grid-color) 2px, transparent 2px),
+    linear-gradient(to bottom, var(--grid-color) 2px, transparent 2px);
+  background-size: var(--grid-cell) var(--grid-cell);
+  background-position: 50% 100%;
+  transform: rotateX(85deg);
+  transform-origin: 50% 100%;
+  mask-image: linear-gradient(to top, #000 0, #000 30%, transparent 92%);
+  filter: drop-shadow(0 0 3px var(--grid-color));
+  animation: sw-grid-scroll var(--grid-speed) linear infinite;
+}
+
+.sw-bg__grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--grid-glow) 0, transparent 55%);
+  mix-blend-mode: screen;
+}
+
+/* mirrored grid on the "ceiling" for the tunnel effect */
+.sw-bg__grid--ceiling {
+  top: -5%;
+  bottom: var(--grid-horizon);
+  transform: rotateX(-85deg);
+  transform-origin: 50% 0;
+  mask-image: linear-gradient(to bottom, #000 0, #000 30%, transparent 92%);
+  opacity: 0.25;
+}
+
+@keyframes sw-grid-scroll {
+  to {
+    background-position: 50% calc(100% + var(--grid-cell));
+  }
+}
+@keyframes sw-sun-breathe {
+  from {
+    filter: drop-shadow(0 0 30px rgba(255, 106, 193, 0.4));
+  }
+  to {
+    filter: drop-shadow(0 0 60px rgba(255, 106, 193, 0.7));
+  }
+}
+@keyframes sw-twinkle {
+  to {
+    opacity: 0.55;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * The monitor — plastic shell that tilts toward the pointer
+ * ------------------------------------------------------------------ */
+.crt-monitor {
+  position: relative;
+  z-index: var(--z-stage);
+  width: min(92vw, 1040px);
+  max-height: 88dvh;
+  aspect-ratio: 4 / 3;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--pan-y) * var(--pan-max-deg) * -1))
+    rotateY(calc(var(--pan-x) * var(--pan-max-deg)))
+    translate3d(calc(var(--pan-x) * 6px), calc(var(--pan-y) * 6px), 0);
+  transition: transform var(--dur-med) var(--ease-crt);
+  will-change: transform;
+}
+
+@media (max-width: 640px) {
+  .crt-monitor {
+    width: 96vw;
+    aspect-ratio: 3 / 4;
+  }
+}
+
+.crt-monitor__shell {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--crt-bezel-radius);
+  background: radial-gradient(
+    120% 120% at 30% 20%,
+    var(--rd-plastic-700),
+    var(--rd-plastic-900) 70%
+  );
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -6px 18px rgba(0, 0, 0, 0.6),
+    0 30px 60px -20px rgba(0, 0, 0, 0.8),
+    var(--crt-glow);
+  padding: var(--crt-screen-inset);
+}
+
+/* little brand nub + power LED on the bezel */
+.crt-monitor__badge {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--crt-screen-inset) * 0.28);
+  translate: -50% 0;
+  font: 700 var(--text-2xs) / 1 var(--font-mono);
+  letter-spacing: 0.35em;
+  color: var(--rd-plastic-100);
+  opacity: 0.4;
+  text-transform: uppercase;
+}
+.crt-monitor__led {
+  position: absolute;
+  right: calc(var(--crt-screen-inset) * 0.9);
+  bottom: calc(var(--crt-screen-inset) * 0.36);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sw-cyan-400);
+  box-shadow: 0 0 8px 2px var(--sw-cyan-400);
+  animation: crt-led-pulse 4s ease-in-out infinite;
+}
+@keyframes crt-led-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * The screen — glass, scanlines, static, vignette, phosphor content
+ * ------------------------------------------------------------------ */
+.crt-screen {
+  position: absolute;
+  inset: var(--crt-screen-inset);
+  border-radius: calc(var(--crt-bezel-radius) * 0.6);
+  background: var(--color-screen);
+  overflow: hidden;
+  /* faux barrel curvature: bulge the corners with a big inset shadow */
+  box-shadow:
+    inset 0 0 var(--crt-curvature) rgba(0, 0, 0, 0.9),
+    inset 0 0 80px rgba(0, 0, 0, calc(var(--crt-vignette) * 1)),
+    inset 0 0 200px rgba(0, 0, 0, 0.55);
+}
+
+.crt-screen__content {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: clamp(1rem, 3.5vmin, 2.25rem);
+  color: var(--color-phosphor);
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  line-height: 1.6;
+  text-shadow:
+    0 0 1px currentColor,
+    0 0 6px rgba(45, 226, 230, 0.35);
+  scrollbar-color: var(--sw-cyan-400) transparent;
+  scrollbar-width: thin;
+}
+
+/* scanlines */
+.crt-screen__scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--crt-scanline-size) - 1px),
+    rgba(0, 0, 0, var(--crt-scanline-opacity)) var(--crt-scanline-size)
+  );
+  mix-blend-mode: multiply;
+  animation: crt-scanline-drift 8s linear infinite;
+}
+@keyframes crt-scanline-drift {
+  to {
+    background-position: 0 var(--crt-scanline-size);
+  }
+}
+
+/* shadow-mask / aperture-grille dot pattern */
+.crt-screen__mask {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.06) 0 1px,
+    rgba(0, 255, 0, 0.05) 1px 2px,
+    rgba(0, 0, 255, 0.06) 2px 3px
+  );
+  mix-blend-mode: screen;
+}
+
+/* TV static — SVG fractal noise, scrolled in steps */
+.crt-screen__static {
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  opacity: var(--crt-static-opacity);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  animation: crt-static-jitter 0.6s steps(4) infinite;
+}
+@keyframes crt-static-jitter {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(-3%, 2%, 0);
+  }
+  50% {
+    transform: translate3d(2%, -4%, 0);
+  }
+  75% {
+    transform: translate3d(-2%, 3%, 0);
+  }
+  100% {
+    transform: translate3d(3%, -1%, 0);
+  }
+}
+
+/* rolling brightness flicker + a slow horizontal hum bar */
+.crt-screen__flicker {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: rgba(200, 255, 244, 0.03);
+  animation: crt-flicker var(--crt-flicker-duration) steps(60) infinite;
+}
+.crt-screen__flicker::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22%;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.04), transparent);
+  animation: crt-hum-bar 9s linear infinite;
+}
+@keyframes crt-flicker {
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+  10% {
+    opacity: 0.16;
+  }
+  20% {
+    opacity: 0.08;
+  }
+  40% {
+    opacity: 0.2;
+  }
+  60% {
+    opacity: 0.1;
+  }
+  80% {
+    opacity: 0.18;
+  }
+}
+@keyframes crt-hum-bar {
+  from {
+    top: -25%;
+  }
+  to {
+    top: 105%;
+  }
+}
+
+/* glass sheen highlight */
+.crt-screen__sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    80% 55% at 28% 12%,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    transparent 60%
+  );
+}
+
+/* power-on sweep: a bright line expands from centre when the screen mounts */
+.crt-screen--booting .crt-screen__content,
+.crt-screen--booting .crt-screen__scanlines,
+.crt-screen--booting .crt-screen__mask {
+  animation: crt-power-on 620ms var(--ease-crt) both;
+}
+@keyframes crt-power-on {
+  0% {
+    transform: scale(1, 0.004);
+    filter: brightness(6);
+    opacity: 0.9;
+  }
+  35% {
+    transform: scale(1, 0.02);
+    filter: brightness(3);
+  }
+  70% {
+    transform: scale(1.02, 1);
+    filter: brightness(1.4);
+  }
+  100% {
+    transform: scale(1, 1);
+    filter: brightness(1);
+    opacity: 1;
+  }
+}
+
+/* phosphor styling for content authored as plain / MDX markup */
+.crt-screen__content :is(h1, h2, h3) {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.1;
+  color: #fff;
+  text-shadow:
+    0 0 6px var(--color-accent-2),
+    0 0 18px var(--color-accent);
+  letter-spacing: 0.02em;
+}
+.crt-screen__content h1 {
+  font-size: var(--text-2xl);
+}
+.crt-screen__content h2 {
+  font-size: var(--text-xl);
+  margin-block: var(--space-6) var(--space-3);
+}
+.crt-screen__content h3 {
+  font-size: var(--text-lg);
+  margin-block: var(--space-4) var(--space-2);
+}
+.crt-screen__content p {
+  margin-block: var(--space-3);
+}
+.crt-screen__content a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.crt-screen__content a:hover {
+  color: #fff;
+  background: rgba(45, 226, 230, 0.15);
+}
+.crt-screen__content ul {
+  padding-left: 1.4em;
+  list-style: "▸ ";
+}
+.crt-screen__content li {
+  margin-block: var(--space-1);
+}
+.crt-screen__content code {
+  font-family: var(--font-mono);
+  background: rgba(45, 226, 230, 0.12);
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+}
+.crt-screen__content pre {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(45, 226, 230, 0.25);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+}
+.crt-screen__content hr {
+  border: 0;
+  border-top: 1px dashed rgba(45, 226, 230, 0.35);
+  margin-block: var(--space-6);
+}
+.crt-screen__content blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: var(--space-3);
+  color: var(--color-phosphor-dim);
+}
+
+/* ------------------------------------------------------------------ *
+ * Stage controls (motion toggle etc.)
+ * ------------------------------------------------------------------ */
+.crt-stage__controls {
+  position: absolute;
+  top: clamp(0.75rem, 3vmin, 1.75rem);
+  right: clamp(0.75rem, 3vmin, 1.75rem);
+  z-index: var(--z-overlay);
+  display: flex;
+  gap: var(--space-2);
+}
+
+.crt-motion-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  font: 600 var(--text-2xs) / 1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sw-cyan-200);
+  background: rgba(5, 1, 15, 0.65);
+  border: 1px solid rgba(45, 226, 230, 0.4);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+.crt-motion-toggle:hover {
+  border-color: var(--sw-cyan-400);
+  color: #fff;
+}
+.crt-motion-toggle:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.crt-motion-toggle__track {
+  position: relative;
+  width: 26px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background var(--dur-fast) linear;
+}
+.crt-motion-toggle[data-on="true"] .crt-motion-toggle__track {
+  background: var(--sw-magenta-500);
+}
+.crt-motion-toggle__thumb {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform var(--dur-fast) var(--ease-crt);
+}
+.crt-motion-toggle[data-on="true"] .crt-motion-toggle__thumb {
+  transform: translateX(14px);
+}
+
+/* ------------------------------------------------------------------ *
+ * Motion opt-out — OS setting OR in-app toggle
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .sw-bg__grid,
+  .sw-bg__sun,
+  .sw-bg__stars,
+  .crt-monitor__led,
+  .crt-screen__scanlines,
+  .crt-screen__static,
+  .crt-screen__flicker,
+  .crt-screen__flicker::after,
+  .crt-monitor,
+  .sw-bg {
+    animation: none !important;
+    transition: none !important;
+  }
+  .crt-screen--booting .crt-screen__content,
+  .crt-screen--booting .crt-screen__scanlines,
+  .crt-screen--booting .crt-screen__mask {
+    animation: none !important;
+  }
+}
+
+:root[data-motion="off"] .sw-bg__grid,
+:root[data-motion="off"] .sw-bg__sun,
+:root[data-motion="off"] .sw-bg__stars,
+:root[data-motion="off"] .crt-monitor__led,
+:root[data-motion="off"] .crt-screen__scanlines,
+:root[data-motion="off"] .crt-screen__static,
+:root[data-motion="off"] .crt-screen__flicker,
+:root[data-motion="off"] .crt-screen__flicker::after,
+:root[data-motion="off"] .crt-monitor,
+:root[data-motion="off"] .sw-bg {
+  animation: none !important;
+  transition: none !important;
+}
+:root[data-motion="off"] .crt-monitor {
+  transform: none !important;
+}

@@ -106,6 +106,13 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
       // Degrees of device tilt (either axis) mapped to the full -1..1 pan
       // range — a wide range so it reads as "gentle drift", not a wobble.
       const tiltRange = 45;
+      // Ignore tiny jitter around centre (hand tremor, sensor noise) instead
+      // of it constantly nudging the CRT off dead centre. Subtracted rather
+      // than clamped to 0 below the threshold, so motion past it is still
+      // continuous (no jump the instant it exceeds the dead zone).
+      const deadZoneDeg = 2;
+      const applyDeadZone = (delta: number) =>
+        Math.abs(delta) <= deadZoneDeg ? 0 : delta - Math.sign(delta) * deadZoneDeg;
       // Whatever angle the phone reports first becomes "centre": people
       // hold phones at all sorts of resting angles, so there's no fixed
       // "flat" to calibrate against.
@@ -118,11 +125,12 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
           baseBeta = e.beta;
           baseGamma = e.gamma;
         }
-        // Inverted from the naive mapping: tipping the *top* of the phone
-        // forward/away should tip the CRT toward the viewer, same feel as
-        // physically leaning the screen — matches the sign flip on both axes.
-        tx = Math.max(-1, Math.min(1, (baseGamma - e.gamma) / tiltRange));
-        ty = Math.max(-1, Math.min(1, (e.beta - baseBeta) / tiltRange));
+        // Tipping the top of the phone forward/away tips the CRT toward the
+        // viewer (beta inverted from the raw delta to get that feel); gamma
+        // (left/right) maps directly — inverting it the same way as beta
+        // actually ran backwards for left/right tilt.
+        tx = Math.max(-1, Math.min(1, applyDeadZone(e.gamma - baseGamma) / tiltRange));
+        ty = Math.max(-1, Math.min(1, applyDeadZone(e.beta - baseBeta) / tiltRange));
         kick();
       };
 

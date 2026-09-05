@@ -239,16 +239,6 @@
     aspect-ratio: 3 / 4;
     --crt-depth: 60px;
   }
-  /* `--crt-screen-inset` (the token) shrinks to its floor on a narrow
-     viewport, leaving a bezel too thin to read as a bezel — and its bottom
-     edge lands right where the power/LED/badge strip sits (that strip is
-     positioned from the same token), so the two visually collide. Widen
-     the screen's own inset here without touching the token: the panel
-     strip's position is untouched, and now has clear bezel below the
-     screen content instead of overlapping it. */
-  .crt-screen {
-    inset: clamp(18px, 5vw, 28px) clamp(14px, 4vw, 22px) clamp(48px, 13vw, 64px);
-  }
 }
 
 .crt-monitor__case {
@@ -540,6 +530,22 @@
     inset 0 0 var(--crt-curvature) rgba(0, 0, 0, 0.9),
     inset 0 0 80px rgba(0, 0, 0, calc(var(--crt-vignette) * 1)),
     inset 0 0 200px rgba(0, 0, 0, 0.55);
+}
+
+@media (max-width: 640px) {
+  /* `--crt-screen-inset` (the token) shrinks to its floor on a narrow
+     viewport, reading as barely a bezel at all — and its bottom edge lands
+     right where the power/LED/badge strip sits (that strip is positioned
+     from the same token), so the two visually collide/clip. Override the
+     inset here, well past the token's floor, for a bezel that actually
+     reads as one; the panel strip's own position is untouched, so it now
+     has clear bezel below the screen instead of overlapping it.
+     NB this rule must stay *after* the base `.crt-screen` rule above —
+     same specificity, so source order decides the tie regardless of which
+     media query is narrower. */
+  .crt-screen {
+    inset: clamp(22px, 7vw, 34px) clamp(18px, 6vw, 28px) clamp(56px, 15vw, 76px);
+  }
 }
 
 .crt-screen__content {

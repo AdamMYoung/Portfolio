@@ -238,6 +238,10 @@
     max-height: 88dvh;
     aspect-ratio: 3 / 4;
     --crt-depth: 60px;
+    /* Shared with the `.crt-screen` inset override and `.crt-monitor__panel`
+       below, so the bottom bezel band and the row centred inside it always
+       agree on how tall that band actually is. */
+    --crt-bezel-bottom: clamp(34px, 9vw, 44px);
   }
 }
 
@@ -537,14 +541,22 @@
      viewport, reading as barely a bezel at all — and its bottom edge lands
      right where the power/LED/badge strip sits (that strip is positioned
      from the same token), so the two visually collide/clip. Override the
-     inset here, well past the token's floor, for a bezel that actually
-     reads as one; the panel strip's own position is untouched, so it now
-     has clear bezel below the screen instead of overlapping it.
+     inset here, past the token's floor, for a bezel that actually reads as
+     one; `--crt-bezel-bottom` (set on `.crt-monitor`) reserves just enough
+     room for that strip, which is centred in it below.
      NB this rule must stay *after* the base `.crt-screen` rule above —
      same specificity, so source order decides the tie regardless of which
      media query is narrower. */
   .crt-screen {
-    inset: clamp(22px, 7vw, 34px) clamp(18px, 6vw, 28px) clamp(56px, 15vw, 76px);
+    inset: clamp(14px, 4vw, 20px) clamp(12px, 3.5vw, 16px) var(--crt-bezel-bottom);
+  }
+  /* Vertically centre the power button/LED/badge row in that bottom band,
+     rather than sitting near its very edge (its desktop `bottom` offset is
+     a sliver of the much smaller desktop bezel — nowhere near centred once
+     the band is this tall). */
+  .crt-monitor__panel {
+    bottom: 0;
+    height: var(--crt-bezel-bottom);
   }
 }
 

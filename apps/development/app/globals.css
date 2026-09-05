@@ -21,6 +21,11 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  /* The CRT screen scrolls its own content (`.crt-screen__content`); the
+     page itself never needs to, and letting it also scroll on mobile fights
+     the stage's fixed layout. */
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 body {

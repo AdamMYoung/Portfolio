@@ -227,10 +227,16 @@
 }
 
 @media (max-width: 640px) {
+  /* No pointer-driven tilt on touch (see useParallaxPan) — let the CRT fill
+     the viewport instead of leaving room for a 3D effect that never plays. */
+  .crt-stage {
+    padding: clamp(0.75rem, 4vw, 1.5rem);
+  }
   .crt-monitor {
-    width: 92vw;
+    width: min(94vw, calc(88dvh * 0.75));
+    max-height: 88dvh;
     aspect-ratio: 3 / 4;
-    --crt-depth: 90px;
+    --crt-depth: 60px;
   }
 }
 
@@ -327,6 +333,14 @@
     inset 0 2px 0 rgba(255, 255, 255, 0.07),
     inset 0 -10px 26px rgba(0, 0, 0, 0.55),
     0 44px 74px -24px rgba(0, 0, 0, 0.85);
+  /* Safari bug: a flat (untransformed) child of a `preserve-3d` parent whose
+     transform is rewritten every animation frame (the pointer pan) can drop
+     out of the composited scene entirely — everything on the front face
+     (power button, LED, badge, screen content) blinks invisible mid-hover.
+     An explicit transform gives this face its own stable 3D layer instead
+     of inheriting the parent's every-frame relayout. */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* pedestal + neck, sitting behind the case's mid-plane */

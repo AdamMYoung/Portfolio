@@ -43,6 +43,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#05010f",
   colorScheme: "dark",
+  // The CRT handles its own scroll/pan internally — stop the page itself
+  // from pinch-zooming or scrolling on touch devices.
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

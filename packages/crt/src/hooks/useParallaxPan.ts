@@ -12,6 +12,9 @@ type Options = {
   quietSelector?: string;
   /** Zoom amount applied over the quiet zone (fraction, e.g. 0.04 = +4%). */
   quietZoom?: number;
+  /** Coarse (touch) pointers only: whether the visitor has granted/enabled
+   *  gyroscope tilt (see `useGyroTilt`). False pins the monitor to centre. */
+  gyroActive?: boolean;
 };
 
 /**
@@ -23,7 +26,15 @@ type Options = {
  * eases in, so the content holds still and pushes gently toward the viewer.
  *
  * The rAF loop only runs while values are still settling; at rest it stops
- * completely. Coarse pointers (touch) pan only during an active drag.
+ * completely. Coarse pointers (touch) ignore finger position entirely —
+ * dragging the tilt around on a phone fought the screen's own scrolling —
+ * and instead tilt gently with the device's gyroscope (`deviceorientation`),
+ * relative to however the phone happened to be held when it first reported
+ * an angle. Touch is left free for the screen's own internal scrolling.
+ * Whether that gyro listener is actually attached is controlled by
+ * `gyroActive` (see `useGyroTilt` / `GyroToggle`) — iOS gates it behind a
+ * permission prompt only a real click can trigger, so this hook never
+ * requests it itself.
  */
 export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Options = {}) {
   const {
@@ -31,6 +42,7 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
     friction = 0.15,
     quietSelector = ".crt-monitor",
     quietZoom = 0.24,
+    gyroActive = false,
   } = opts;
 
   useEffect(() => {
@@ -45,6 +57,7 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
     }
 
     const coarse = window.matchMedia("(hover: none)").matches;
+
     let tx = 0;
     let ty = 0;
     let tz = 0; // zoom target: 0 = none, 1 = full quietZoom
@@ -53,7 +66,6 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
     let cz = 0;
     let raf = 0;
     let running = false;
-    let dragging = !coarse;
 
     const near = (a: number, b: number) => Math.abs(a - b) < 0.0015;
 
@@ -83,6 +95,47 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
       raf = requestAnimationFrame(step);
     };
 
+    if (coarse) {
+      if (!gyroActive) {
+        el.style.setProperty("--pan-x", "0");
+        el.style.setProperty("--pan-y", "0");
+        el.style.setProperty("--crt-zoom", "1");
+        return;
+      }
+
+      // Degrees of device tilt (either axis) mapped to the full -1..1 pan
+      // range — kept small so it reads as "gentle drift", not a wobble.
+      const tiltRange = 18;
+      // Whatever angle the phone reports first becomes "centre": people
+      // hold phones at all sorts of resting angles, so there's no fixed
+      // "flat" to calibrate against.
+      let baseBeta: number | null = null;
+      let baseGamma: number | null = null;
+
+      const onOrientation = (e: DeviceOrientationEvent) => {
+        if (e.beta == null || e.gamma == null) return;
+        if (baseBeta === null || baseGamma === null) {
+          baseBeta = e.beta;
+          baseGamma = e.gamma;
+        }
+        tx = Math.max(-1, Math.min(1, (e.gamma - baseGamma) / tiltRange));
+        // Tipping the top of the phone forward/away lowers beta — that
+        // should tip the CRT forward too, same sign as rotateX below.
+        ty = Math.max(-1, Math.min(1, (baseBeta - e.beta) / tiltRange));
+        kick();
+      };
+
+      // Permission (iOS) is requested explicitly by `GyroToggle`, which is
+      // what flips `gyroActive` true — by the time we're here it's already
+      // granted (or not needed), so just listen.
+      window.addEventListener("deviceorientation", onOrientation);
+
+      return () => {
+        cancelAnimationFrame(raf);
+        window.removeEventListener("deviceorientation", onOrientation);
+      };
+    }
+
     const setTarget = (e: PointerEvent) => {
       const overScreen = !!(e.target as Element | null)?.closest?.(quietSelector);
       if (overScreen) {
@@ -97,27 +150,9 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
       kick();
     };
 
-    const onMove = (e: PointerEvent) => {
-      if (dragging) setTarget(e);
-    };
-    const onDown = (e: PointerEvent) => {
-      if (coarse) dragging = true;
-      setTarget(e);
-    };
-    // Fine pointers: a click must NOT snap the CRT back (that read as a zoom-out
-    // on every interaction). Only end a touch drag here; the next pointermove
-    // re-evaluates state for mice.
-    const onUp = () => {
-      if (!coarse) return;
-      dragging = false;
-      tx = 0;
-      ty = 0;
-      tz = 0;
-      kick();
-    };
+    const onMove = (e: PointerEvent) => setTarget(e);
     // Pointer genuinely left the page / window lost focus -> fully recentre.
     const recentre = () => {
-      if (coarse) dragging = false;
       tx = 0;
       ty = 0;
       tz = 0;
@@ -125,18 +160,14 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
     };
 
     window.addEventListener("pointermove", onMove, { passive: true });
-    el.addEventListener("pointerdown", onDown, { passive: true });
-    window.addEventListener("pointerup", onUp, { passive: true });
     window.addEventListener("blur", recentre);
     document.addEventListener("pointerleave", recentre, { passive: true });
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerdown", onDown);
-      window.removeEventListener("pointerup", onUp);
       window.removeEventListener("blur", recentre);
       document.removeEventListener("pointerleave", recentre);
     };
-  }, [target, disabled, friction, quietSelector, quietZoom]);
+  }, [target, disabled, friction, quietSelector, quietZoom, gyroActive]);
 }

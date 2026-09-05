@@ -1,8 +1,10 @@
 "use client";
 
 import { type ReactNode, useRef } from "react";
+import { useGyroTilt } from "../hooks/useGyroTilt";
 import { useMotionPreference } from "../hooks/useMotionPreference";
 import { useParallaxPan } from "../hooks/useParallaxPan";
+import { GyroToggle } from "./GyroToggle";
 import { SynthwaveBackground } from "./SynthwaveBackground";
 
 type Props = {
@@ -16,13 +18,17 @@ type Props = {
 export function CrtStage({ children, controls }: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
   const { reduced } = useMotionPreference();
+  const { active: gyroActive } = useGyroTilt();
 
-  useParallaxPan(stageRef, { disabled: reduced });
+  useParallaxPan(stageRef, { disabled: reduced, gyroActive });
 
   return (
     <div ref={stageRef} className="crt-stage">
       <SynthwaveBackground />
-      {controls ? <div className="crt-stage__controls">{controls}</div> : null}
+      <div className="crt-stage__controls">
+        {controls}
+        <GyroToggle />
+      </div>
       {children}
     </div>
   );

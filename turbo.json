@@ -5,7 +5,15 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
+      "env": [
+        "CLOUDFLARE_ID",
+        "S3_ACCESS_KEY",
+        "S3_SECRET_ACCESS_KEY",
+        "S3_BUCKET_NAME",
+        "S3_BUCKET_HOSTNAME",
+        "ENABLE_EXPERIMENTAL_COREPACK"
+      ]
     },
     "dev": {
       "cache": false,

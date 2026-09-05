@@ -10,6 +10,17 @@ const HAIR = ["#2b2b2b", "#4a3728", "#6b6b6b", "#1a1a1a", "#7a5230"];
 
 type Stop = { pos: THREE.Vector3; look: THREE.Vector3 | null };
 
+type Initial = {
+  mode: "walk" | "view";
+  pos: THREE.Vector3;
+  facing: number;
+  target: THREE.Vector3;
+  look: THREE.Vector3 | null;
+  emote: number;
+  timer: number;
+  t: number;
+};
+
 const angleLerp = (from: number, to: number, t: number) => {
   let d = ((to - from + Math.PI) % (Math.PI * 2)) - Math.PI;
   if (d < -Math.PI) d += Math.PI * 2;
@@ -51,11 +62,49 @@ export const NpcCrowd = ({ gallery }: { gallery: Gallery }) => {
       waypoints.length === 0
         ? 0
         : Math.max(4, Math.min(12, Math.round(gallery.rooms.length * 1.4)));
+    const pick = <T,>(pool: T[]): T => pool[Math.floor(rand() * pool.length)] ?? pool[0];
+    const faceAngle = (from: THREE.Vector3, to: THREE.Vector3) =>
+      Math.atan2(to.x - from.x, to.z - from.z);
+
+    // Pre-seed each visitor mid-behaviour so the gallery looks lived-in from
+    // the first frame — some already walking a route, others already stopped
+    // at a piece part-way through one of the four reactions.
+    let viewSeen = 0;
     const specs = Array.from({ length: count }, (_, i) => {
-      const start = waypoints[i % waypoints.length];
+      const startViewing = viewpoints.length > 0 && rand() < 0.45;
+      let initial: Initial;
+
+      if (startViewing) {
+        const vp = pick(viewpoints);
+        initial = {
+          mode: "view",
+          pos: vp.pos.clone(),
+          facing: vp.look ? faceAngle(vp.pos, vp.look) : rand() * Math.PI * 2,
+          target: vp.pos.clone(),
+          look: vp.look ? vp.look.clone() : null,
+          emote: viewSeen++ % 4, // cycle the reactions so all four show up
+          timer: 1.5 + rand() * 4,
+          t: rand() * 12,
+        };
+      } else {
+        const from = pick(waypoints);
+        const to = rand() < 0.6 ? pick(viewpoints) : pick(waypoints);
+        const pos = from.pos.clone().lerp(to.pos, 0.15 + rand() * 0.55);
+        initial = {
+          mode: "walk",
+          pos,
+          facing: faceAngle(pos, to.pos),
+          target: to.pos.clone(),
+          look: to.look ? to.look.clone() : null,
+          emote: i % 4,
+          timer: 0,
+          t: rand() * 12,
+        };
+      }
+
       return {
         id: i,
-        start: start.pos.clone(),
+        initial,
         hue: rand(),
         skin: SKIN[Math.floor(rand() * SKIN.length)],
         hair: HAIR[Math.floor(rand() * HAIR.length)],
@@ -89,7 +138,7 @@ const Npc = ({
   stops,
 }: {
   spec: {
-    start: THREE.Vector3;
+    initial: Initial;
     hue: number;
     skin: string;
     hair: string;
@@ -115,16 +164,16 @@ const Npc = ({
 
   const st = useRef({
     rand: mulberry32(spec.seed),
-    pos: spec.start.clone(),
-    facing: 0,
-    mode: "walk" as "walk" | "view",
-    timer: 0,
-    t: spec.seed % 10,
+    pos: spec.initial.pos.clone(),
+    facing: spec.initial.facing,
+    mode: spec.initial.mode,
+    timer: spec.initial.timer,
+    t: spec.initial.t,
     bob: 0,
-    target: spec.start.clone(),
-    pendingLook: null as THREE.Vector3 | null,
-    look: null as THREE.Vector3 | null,
-    emote: 0,
+    target: spec.initial.target.clone(),
+    pendingLook: spec.initial.look ? spec.initial.look.clone() : null,
+    look: spec.initial.mode === "view" ? (spec.initial.look?.clone() ?? null) : null,
+    emote: spec.initial.emote,
   });
 
   const pickTarget = () => {
@@ -192,7 +241,11 @@ const Npc = ({
   });
 
   return (
-    <group ref={group} scale={spec.scale} position={[spec.start.x, spec.start.y, spec.start.z]}>
+    <group
+      ref={group}
+      scale={spec.scale}
+      position={[spec.initial.pos.x, spec.initial.pos.y, spec.initial.pos.z]}
+    >
       <group ref={torso}>
         <mesh position={[0, 0.95, 0]}>
           <capsuleGeometry args={[0.16, 0.5, 3, 6]} />

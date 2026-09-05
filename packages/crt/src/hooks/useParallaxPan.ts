@@ -104,8 +104,8 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
       }
 
       // Degrees of device tilt (either axis) mapped to the full -1..1 pan
-      // range — kept small so it reads as "gentle drift", not a wobble.
-      const tiltRange = 18;
+      // range — a wide range so it reads as "gentle drift", not a wobble.
+      const tiltRange = 45;
       // Whatever angle the phone reports first becomes "centre": people
       // hold phones at all sorts of resting angles, so there's no fixed
       // "flat" to calibrate against.
@@ -118,10 +118,11 @@ export function useParallaxPan(target: RefObject<HTMLElement | null>, opts: Opti
           baseBeta = e.beta;
           baseGamma = e.gamma;
         }
-        tx = Math.max(-1, Math.min(1, (e.gamma - baseGamma) / tiltRange));
-        // Tipping the top of the phone forward/away lowers beta — that
-        // should tip the CRT forward too, same sign as rotateX below.
-        ty = Math.max(-1, Math.min(1, (baseBeta - e.beta) / tiltRange));
+        // Inverted from the naive mapping: tipping the *top* of the phone
+        // forward/away should tip the CRT toward the viewer, same feel as
+        // physically leaning the screen — matches the sign flip on both axes.
+        tx = Math.max(-1, Math.min(1, (baseGamma - e.gamma) / tiltRange));
+        ty = Math.max(-1, Math.min(1, (e.beta - baseBeta) / tiltRange));
         kick();
       };
 

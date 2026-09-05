@@ -227,8 +227,9 @@
 }
 
 @media (max-width: 640px) {
-  /* No pointer-driven tilt on touch (see useParallaxPan) — let the CRT fill
-     the viewport instead of leaving room for a 3D effect that never plays. */
+  /* Touch tilts gently via the gyroscope instead of finger position (see
+     useParallaxPan) — let the CRT fill the viewport rather than leaving
+     room for a pointer-hover effect that never plays. */
   .crt-stage {
     padding: clamp(0.75rem, 4vw, 1.5rem);
   }
@@ -237,6 +238,16 @@
     max-height: 88dvh;
     aspect-ratio: 3 / 4;
     --crt-depth: 60px;
+  }
+  /* `--crt-screen-inset` (the token) shrinks to its floor on a narrow
+     viewport, leaving a bezel too thin to read as a bezel — and its bottom
+     edge lands right where the power/LED/badge strip sits (that strip is
+     positioned from the same token), so the two visually collide. Widen
+     the screen's own inset here without touching the token: the panel
+     strip's position is untouched, and now has clear bezel below the
+     screen content instead of overlapping it. */
+  .crt-screen {
+    inset: clamp(18px, 5vw, 28px) clamp(14px, 4vw, 22px) clamp(48px, 13vw, 64px);
   }
 }
 

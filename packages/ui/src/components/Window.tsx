@@ -10,6 +10,7 @@ import {
   useId,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { useFocusTrap } from "../hooks/useFocusTrap";
 import { cn } from "../lib/cn";
@@ -30,6 +31,21 @@ type Props = {
 
 const STEP = 16;
 
+const COARSE_QUERY = "(hover: none), (pointer: coarse)";
+/** No real pointer to drag a titlebar with, and not enough screen to make a
+ *  windowed/maximised distinction meaningful — windows are just full-screen. */
+function useCoarsePointer() {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia(COARSE_QUERY);
+      mq.addEventListener("change", cb);
+      return () => mq.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(COARSE_QUERY).matches,
+    () => false
+  );
+}
+
 export function Window({
   id,
   title,
@@ -44,6 +60,7 @@ export function Window({
   const { isOpen, close, focus, toggleMinimize, zIndexOf, focusedId, stack } = useWindows();
   const ref = useRef<HTMLDivElement>(null);
   const labelId = useId();
+  const touch = useCoarsePointer();
 
   const cascade = Math.max(0, zIndexOf(id)) * 26;
   const [pos, setPos] = useState(() => initial ?? { x: 120 + cascade, y: 90 + cascade });
@@ -53,6 +70,7 @@ export function Window({
   const open = isOpen(id);
   const minimized = stack.find((w) => w.id === id)?.minimized ?? false;
   const focused = focusedId === id;
+  const fullScreen = maximized || touch;
 
   const toggleMaximize = useCallback(() => {
     setMaximized((m) => !m);
@@ -98,7 +116,7 @@ export function Window({
   const onTitlePointerDown = (e: ReactPointerEvent) => {
     if ((e.target as HTMLElement).closest("button")) return;
     focus(id);
-    if (maximized) return;
+    if (fullScreen) return;
     drag.current = { dx: e.clientX - pos.x, dy: e.clientY - pos.y };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   };
@@ -132,7 +150,7 @@ export function Window({
 
   if (!open) return null;
 
-  const style: CSSProperties = maximized
+  const style: CSSProperties = fullScreen
     ? { inset: 0, width: "auto", height: "auto", zIndex: 100 + zIndexOf(id) }
     : { left: pos.x, top: pos.y, width, height, zIndex: 100 + zIndexOf(id) };
 
@@ -142,7 +160,7 @@ export function Window({
       className={cn(
         "rd-window",
         focused && "rd-window--focused",
-        maximized && "rd-window--max",
+        fullScreen && "rd-window--max",
         className
       )}
       style={style}
@@ -159,7 +177,7 @@ export function Window({
         onPointerDown={onTitlePointerDown}
         onPointerMove={onTitlePointerMove}
         onPointerUp={onTitlePointerUp}
-        onDoubleClick={toggleMaximize}
+        onDoubleClick={touch ? undefined : toggleMaximize}
         tabIndex={0}
         aria-label={`${title} — drag or use arrow keys to move`}
       >
@@ -176,18 +194,20 @@ export function Window({
           >
             <span className="rd-window__ico rd-window__ico--min" aria-hidden="true" />
           </button>
-          <button
-            type="button"
-            className="rd-window__btn"
-            onClick={toggleMaximize}
-            aria-pressed={maximized}
-            aria-label={maximized ? `Restore ${title}` : `Maximise ${title}`}
-          >
-            <span
-              className={`rd-window__ico rd-window__ico--${maximized ? "restore" : "max"}`}
-              aria-hidden="true"
-            />
-          </button>
+          {touch ? null : (
+            <button
+              type="button"
+              className="rd-window__btn"
+              onClick={toggleMaximize}
+              aria-pressed={maximized}
+              aria-label={maximized ? `Restore ${title}` : `Maximise ${title}`}
+            >
+              <span
+                className={`rd-window__ico rd-window__ico--${maximized ? "restore" : "max"}`}
+                aria-hidden="true"
+              />
+            </button>
+          )}
           <button
             type="button"
             className="rd-window__btn rd-window__btn--close"

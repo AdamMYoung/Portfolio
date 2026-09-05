@@ -330,6 +330,31 @@
   text-underline-offset: 2px;
 }
 
+/* Touch: the 18x16px window controls are a fine mouse target but a fussy
+   thumb one — size them up. Windows are also forced full-screen on touch
+   (see Window.tsx) with the maximise button hidden, so this strip only
+   ever has minimise + close to fit. */
+@media (hover: none), (pointer: coarse) {
+  .rd-window__titlebar {
+    padding: 6px 6px 6px 10px;
+  }
+  .rd-window__controls {
+    gap: 10px;
+  }
+  .rd-window__btn {
+    width: 34px;
+    height: 30px;
+  }
+  .rd-window__ico {
+    width: 12px;
+    height: 12px;
+  }
+  .rd-window__ico--close::before,
+  .rd-window__ico--close::after {
+    width: 15px;
+  }
+}
+
 /* ---- Generic beveled button ------------------------------------ */
 .rd-btn {
   padding: 4px 12px;

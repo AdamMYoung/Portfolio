@@ -1,8 +1,8 @@
 # CLAUDE.md
 
 Monorepo: Turborepo + Yarn 4 workspaces. Node 24 (`.nvmrc`). Lint/format via
-Biome 2 (`biome.json`) — **not** ESLint/Prettier (the `packages/eslint-config-custom`
-package exists only for the legacy `apps/photography`).
+Biome 2 (`biome.json`) everywhere, including `apps/photography` — not
+ESLint/Prettier.
 
 ## Layout
 

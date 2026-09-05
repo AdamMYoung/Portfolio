@@ -1,6 +1,5 @@
-import { ImageData } from "./image.types";
-
-import { S3Client, ListObjectsCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { GetObjectCommand, ListObjectsCommand, S3Client } from "@aws-sdk/client-s3";
+import type { ImageData } from "./image.types";
 
 const client = new S3Client({
   region: "auto",

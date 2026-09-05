@@ -9,8 +9,6 @@
       "!**/dist",
       "!**/.yarn",
       "!**/node_modules",
-      "!apps/photography",
-      "!packages/eslint-config-custom",
       "!**/*.css"
     ]
   },

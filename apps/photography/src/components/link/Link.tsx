@@ -1,5 +1,5 @@
-import React, { ComponentProps } from "react";
 import NextLink from "next/link";
+import type { ComponentProps } from "react";
 import { twMerge } from "tailwind-merge";
 
 type LinkProps = ComponentProps<typeof NextLink> & { href: string; type?: "external" | "internal" };

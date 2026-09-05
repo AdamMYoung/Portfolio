@@ -1,7 +1,7 @@
-import ExifReader from "exifreader";
-
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import ExifReader from "exifreader";
+import { type Color, getDominantColor } from "../color";
 import { AWSImageRepository } from "../image";
 
 dayjs.extend(customParseFormat);
@@ -22,6 +22,7 @@ export type ImageExif = {
 export type Image = {
   path: string;
   exif: ImageExif;
+  color: Color;
 };
 
 const imageRepository = new AWSImageRepository();
@@ -36,10 +37,10 @@ export const getImages = async (): Promise<Image[]> => {
   const images = await Promise.all(
     files.map(async (file) => {
       const exifData = ExifReader.load(file.data);
+      const color = await getDominantColor(file.data);
 
-      const [height, width, make, model, aperture, exposure, focalLength, lens, iso, captureDate] = getExifData(
-        exifData,
-        [
+      const [height, width, make, model, aperture, exposure, focalLength, lens, iso, captureDate] =
+        getExifData(exifData, [
           "Image Height",
           "Image Width",
           "Make",
@@ -50,14 +51,14 @@ export const getImages = async (): Promise<Image[]> => {
           "LensModel",
           "ISOSpeedRatings",
           "DateCreated",
-        ]
-      );
+        ]);
 
       return {
         path: file.path,
+        color,
         exif: {
-          height: parseInt(height),
-          width: parseInt(width),
+          height: parseInt(height, 10),
+          width: parseInt(width, 10),
           make,
           model,
           aperture,

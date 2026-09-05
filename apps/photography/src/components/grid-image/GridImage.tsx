@@ -1,7 +1,6 @@
-import React from "react";
 import NextImage from "next/image";
 
-import { Image } from "../../utils";
+import type { Image } from "../../utils";
 
 type GridImageProps = {
   index: number;
@@ -11,7 +10,7 @@ type GridImageProps = {
 
 export const GridImage = ({ image, isPriority }: GridImageProps) => {
   return (
-    <a href={image.path} target="_blank" title="View original image">
+    <a href={image.path} target="_blank" title="View original image" rel="noopener">
       <NextImage
         className="mb-2 w-full"
         priority={isPriority}

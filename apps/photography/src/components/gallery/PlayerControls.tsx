@@ -3,45 +3,22 @@ import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { Image as ImageT } from "../../utils/file";
 import {
+  type Box,
   CORRIDOR_HALF_WIDTH,
+  collisionBoxes,
+  EYE_HEIGHT,
+  type Gallery,
+  groundHeightAt,
   type ImageSlot,
-  ROOM_DEPTH,
-  ROOM_WIDTH,
-  type Room,
+  MAX_ROOM_DEPTH,
 } from "../../utils/gallery";
 
-const MOVE_SPEED = 3.2; // units/sec
-const TURN_SPEED = 2.4; // rad/sec
-const INTERACT_RANGE = 2.2;
-const EYE_HEIGHT = 1.7;
+const MOVE_SPEED = 3.4; // units/sec
+const TURN_SPEED = 2.5; // rad/sec
+const INTERACT_RANGE = 2.4;
 const PLAYER_RADIUS = 0.35;
 
-type Box = { minX: number; maxX: number; minZ: number; maxZ: number };
-
-// Solid obstacles the player can't walk through: each room's back wall and
-// its bench. Everything else (frames, floating people) is fine to clip —
-// only the load-bearing stuff needs real collision.
-const buildObstacles = (rooms: Room[]): Box[] =>
-  rooms.flatMap((room) => {
-    const sign = room.side === "left" ? -1 : 1;
-    const backWallX = sign * (CORRIDOR_HALF_WIDTH + ROOM_DEPTH);
-    return [
-      {
-        minX: backWallX - 0.15,
-        maxX: backWallX + 0.15,
-        minZ: room.center[2] - ROOM_WIDTH / 2,
-        maxZ: room.center[2] + ROOM_WIDTH / 2,
-      },
-      {
-        minX: -0.3,
-        maxX: 0.3,
-        minZ: room.center[2] - 0.85,
-        maxZ: room.center[2] + 0.85,
-      },
-    ];
-  });
-
-// Push a circle of `radius` at (x, z) out of an AABB it's overlapping.
+// Push a circle at (x, z) out of any AABB it overlaps.
 const resolveBox = (position: THREE.Vector3, box: Box, radius: number) => {
   const closestX = THREE.MathUtils.clamp(position.x, box.minX, box.maxX);
   const closestZ = THREE.MathUtils.clamp(position.z, box.minZ, box.maxZ);
@@ -49,27 +26,25 @@ const resolveBox = (position: THREE.Vector3, box: Box, radius: number) => {
   const dz = position.z - closestZ;
   const distSq = dx * dx + dz * dz;
   if (distSq >= radius * radius) return;
-
   const dist = Math.sqrt(distSq) || 0.0001;
-  const overlap = radius - dist;
-  position.x += (dx / dist) * overlap;
-  position.z += (dz / dist) * overlap;
+  const push = radius - dist;
+  position.x += (dx / dist) * push;
+  position.z += (dz / dist) * push;
 };
 
 type PlayerControlsProps = {
-  rooms: Room[];
+  gallery: Gallery;
   joystickRef: MutableRefObject<{ x: number; y: number }>;
-  zBounds: [number, number];
   onTargetChange: (slot: ImageSlot | null) => void;
   onOpenImage: (image: ImageT) => void;
 };
 
 // Tank controls: forward/back + turn only, no mouse-look — the camera never
-// needs to be "pointed", it just faces wherever the last turn left it.
+// needs "pointing", it just faces wherever the last turn left it. Height
+// follows the gallery's ground (flat, then up the stairs, then flat again).
 export const PlayerControls = ({
-  rooms,
+  gallery,
   joystickRef,
-  zBounds,
   onTargetChange,
   onOpenImage,
 }: PlayerControlsProps) => {
@@ -77,8 +52,10 @@ export const PlayerControls = ({
   const keys = useRef(new Set<string>());
   const yaw = useRef(0);
   const targetRef = useRef<ImageSlot | null>(null);
-  const allSlots = rooms.flatMap((room) => room.slots);
-  const obstacles = useMemo(() => buildObstacles(rooms), [rooms]);
+
+  const boxes = useMemo(() => collisionBoxes(gallery), [gallery]);
+  const slots = useMemo(() => gallery.rooms.flatMap((room) => room.slots), [gallery]);
+  const forward = useMemo(() => new THREE.Vector3(), []);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -89,7 +66,6 @@ export const PlayerControls = ({
       }
     };
     const up = (e: KeyboardEvent) => keys.current.delete(e.key.toLowerCase());
-
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
     return () => {
@@ -99,50 +75,50 @@ export const PlayerControls = ({
   }, [onOpenImage]);
 
   useFrame((_, delta) => {
-    const keysDown = keys.current;
-    const joystick = joystickRef.current;
+    const step = Math.min(delta, 0.05);
+    const held = keys.current;
+    const joy = joystickRef.current;
 
-    let turn = joystick.x;
-    let move = -joystick.y;
-    if (keysDown.has("a") || keysDown.has("arrowleft")) turn -= 1;
-    if (keysDown.has("d") || keysDown.has("arrowright")) turn += 1;
-    if (keysDown.has("w") || keysDown.has("arrowup")) move += 1;
-    if (keysDown.has("s") || keysDown.has("arrowdown")) move -= 1;
+    let turn = joy.x;
+    let move = -joy.y;
+    if (held.has("a") || held.has("arrowleft")) turn -= 1;
+    if (held.has("d") || held.has("arrowright")) turn += 1;
+    if (held.has("w") || held.has("arrowup")) move += 1;
+    if (held.has("s") || held.has("arrowdown")) move -= 1;
 
-    yaw.current -= turn * TURN_SPEED * delta;
+    yaw.current -= turn * TURN_SPEED * step;
     camera.rotation.set(0, yaw.current, 0);
 
-    const forward = new THREE.Vector3(-Math.sin(yaw.current), 0, -Math.cos(yaw.current));
-    camera.position.addScaledVector(forward, move * MOVE_SPEED * delta);
+    forward.set(-Math.sin(yaw.current), 0, -Math.cos(yaw.current));
+    camera.position.addScaledVector(forward, move * MOVE_SPEED * step);
 
-    for (const box of obstacles) {
-      resolveBox(camera.position, box, PLAYER_RADIUS);
-    }
+    for (const box of boxes) resolveBox(camera.position, box, PLAYER_RADIUS);
 
-    // Outer envelope as a final backstop, in case a turn+move step ever
-    // jumps past the per-obstacle collision above.
-    const margin = 0.6;
-    const maxX = CORRIDOR_HALF_WIDTH + ROOM_DEPTH - margin;
+    // Outer envelope backstop — the wall boxes do the real stopping; this
+    // just guarantees the player can never end up outside the building.
+    const margin = 0.5;
+    const maxX = CORRIDOR_HALF_WIDTH + MAX_ROOM_DEPTH + 0.6;
     camera.position.x = THREE.MathUtils.clamp(camera.position.x, -maxX, maxX);
     camera.position.z = THREE.MathUtils.clamp(
       camera.position.z,
-      zBounds[0] + margin,
-      zBounds[1] - margin
+      gallery.bounds.minZ + margin,
+      gallery.bounds.maxZ - margin
     );
-    camera.position.y = EYE_HEIGHT;
+    camera.position.y = groundHeightAt(gallery, camera.position.z) + EYE_HEIGHT;
 
+    // Nearest frame in reach — drives the "view" prompt.
     let nearest: ImageSlot | null = null;
     let nearestDist = INTERACT_RANGE;
-    for (const slot of allSlots) {
+    for (const slot of slots) {
       const dx = slot.position[0] - camera.position.x;
+      const dy = slot.position[1] - camera.position.y;
       const dz = slot.position[2] - camera.position.z;
-      const dist = Math.hypot(dx, dz);
+      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
       if (dist < nearestDist) {
         nearestDist = dist;
         nearest = slot;
       }
     }
-
     if (nearest !== targetRef.current) {
       targetRef.current = nearest;
       onTargetChange(nearest);

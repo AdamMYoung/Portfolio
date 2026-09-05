@@ -2,17 +2,17 @@ import type { GetStaticProps } from "next";
 import dynamic from "next/dynamic";
 import Head from "next/head";
 
-import { buildRooms, getImages, type Room } from "../src/utils";
+import { buildGallery, type Gallery, getImages } from "../src/utils";
 
 const GalleryCanvas = dynamic(() => import("../src/components/gallery/GalleryCanvas"), {
   ssr: false,
 });
 
 type GalleryProps = {
-  rooms: Room[];
+  gallery: Gallery;
 };
 
-export default function Gallery({ rooms }: GalleryProps) {
+export default function GalleryPage({ gallery }: GalleryProps) {
   return (
     <>
       <Head>
@@ -22,18 +22,18 @@ export default function Gallery({ rooms }: GalleryProps) {
           content="Photography portfolio of Photographer, Adam Young — 3D gallery"
         />
       </Head>
-      <GalleryCanvas rooms={rooms} />
+      <GalleryCanvas gallery={gallery} />
     </>
   );
 }
 
 export const getStaticProps: GetStaticProps<GalleryProps> = async () => {
   const images = await getImages();
-  const rooms = buildRooms(images);
+  const gallery = buildGallery(images);
 
   return {
     props: {
-      rooms,
+      gallery,
     },
   };
 };

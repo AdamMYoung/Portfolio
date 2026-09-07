@@ -12,20 +12,24 @@ const MOODS = {
   day: {
     hemiSky: new THREE.Color("#fdfbf6"),
     hemiGround: new THREE.Color("#d7ccb7"),
-    ambient: 0.5,
+    // Fill carries the room now that most lamps are gone — but the walls are
+    // near-white, so keep it just under a clip.
+    ambient: 0.42,
+    hemiIntensity: 0.9,
     key: new THREE.Color("#ffffff"),
-    keyIntensity: 0.85,
+    keyIntensity: 0.7,
     lamp: new THREE.Color("#fff4e2"),
-    lampIntensity: 7,
+    lampIntensity: 9,
   },
   evening: {
     hemiSky: new THREE.Color("#2a2740"),
     hemiGround: new THREE.Color("#20140e"),
-    ambient: 0.16,
+    ambient: 0.2,
+    hemiIntensity: 0.45,
     key: new THREE.Color("#ffd9a8"),
     keyIntensity: 0.3,
     lamp: new THREE.Color("#ffcf9a"),
-    lampIntensity: 10,
+    lampIntensity: 13,
   },
 };
 
@@ -42,14 +46,26 @@ export const Lighting = ({ gallery }: { gallery: Gallery }) => {
   const key = useRef<THREE.DirectionalLight>(null);
   const lampGroup = useRef<THREE.Group>(null);
 
+  // Keep the point-light count low — three compiles every lit material's
+  // fragment shader with a loop over ALL point lights in the scene, so the
+  // total count (not just what's in range) is what costs. A couple of
+  // long-throw lamps per level plus one for each big "hall" room; everything
+  // else rides the hemisphere fill and the emissive track lights.
   const lamps = useMemo<Lamp[]>(() => {
-    const l0Mid = (bounds.maxZ + stairs.bottomZ) / 2;
-    const l1Mid = (stairs.topZ + bounds.minZ) / 2;
-    const list: Lamp[] = [
-      { position: [0, 5, l0Mid], distance: Math.abs(bounds.maxZ - stairs.bottomZ) * 0.9 },
-      { position: [0, 9, l1Mid], distance: Math.abs(stairs.topZ - bounds.minZ) * 0.9 },
-    ];
+    const list: Lamp[] = [];
+
+    const runLamp = (fromZ: number, toZ: number, y: number) => {
+      const n = Math.min(2, Math.max(1, Math.round(Math.abs(fromZ - toZ) / 45)));
+      for (let i = 0; i < n; i++) {
+        const z = fromZ + ((i + 0.5) / n) * (toZ - fromZ);
+        list.push({ position: [0, y, z], distance: (Math.abs(fromZ - toZ) / n) * 1.5 });
+      }
+    };
+    runLamp(bounds.maxZ, stairs.bottomZ, 5);
+    runLamp(stairs.topZ, bounds.minZ, 9);
+
     for (const room of rooms) {
+      if (room.variant !== "hall") continue;
       const sign = room.side === "left" ? -1 : 1;
       const [, baseY, cz] = room.center;
       list.push({
@@ -65,6 +81,11 @@ export const Lighting = ({ gallery }: { gallery: Gallery }) => {
     if (hemi.current) {
       hemi.current.color.lerp(target.hemiSky, t);
       hemi.current.groundColor.lerp(target.hemiGround, t);
+      hemi.current.intensity = THREE.MathUtils.lerp(
+        hemi.current.intensity,
+        target.hemiIntensity,
+        t
+      );
     }
     if (ambient.current)
       ambient.current.intensity = THREE.MathUtils.lerp(
@@ -97,9 +118,9 @@ export const Lighting = ({ gallery }: { gallery: Gallery }) => {
 
   return (
     <group>
-      <hemisphereLight ref={hemi} args={["#fdfbf6", "#d7ccb7", 1]} />
-      <ambientLight ref={ambient} intensity={0.5} />
-      <directionalLight ref={key} position={[6, 14, 4]} intensity={0.85} />
+      <hemisphereLight ref={hemi} args={["#fdfbf6", "#d7ccb7", 0.9]} />
+      <ambientLight ref={ambient} intensity={0.42} />
+      <directionalLight ref={key} position={[6, 14, 4]} intensity={0.7} />
       <group ref={lampGroup}>
         {lamps.map((lamp, i) => (
           <pointLight

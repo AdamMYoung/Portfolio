@@ -22,12 +22,18 @@ export const PostFx = () => {
 
   return (
     <EffectComposer enableNormalPass multisampling={0}>
-      <N8AO aoRadius={1.4} intensity={evening ? 3 : 2} distanceFalloff={1} halfRes />
+      <N8AO
+        quality="performance"
+        halfRes
+        aoRadius={1.4}
+        intensity={evening ? 3 : 2}
+        distanceFalloff={1}
+      />
       <Bloom
         mipmapBlur
-        luminanceThreshold={evening ? 0.55 : 0.72}
-        luminanceSmoothing={0.2}
-        intensity={evening ? 1.05 : 0.5}
+        luminanceThreshold={evening ? 0.6 : 0.9}
+        luminanceSmoothing={0.25}
+        intensity={evening ? 1.0 : 0.4}
       />
       <HueSaturation saturation={evening ? -0.04 : 0.04} hue={0} />
       <BrightnessContrast brightness={evening ? -0.04 : 0} contrast={0.07} />

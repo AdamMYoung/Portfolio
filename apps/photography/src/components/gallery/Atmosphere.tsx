@@ -18,15 +18,23 @@ export const Atmosphere = ({ gallery }: { gallery: Gallery }) => {
   const speed = reducedMotion ? 0 : 0.3;
   const moteColor = timeOfDay === "evening" ? "#ffd9a0" : "#fff4e2";
 
+  // One shaft per track light (there are two over each room opening, at
+  // cz ± 1.6 — see <TrackLight> in Scene). The cone's apex is pinned exactly
+  // to the fixture and it flares down past the floor.
   const shafts = useMemo(() => {
     if (quality !== "high") return [];
-    return rooms.map((room) => {
+    return rooms.flatMap((room) => {
       const sign = room.side === "left" ? -1 : 1;
       const [, baseY, cz] = room.center;
-      return {
-        key: room.id,
-        position: [sign * CORRIDOR_HALF_WIDTH, baseY + room.size.height - 0.4, cz] as const,
-      };
+      const apexY = baseY + room.size.height + 0.15;
+      const height = room.size.height + 1.2;
+      return [-1.6, 1.6].map((dz) => ({
+        key: `${room.id}:${dz}`,
+        // three's cone apex is at +height/2 local, so drop the mesh by that
+        // much to land the apex on the fixture.
+        position: [sign * CORRIDOR_HALF_WIDTH, apexY - height / 2, cz + dz] as const,
+        height,
+      }));
     });
   }, [rooms, quality]);
 
@@ -53,12 +61,13 @@ export const Atmosphere = ({ gallery }: { gallery: Gallery }) => {
         noise={1.2}
       />
       {shafts.map((shaft) => (
-        <mesh key={shaft.key} position={shaft.position} rotation={[Math.PI, 0, 0]}>
-          <coneGeometry args={[2.6, 4, 20, 1, true]} />
+        <mesh key={shaft.key} position={shaft.position}>
+          {/* apex (+Y) at the light, flaring down */}
+          <coneGeometry args={[1.3, shaft.height, 18, 1, true]} />
           <meshBasicMaterial
             color={moteColor}
             transparent
-            opacity={timeOfDay === "evening" ? 0.06 : 0.035}
+            opacity={timeOfDay === "evening" ? 0.07 : 0.04}
             side={THREE.DoubleSide}
             depthWrite={false}
             blending={THREE.AdditiveBlending}

@@ -62,6 +62,7 @@ export default function GalleryCanvas({ images }: GalleryCanvasProps) {
   const seed = useGallery((s) => s.seed);
   const target = useGallery((s) => s.target);
   const timeOfDay = useGallery((s) => s.timeOfDay);
+  const quality = useGallery((s) => s.quality);
   const [activeImage, setActiveImage] = useState<ImageT | null>(null);
 
   const gallery = useMemo(() => buildGallery(images, seed || images.length), [images, seed]);
@@ -103,8 +104,17 @@ export default function GalleryCanvas({ images }: GalleryCanvasProps) {
   return (
     <div className="relative h-full w-full touch-none overflow-hidden bg-[#f5f2ea]">
       <Canvas
+        // Cap the pixel budget — retina (dpr 2) quadruples fragment cost for a
+        // gallery that reads fine at ~1.5. SMAA in the post stack does the
+        // anti-aliasing when it's on, so skip MSAA there.
+        dpr={[1, 1.5]}
         camera={{ fov: 68, position: [0, 1.6, 1.5], near: 0.1, far: 140 }}
-        gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1 }}
+        gl={{
+          antialias: quality !== "high",
+          powerPreference: "high-performance",
+          toneMapping: THREE.ACESFilmicToneMapping,
+          toneMappingExposure: 0.9,
+        }}
       >
         <color attach="background" args={[fog]} />
         <fog attach="fog" args={[fog, 14, timeOfDay === "evening" ? 40 : 62]} />

@@ -1,6 +1,6 @@
 import { MeshReflectorMaterial, RoundedBox, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { Component, type ReactNode, Suspense, useRef } from "react";
+import { Component, type ReactNode, Suspense, useRef, useState } from "react";
 import * as THREE from "three";
 
 import {
@@ -13,8 +13,9 @@ import {
   STAIR_RUN,
   STAIR_STEPS,
   type Stairs,
+  type Vec3,
 } from "../../utils/gallery";
-import { autopilot, useGallery } from "./state";
+import { autopilot, playerPose, useGallery } from "./state";
 
 // ── Palette ─────────────────────────────────────────────────────────────
 const WALL = "#f6f3ec";
@@ -47,7 +48,7 @@ export const Scene = ({ gallery }: SceneProps) => {
   return (
     <group>
       {/* Level 0 shell */}
-      <GalleryFloor position={[0, 0, l0Mid]} size={[floorWidth, l0Span]} />
+      <GalleryFloor position={[0, 0, l0Mid]} size={[floorWidth, l0Span]} reflective />
       <Slab position={[0, CEIL_HEIGHT_0, l0Mid]} size={[floorWidth, l0Span]} color={CEILING} flip />
 
       {/* Level 1 shell */}
@@ -106,30 +107,35 @@ const Slab = ({
 const GalleryFloor = ({
   position,
   size,
+  reflective,
 }: {
   position: [number, number, number];
   size: [number, number];
+  // A reflector re-renders the whole scene into a render target every frame,
+  // so only the level the player spends time on gets one — the upper level
+  // is a plain matte plane.
+  reflective?: boolean;
 }) => {
   const hq = useGallery((s) => s.quality) === "high";
   return (
     <mesh position={position} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[size[0], Math.abs(size[1])]} />
-      {hq ? (
+      {hq && reflective ? (
         <MeshReflectorMaterial
           color={FLOOR}
-          resolution={512}
+          resolution={256}
           mixBlur={1}
-          mixStrength={2.4}
-          blur={[320, 110]}
-          mirror={0.32}
+          mixStrength={2}
+          blur={[192, 64]}
+          mirror={0.3}
           metalness={0.12}
-          roughness={0.88}
+          roughness={0.9}
           depthScale={0.4}
           minDepthThreshold={0.5}
           maxDepthThreshold={1.2}
         />
       ) : (
-        <meshStandardMaterial color={FLOOR} roughness={0.85} />
+        <meshStandardMaterial color={FLOOR} roughness={0.86} />
       )}
     </mesh>
   );
@@ -270,13 +276,11 @@ const RoomView = ({ room }: { room: Room }) => {
         />
       ))}
 
-      <Suspense fallback={null}>
-        {room.slots.map((slot) => (
-          <FrameBoundary key={slot.image.path}>
-            <ArtFrame slot={slot} />
-          </FrameBoundary>
-        ))}
-      </Suspense>
+      {room.slots.map((slot) => (
+        <FrameBoundary key={slot.image.path}>
+          <ArtFrame slot={slot} />
+        </FrameBoundary>
+      ))}
     </group>
   );
 };
@@ -442,10 +446,45 @@ const TrackLight = ({ position, sign }: { position: [number, number, number]; si
 const textureUrl = (path: string, width: number) =>
   `/_next/image?url=${encodeURIComponent(path)}&w=${width}&q=78`;
 
+// Load radius with hysteresis: a full-res photo is ~2 MB of VRAM, so only
+// the handful of frames the visitor is actually near hold a texture. The
+// rest show their dominant-colour swatch until you walk over.
+const LOAD_IN = 22;
+const LOAD_OUT = 30;
+
+const useNearby = (pos: Vec3): boolean => {
+  const [near, setNear] = useState(false);
+  const state = useRef(false);
+  useFrame(() => {
+    const dx = pos[0] - playerPose.x;
+    const dz = pos[2] - playerPose.z;
+    const d2 = dx * dx + dz * dz;
+    const want = state.current ? d2 < LOAD_OUT * LOAD_OUT : d2 < LOAD_IN * LOAD_IN;
+    if (want !== state.current) {
+      state.current = want;
+      setNear(want);
+    }
+  });
+  return near;
+};
+
+const ArtImage = ({ url, width, height }: { url: string; width: number; height: number }) => {
+  const texture = useTexture(url);
+  return (
+    <mesh position={[0, 0, 0.067]}>
+      <planeGeometry args={[width, height]} />
+      <meshBasicMaterial map={texture} toneMapped={false} />
+    </mesh>
+  );
+};
+
 const ArtFrame = ({ slot }: { slot: ImageSlot }) => {
-  const texture = useTexture(textureUrl(slot.image.path, 1080));
   const { width, height } = slot;
   const sign = Math.sign(slot.position[0]) || 1;
+  const near = useNearby(slot.position);
+  const { r, g, b } = slot.image.color;
+  const swatch = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
+
   return (
     <group
       position={slot.position}
@@ -470,10 +509,16 @@ const ArtFrame = ({ slot }: { slot: ImageSlot }) => {
         <boxGeometry args={[width + 0.12, height + 0.12, 0.02]} />
         <meshStandardMaterial color={MAT} roughness={0.9} />
       </mesh>
-      <mesh position={[0, 0, 0.066]}>
+      {/* dominant-colour stand-in, always present */}
+      <mesh position={[0, 0, 0.064]}>
         <planeGeometry args={[width, height]} />
-        <meshBasicMaterial map={texture} toneMapped={false} />
+        <meshBasicMaterial color={swatch} toneMapped={false} />
       </mesh>
+      {near && (
+        <Suspense fallback={null}>
+          <ArtImage url={textureUrl(slot.image.path, 828)} width={width} height={height} />
+        </Suspense>
+      )}
       <mesh position={[0, -(height / 2) - 0.32, 0.04]}>
         <boxGeometry args={[0.46, 0.15, 0.02]} />
         <meshStandardMaterial color="#e9e4d8" roughness={0.85} />

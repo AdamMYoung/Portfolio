@@ -3,6 +3,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import ExifReader from "exifreader";
 import { type Color, getDominantColor } from "../color";
 import { AWSImageRepository } from "../image";
+import { mapLimit } from "../mapLimit";
 
 dayjs.extend(customParseFormat);
 
@@ -34,43 +35,43 @@ const getExifData = (exif: any, keys: string[]): string[] => {
 export const getImages = async (): Promise<Image[]> => {
   const files = await imageRepository.getImages();
 
-  const images = await Promise.all(
-    files.map(async (file) => {
-      const exifData = ExifReader.load(file.data);
-      const color = await getDominantColor(file.data);
+  // sharp (in getDominantColor) decodes a full JPEG per call; cap how many
+  // run at once so a large collection doesn't spike memory during the build.
+  const images = await mapLimit(files, 12, async (file) => {
+    const exifData = ExifReader.load(file.data);
+    const color = await getDominantColor(file.data);
 
-      const [height, width, make, model, aperture, exposure, focalLength, lens, iso, captureDate] =
-        getExifData(exifData, [
-          "Image Height",
-          "Image Width",
-          "Make",
-          "Model",
-          "FNumber",
-          "ExposureTime",
-          "FocalLength",
-          "LensModel",
-          "ISOSpeedRatings",
-          "DateCreated",
-        ]);
+    const [height, width, make, model, aperture, exposure, focalLength, lens, iso, captureDate] =
+      getExifData(exifData, [
+        "Image Height",
+        "Image Width",
+        "Make",
+        "Model",
+        "FNumber",
+        "ExposureTime",
+        "FocalLength",
+        "LensModel",
+        "ISOSpeedRatings",
+        "DateCreated",
+      ]);
 
-      return {
-        path: file.path,
-        color,
-        exif: {
-          height: parseInt(height, 10),
-          width: parseInt(width, 10),
-          make,
-          model,
-          aperture,
-          exposure,
-          focalLength,
-          lens,
-          iso,
-          captureDate,
-        },
-      };
-    })
-  );
+    return {
+      path: file.path,
+      color,
+      exif: {
+        height: parseInt(height, 10),
+        width: parseInt(width, 10),
+        make,
+        model,
+        aperture,
+        exposure,
+        focalLength,
+        lens,
+        iso,
+        captureDate,
+      },
+    };
+  });
 
   return images.sort((a, b) => {
     const aDate = dayjs(a.exif.captureDate, "YYYY:MM:DD HH:mm:ss");

@@ -1,4 +1,5 @@
-import { GetObjectCommand, ListObjectsCommand, S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, ListObjectsV2Command, S3Client } from "@aws-sdk/client-s3";
+import { mapLimit } from "../mapLimit";
 import type { ImageData } from "./image.types";
 
 // Fail loudly and specifically when an R2/S3 env var is missing — without
@@ -23,43 +24,48 @@ const client = new S3Client({
   },
 });
 
-const bucketParams = { Bucket: requiredEnv("S3_BUCKET_NAME") };
+const bucket = requiredEnv("S3_BUCKET_NAME");
 const bucketHostname = requiredEnv("S3_BUCKET_HOSTNAME");
 
-export const getBucketObjects = async () => {
-  const data = await client.send(new ListObjectsCommand(bucketParams));
+// How many object bodies to pull from R2 at once. The AWS SDK's default HTTP
+// handler caps at 50 sockets; firing every object at once (100s of them,
+// ×3 during parallel static generation) blew past that and silently dropped
+// responses — the gallery was only ever seeing part of the collection.
+const FETCH_CONCURRENCY = 8;
 
-  return data;
+// Every object key in the bucket, following pagination past the 1000-key page
+// limit. One request per 1000 keys — cheap.
+const listAllKeys = async (): Promise<string[]> => {
+  const keys: string[] = [];
+  let ContinuationToken: string | undefined;
+  do {
+    const page = await client.send(new ListObjectsV2Command({ Bucket: bucket, ContinuationToken }));
+    for (const obj of page.Contents ?? []) {
+      if (obj.Key) keys.push(obj.Key);
+    }
+    ContinuationToken = page.IsTruncated ? page.NextContinuationToken : undefined;
+  } while (ContinuationToken);
+  return keys;
 };
 
-// Just the public URLs — one LIST call, no per-object downloads. Used by the
+// Just the public URLs — one LIST walk, no per-object downloads. Used by the
 // sitemap, which needs the addresses but none of the EXIF/colour work.
 export const listPhotoUrls = async (): Promise<string[]> => {
-  const objects = await getBucketObjects();
-  return (objects.Contents ?? [])
-    .map((obj) => obj.Key)
-    .filter((key): key is string => Boolean(key))
-    .map((key) => `https://${bucketHostname}/${key}`);
+  const keys = await listAllKeys();
+  return keys.map((key) => `https://${bucketHostname}/${key}`);
 };
 
 export class AWSImageRepository {
   async getImages(): Promise<ImageData[]> {
-    const objects = await getBucketObjects();
+    const keys = await listAllKeys();
 
-    const parsedObjects = await Promise.all(
-      (objects.Contents ?? []).map(async (obj) => {
-        const data = await client.send(new GetObjectCommand({ ...bucketParams, Key: obj.Key }));
-
-        const byteArray = await data.Body!.transformToByteArray();
-        const fileData = byteArray.buffer as ArrayBuffer;
-
-        return {
-          data: fileData,
-          path: `https://${bucketHostname}/${obj.Key}`,
-        };
-      })
-    );
-
-    return parsedObjects.filter((element) => element !== undefined) as ImageData[];
+    return mapLimit(keys, FETCH_CONCURRENCY, async (key) => {
+      const data = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+      const byteArray = await data.Body!.transformToByteArray();
+      return {
+        data: byteArray.buffer as ArrayBuffer,
+        path: `https://${bucketHostname}/${key}`,
+      };
+    });
   }
 }

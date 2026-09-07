@@ -3,12 +3,15 @@ import { useEffect, useMemo, useRef } from "react";
 import { CORRIDOR_HALF_WIDTH, type Gallery, MAX_ROOM_DEPTH } from "../../utils/gallery";
 import { playerPose, useGallery } from "./state";
 
-// Top-down floor plan, pinned top-right. Rooms fill with their accent colour
-// once you've stood in front of them, so it doubles as a "what have I
-// missed" tracker. The player arrow is updated straight on the DOM node via
-// rAF — no React churn at 60fps.
+// Top-down floor plan, pinned top-right. The whole gallery footprint is
+// scaled to fit a small fixed box (it used to grow with the gallery's
+// length and swallow the screen). Rooms fill with their accent colour once
+// you've stood in front of them, so it doubles as a "what have I missed"
+// tracker. The player arrow is nudged straight on the DOM via rAF — no React
+// churn at 60fps.
 const PAD = 8;
-const W = 150;
+const VB_W = 132;
+const VB_H = 172;
 
 export const Minimap = ({ gallery }: { gallery: Gallery }) => {
   const seen = useGallery((s) => s.seen);
@@ -17,23 +20,28 @@ export const Minimap = ({ gallery }: { gallery: Gallery }) => {
   const view = useMemo(() => {
     const spanX = (CORRIDOR_HALF_WIDTH + MAX_ROOM_DEPTH + 2) * 2;
     const spanZ = gallery.bounds.maxZ - gallery.bounds.minZ;
-    const scale = (W - PAD * 2) / spanX;
-    const h = spanZ * scale + PAD * 2;
-    // world (x,z) -> svg (px,py); z grows "up the page" as you walk in
-    const px = (x: number) => W / 2 + x * scale;
-    const py = (z: number) => PAD + (gallery.bounds.maxZ - z) * scale;
-    return { scale, h, px, py };
+    const zMid = (gallery.bounds.maxZ + gallery.bounds.minZ) / 2;
+    // Fit the longer axis; the map never outgrows the box.
+    const scale = Math.min((VB_W - PAD * 2) / spanX, (VB_H - PAD * 2) / spanZ);
+    const px = (x: number) => VB_W / 2 + x * scale;
+    // Deeper into the gallery (smaller z) reads downward on the map.
+    const py = (z: number) => VB_H / 2 - (z - zMid) * scale;
+    return { scale, px, py };
   }, [gallery]);
 
   useEffect(() => {
     let raf = 0;
     const tick = () => {
       if (arrow.current) {
+        const x = Math.max(3, Math.min(VB_W - 3, view.px(playerPose.x)));
+        const y = Math.max(3, Math.min(VB_H - 3, view.py(playerPose.z)));
+        // Camera forward is (-sin yaw, -cos yaw) in world XZ, which maps to
+        // (-sin yaw, cos yaw) on screen; the arrow art points "up", so the
+        // rotation that aligns it is yaw + 180°.
+        const deg = (playerPose.yaw * 180) / Math.PI + 180;
         arrow.current.setAttribute(
           "transform",
-          `translate(${view.px(playerPose.x).toFixed(1)} ${view.py(playerPose.z).toFixed(1)}) rotate(${(
-            (-playerPose.yaw * 180) / Math.PI
-          ).toFixed(1)})`
+          `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${deg.toFixed(1)})`
         );
       }
       raf = requestAnimationFrame(tick);
@@ -44,10 +52,9 @@ export const Minimap = ({ gallery }: { gallery: Gallery }) => {
 
   return (
     <svg
-      width={W}
-      height={view.h}
-      viewBox={`0 0 ${W} ${view.h}`}
-      className="absolute right-3 top-16 rounded-md bg-black/45 backdrop-blur-sm"
+      viewBox={`0 0 ${VB_W} ${VB_H}`}
+      preserveAspectRatio="xMidYMid meet"
+      className="pointer-events-none absolute right-2 top-16 h-[132px] w-[102px] rounded-md bg-black/45 backdrop-blur-sm sm:right-3 sm:h-[168px] sm:w-[130px]"
       aria-hidden="true"
     >
       <title>Gallery map</title>
@@ -84,12 +91,12 @@ export const Minimap = ({ gallery }: { gallery: Gallery }) => {
             height={room.size.width * view.scale}
             fill={isSeen ? accent : "rgba(255,255,255,0.08)"}
             stroke="rgba(255,255,255,0.35)"
-            strokeWidth={0.5}
+            strokeWidth={0.4}
           />
         );
       })}
       <g ref={arrow}>
-        <polygon points="0,-4 3,4 -3,4" fill="#ffd9a0" stroke="#1a1a1a" strokeWidth={0.5} />
+        <polygon points="0,-3.5 2.6,3 -2.6,3" fill="#ffd9a0" stroke="#1a1a1a" strokeWidth={0.6} />
       </g>
     </svg>
   );

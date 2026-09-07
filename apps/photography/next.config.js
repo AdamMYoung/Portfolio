@@ -6,13 +6,8 @@ module.exports = {
   // mount/unmount/remount cycle. Off site-wide since this is the only page
   // using a WebGL canvas.
   reactStrictMode: false,
-  swcMinify: true,
-  transpilePackages: ["components"],
   staticPageGenerationTimeout: 1000,
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
-  experimental: {
-    optimizePackageImports: ["components"],
-  },
   images: {
     remotePatterns: [
       {

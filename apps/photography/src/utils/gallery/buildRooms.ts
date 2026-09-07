@@ -17,6 +17,15 @@ export const FRONT_WALL_OFFSET = 0.4; // enclosed rooms' front wall sits this fa
 // uses it.
 export const MAX_ROOM_DEPTH = 7;
 
+// Empty foyer between the entrance wall and the first room, so the crowd
+// isn't standing on top of the player on load.
+const ENTRANCE_DEPTH = 9;
+
+// Spine spacing reserve: the widest room's half-width (hall ≈ 6.25) plus a
+// walking gap. Guarantees two same-side rooms never overlap along Z, which
+// used to let frames poke through a neighbour's back wall.
+const NEXT_ROOM_CLEARANCE = 9;
+
 export type Vec3 = [number, number, number];
 export type RoomVariant = "alcove" | "chamber" | "hall";
 
@@ -169,7 +178,7 @@ export const buildGallery = (images: Image[]): Gallery => {
 
   const rooms: Room[] = [];
   let cursor = 0;
-  let z = 0;
+  let z = -ENTRANCE_DEPTH;
   let level: 0 | 1 = 0;
   let prevSide: "left" | "right" | null = null;
   let sameSideRun = 0;
@@ -211,7 +220,7 @@ export const buildGallery = (images: Image[]): Gallery => {
     rooms.push(makeRoom(index++, chunk, variant, side, level, z, rand));
     placedThisLevel++;
 
-    let advance = spec.width / 2 + 4.2 + rand() * 3;
+    let advance = spec.width / 2 + NEXT_ROOM_CLEARANCE + rand() * 3;
 
     // Occasionally pair a room directly opposite so the spine feels like a
     // crossing rather than a plain hallway.
@@ -223,7 +232,7 @@ export const buildGallery = (images: Image[]): Gallery => {
       cursor += take2;
       rooms.push(makeRoom(index++, chunk2, v2, side === "left" ? "right" : "left", level, z, rand));
       placedThisLevel++;
-      advance = Math.max(advance, s2.width / 2 + 4.2);
+      advance = Math.max(advance, s2.width / 2 + NEXT_ROOM_CLEARANCE);
     }
 
     z -= advance;
@@ -298,6 +307,12 @@ export const collisionBoxes = (gallery: Gallery): Box[] => {
     boxes.push({ minX: railX - 0.12, maxX: railX + 0.12, minZ: topZ, maxZ: bottomZ });
   }
 
+  // End caps: the entrance wall behind the spawn and the far wall at the back.
+  const endX = CORRIDOR_HALF_WIDTH + MAX_ROOM_DEPTH + 2;
+  for (const wz of [gallery.bounds.maxZ, gallery.bounds.minZ]) {
+    boxes.push({ minX: -endX, maxX: endX, minZ: wz - T, maxZ: wz + T });
+  }
+
   return boxes;
 };
 
@@ -330,6 +345,24 @@ if (require.main === module) {
         b.minX <= b.maxX && b.minZ <= b.maxZ && Number.isFinite(b.minX + b.maxZ),
         "collision box well formed"
       );
+    }
+
+    // Same-side rooms on a level never overlap along the spine — otherwise
+    // their frames clip through each other's back wall.
+    const spans = new Map<string, [number, number][]>();
+    for (const r of gallery.rooms) {
+      const key = `${r.level}:${r.side}`;
+      const lo = r.center[2] - r.size.width / 2;
+      const hi = r.center[2] + r.size.width / 2;
+      const list = spans.get(key) ?? [];
+      for (const [plo, phi] of list) {
+        console.assert(
+          hi <= plo || lo >= phi,
+          `same-side rooms overlap on ${key} (count=${count})`
+        );
+      }
+      list.push([lo, hi]);
+      spans.set(key, list);
     }
   }
   console.log("buildGallery self-check passed");

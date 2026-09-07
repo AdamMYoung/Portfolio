@@ -1,4 +1,4 @@
 export type ImageData = {
-  data: Buffer;
+  data: ArrayBuffer;
   path: string;
 };

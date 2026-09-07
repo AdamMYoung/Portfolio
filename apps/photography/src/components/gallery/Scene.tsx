@@ -52,6 +52,17 @@ export const Scene = ({ gallery }: SceneProps) => {
       {/* Level 1 shell */}
       <Slab position={[0, gallery.levelHeight, l1Mid]} size={[floorWidth, l1Span]} color={FLOOR} />
       <Slab position={[0, CEIL_HEIGHT_1, l1Mid]} size={[floorWidth, l1Span]} color={CEILING} flip />
+
+      {/* End caps: the entrance wall behind the spawn, the far wall at the back */}
+      <mesh position={[0, CEIL_HEIGHT_0 / 2, bounds.maxZ]}>
+        <planeGeometry args={[floorWidth, CEIL_HEIGHT_0]} />
+        <meshStandardMaterial color={WALL} roughness={0.95} side={THREE.DoubleSide} />
+      </mesh>
+      <mesh position={[0, (gallery.levelHeight + CEIL_HEIGHT_1) / 2, bounds.minZ]}>
+        <planeGeometry args={[floorWidth, CEIL_HEIGHT_1 - gallery.levelHeight]} />
+        <meshStandardMaterial color={WALL} roughness={0.95} side={THREE.DoubleSide} />
+      </mesh>
+
       {/* Fascia under the upper floor's leading edge */}
       <mesh position={[0, gallery.levelHeight - 0.2, stairs.topZ + 0.15]}>
         <boxGeometry args={[floorWidth, 0.4, 0.3]} />

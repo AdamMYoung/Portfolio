@@ -41,7 +41,7 @@ export class AWSImageRepository {
         const data = await client.send(new GetObjectCommand({ ...bucketParams, Key: obj.Key }));
 
         const byteArray = await data.Body!.transformToByteArray();
-        const fileData = byteArray.buffer;
+        const fileData = byteArray.buffer as ArrayBuffer;
 
         return {
           data: fileData,

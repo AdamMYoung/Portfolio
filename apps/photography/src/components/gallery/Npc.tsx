@@ -170,6 +170,7 @@ const Npc = ({
     timer: spec.initial.timer,
     t: spec.initial.t,
     bob: 0,
+    spawn: 0, // 0→1 grow-in on mount, kills the pop-in of a dozen bodies at load
     target: spec.initial.target.clone(),
     pendingLook: spec.initial.look ? spec.initial.look.clone() : null,
     look: spec.initial.mode === "view" ? (spec.initial.look?.clone() ?? null) : null,
@@ -191,6 +192,12 @@ const Npc = ({
     const s = st.current;
     const dt = Math.min(delta, 0.05);
     s.t += dt;
+
+    if (s.spawn < 1) {
+      s.spawn = Math.min(1, s.spawn + dt * 3);
+      const e = s.spawn * s.spawn * (3 - 2 * s.spawn); // smoothstep
+      g.scale.setScalar(spec.scale * e);
+    }
 
     if (s.mode === "walk") {
       scratch.set(s.target.x - s.pos.x, 0, s.target.z - s.pos.z);
@@ -243,7 +250,7 @@ const Npc = ({
   return (
     <group
       ref={group}
-      scale={spec.scale}
+      scale={0.01}
       position={[spec.initial.pos.x, spec.initial.pos.y, spec.initial.pos.z]}
     >
       <group ref={torso}>
@@ -290,7 +297,7 @@ const Npc = ({
   );
 };
 
-type GroupRef = RefObject<THREE.Group>;
+type GroupRef = RefObject<THREE.Group | null>;
 type Parts = { head: GroupRef; armL: GroupRef; armR: GroupRef; torso: GroupRef };
 
 const relax = (head: GroupRef, torso: GroupRef) => {

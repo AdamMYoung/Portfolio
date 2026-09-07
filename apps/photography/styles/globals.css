@@ -7,3 +7,19 @@ body {
   background-color: #f5f2ea;
   color: #141414;
 }
+
+/* Floating ❤️ reaction in the 3D gallery */
+@keyframes pg-heart {
+  0% {
+    transform: translateY(0) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    transform: translateY(-6px) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-90px) scale(0.9);
+    opacity: 0;
+  }
+}

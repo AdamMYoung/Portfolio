@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
+  // Don't scatter generated AGENTS.md / CLAUDE.md into the app dir — this
+  // repo keeps its agent instructions at the root.
+  agentRules: false,
   // react-three-fiber's Canvas manages a real WebGL context and isn't
   // safe under StrictMode's dev-only double-invoke of effects — it leaves
   // the canvas orphaned (never sized, nothing rendered) after the

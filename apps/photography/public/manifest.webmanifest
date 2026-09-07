@@ -1,0 +1,13 @@
+{
+  "name": "Adam Young Photography",
+  "short_name": "AY Photography",
+  "description": "The photography portfolio of Adam Young — browsable as a grid or a walk-through 3D gallery.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f2ea",
+  "theme_color": "#f5f2ea",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" },
+    { "src": "/api/icon", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}

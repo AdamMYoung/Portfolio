@@ -1,5 +1,6 @@
 import type { AppProps } from "next/app";
 import { Baskervville } from "next/font/google";
+import Head from "next/head";
 import { useRouter } from "next/router";
 
 import "../styles/globals.css";
@@ -24,6 +25,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     <div
       className={twMerge(baskerville.variable, "font-sans", isGallery && "h-dvh overflow-hidden")}
     >
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      </Head>
       <Header transparent={isGallery} />
       <main className={isGallery ? "h-full" : "mx-auto max-w-6xl px-6 pb-16 pt-24"}>
         <Component {...pageProps} />

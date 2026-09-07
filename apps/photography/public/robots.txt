@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://photography.adammyoung.com/sitemap.xml
+Host: https://photography.adammyoung.com

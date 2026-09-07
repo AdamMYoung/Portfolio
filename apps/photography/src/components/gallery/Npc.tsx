@@ -4,6 +4,7 @@ import * as THREE from "three";
 
 import { CORRIDOR_HALF_WIDTH, type Gallery, groundHeightAt } from "../../utils/gallery";
 import { mulberry32 } from "./random";
+import { useGallery } from "./state";
 
 const SKIN = ["#e8c39e", "#d9a679", "#c98e63", "#8d5a3c", "#f1d2b6"];
 const HAIR = ["#2b2b2b", "#4a3728", "#6b6b6b", "#1a1a1a", "#7a5230"];
@@ -29,6 +30,7 @@ const angleLerp = (from: number, to: number, t: number) => {
 
 // ── The crowd ───────────────────────────────────────────────────────────
 export const NpcCrowd = ({ gallery }: { gallery: Gallery }) => {
+  const reducedMotion = useGallery((s) => s.reducedMotion);
   const { stops, specs } = useMemo(() => {
     const rand = mulberry32(Math.imul(gallery.rooms.length + 7, 40503));
 
@@ -112,6 +114,7 @@ export const NpcCrowd = ({ gallery }: { gallery: Gallery }) => {
         scale: 0.9 + rand() * 0.22,
         speed: 0.7 + rand() * 0.5,
         seed: (i + 1) * 9176,
+        photographer: rand() < 0.32, // holds a phone up to the work
       };
     });
 
@@ -124,7 +127,13 @@ export const NpcCrowd = ({ gallery }: { gallery: Gallery }) => {
     <CrowdBoundary>
       <group>
         {specs.map((spec) => (
-          <Npc key={spec.id} spec={spec} gallery={gallery} stops={stops} />
+          <Npc
+            key={spec.id}
+            spec={spec}
+            gallery={gallery}
+            stops={stops}
+            reducedMotion={reducedMotion}
+          />
         ))}
       </group>
     </CrowdBoundary>
@@ -136,6 +145,7 @@ const Npc = ({
   spec,
   gallery,
   stops,
+  reducedMotion,
 }: {
   spec: {
     initial: Initial;
@@ -146,9 +156,11 @@ const Npc = ({
     scale: number;
     speed: number;
     seed: number;
+    photographer: boolean;
   };
   gallery: Gallery;
   stops: { viewpoints: Stop[]; waypoints: Stop[]; all: Stop[] };
+  reducedMotion: boolean;
 }) => {
   const group = useRef<THREE.Group>(null);
   const torso = useRef<THREE.Group>(null);
@@ -157,6 +169,7 @@ const Npc = ({
   const armR = useRef<THREE.Group>(null);
   const legL = useRef<THREE.Group>(null);
   const legR = useRef<THREE.Group>(null);
+  const phone = useRef<THREE.MeshStandardMaterial>(null);
 
   const garment = useMemo(() => new THREE.Color().setHSL(spec.hue, 0.34, 0.5), [spec.hue]);
   const sleeve = useMemo(() => garment.clone().offsetHSL(0, 0, -0.08), [garment]);
@@ -171,6 +184,8 @@ const Npc = ({
     t: spec.initial.t,
     bob: 0,
     spawn: 0, // 0→1 grow-in on mount, kills the pop-in of a dozen bodies at load
+    flash: 0, // camera-flash countdown for photographer NPCs
+    nextShot: 2 + Math.random() * 4,
     target: spec.initial.target.clone(),
     pendingLook: spec.initial.look ? spec.initial.look.clone() : null,
     look: spec.initial.mode === "view" ? (spec.initial.look?.clone() ?? null) : null,
@@ -191,6 +206,15 @@ const Npc = ({
     if (!g) return;
     const s = st.current;
     const dt = Math.min(delta, 0.05);
+
+    // Reduced motion: stand the visitor still where they were seeded.
+    if (reducedMotion) {
+      g.scale.setScalar(spec.scale);
+      g.position.set(s.pos.x, groundHeightAt(gallery, s.pos.z), s.pos.z);
+      g.rotation.y = s.facing;
+      return;
+    }
+
     s.t += dt;
 
     if (s.spawn < 1) {
@@ -236,12 +260,24 @@ const Npc = ({
         legL.current.rotation.x = THREE.MathUtils.lerp(legL.current.rotation.x, 0, 0.15);
       if (legR.current)
         legR.current.rotation.x = THREE.MathUtils.lerp(legR.current.rotation.x, 0, 0.15);
-      emote(s.emote, s.t, { head, armL, armR, torso });
+      emote(spec.photographer ? 4 : s.emote, s.t, { head, armL, armR, torso });
+
+      // Photographers fire the odd flash while they're lined up on a piece.
+      if (spec.photographer) {
+        s.nextShot -= dt;
+        if (s.nextShot <= 0) {
+          s.flash = 0.12;
+          s.nextShot = 2.5 + s.rand() * 5;
+        }
+      }
       if (s.timer <= 0) {
         s.mode = "walk";
         pickTarget();
       }
     }
+
+    s.flash = Math.max(0, s.flash - dt);
+    if (phone.current) phone.current.emissiveIntensity = s.flash > 0 ? 7 : 0;
 
     g.position.set(s.pos.x, groundHeightAt(gallery, s.pos.z) + s.bob, s.pos.z);
     g.rotation.y = s.facing;
@@ -293,6 +329,18 @@ const Npc = ({
           <meshStandardMaterial color={spec.legColor} roughness={0.8} />
         </mesh>
       </group>
+      {spec.photographer && (
+        <mesh position={[0, 1.34, 0.32]}>
+          <boxGeometry args={[0.17, 0.09, 0.02]} />
+          <meshStandardMaterial
+            ref={phone}
+            color="#111"
+            emissive="#ffffff"
+            emissiveIntensity={0}
+            roughness={0.4}
+          />
+        </mesh>
+      )}
     </group>
   );
 };
@@ -341,6 +389,15 @@ const emote = (kind: number, t: number, { head, armL, armR, torso }: Parts) => {
     h.rotation.z = THREE.MathUtils.lerp(h.rotation.z, 0.14, 0.1);
     h.rotation.x = THREE.MathUtils.lerp(h.rotation.x, 0.05, 0.1);
     tr.rotation.x = THREE.MathUtils.lerp(tr.rotation.x, 0.05, 0.1);
+  } else if (kind === 4) {
+    // phone up, framing a shot
+    al.rotation.x = THREE.MathUtils.lerp(al.rotation.x, -1.2, 0.14);
+    ar.rotation.x = THREE.MathUtils.lerp(ar.rotation.x, -1.2, 0.14);
+    al.rotation.z = THREE.MathUtils.lerp(al.rotation.z, 0.22, 0.14);
+    ar.rotation.z = THREE.MathUtils.lerp(ar.rotation.z, -0.22, 0.14);
+    h.rotation.x = THREE.MathUtils.lerp(h.rotation.x, -0.02, 0.1);
+    h.rotation.y = THREE.MathUtils.lerp(h.rotation.y, 0, 0.1);
+    tr.rotation.x = THREE.MathUtils.lerp(tr.rotation.x, 0.04, 0.1);
   } else {
     // leaning in for a closer look
     tr.rotation.x = THREE.MathUtils.lerp(tr.rotation.x, 0.16, 0.08);

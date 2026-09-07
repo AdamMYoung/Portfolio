@@ -64,6 +64,15 @@ export type Gallery = {
   stairs: Stairs;
   bounds: { minZ: number; maxZ: number };
   levelHeight: number;
+  seed: number; // the layout seed, so the crowd / tour can vary with a reshuffle
+};
+
+// A pose on the guided-tour spline: where to stand and what to look at.
+export type TourStop = {
+  pos: Vec3; // base of the stance, world coords (Y snapped to the floor at runtime)
+  look: Vec3; // point the camera settles on while dwelling here
+  label: string;
+  dwell: boolean; // pause here (a piece) vs. just pass through (a junction)
 };
 
 const VARIANTS: Record<
@@ -165,8 +174,10 @@ const makeRoom = (
 };
 
 // ── The layout engine ───────────────────────────────────────────────────
-export const buildGallery = (images: Image[]): Gallery => {
-  const rand = mulberry32(Math.imul(images.length + 1, 2654435761));
+// `seed` defaults to the image count, so a given portfolio always renders the
+// same building; the HUD's "reshuffle" passes a fresh seed for a new one.
+export const buildGallery = (images: Image[], seed = images.length): Gallery => {
+  const rand = mulberry32(Math.imul((seed || 1) + 1, 2654435761));
   const sorted = [...images].sort((a, b) => a.color.hue - b.color.hue);
 
   const pickVariant = (): RoomVariant => {
@@ -250,7 +261,48 @@ export const buildGallery = (images: Image[]): Gallery => {
     stairs,
     bounds: { minZ: z - 6, maxZ: 3 },
     levelHeight: LEVEL_HEIGHT,
+    seed,
   };
+};
+
+// ── Guided tour path ────────────────────────────────────────────────────
+// An ordered set of camera poses: start in the foyer, then stand in the
+// corridor in front of each room in spine order and face its wall. The
+// TourController lofts a Catmull-Rom curve through these and floor-locks the
+// height, so the walk flows up the staircase without extra bookkeeping.
+export const tourStops = (gallery: Gallery): TourStop[] => {
+  const stops: TourStop[] = [
+    {
+      pos: [0, 0, gallery.bounds.maxZ - 2],
+      look: [0, EYE_HEIGHT, gallery.bounds.maxZ - 14],
+      label: "Welcome",
+      dwell: true,
+    },
+  ];
+
+  for (const room of gallery.rooms) {
+    const sign = room.side === "left" ? -1 : 1;
+    const [, baseY, cz] = room.center;
+    const mid = room.slots[Math.floor(room.slots.length / 2)];
+    const look: Vec3 = mid
+      ? [mid.position[0], mid.position[1], mid.position[2]]
+      : [sign * (CORRIDOR_HALF_WIDTH + room.size.depth), baseY + 1.6, cz];
+    stops.push({
+      pos: [sign * (CORRIDOR_HALF_WIDTH - 0.6), baseY, cz],
+      look,
+      label: `${room.variant[0].toUpperCase()}${room.variant.slice(1)} · ${room.slots.length} works`,
+      dwell: true,
+    });
+  }
+
+  stops.push({
+    pos: [0, gallery.levelHeight, gallery.bounds.minZ + 3],
+    look: [0, gallery.levelHeight + EYE_HEIGHT, gallery.bounds.minZ],
+    label: "End of the gallery",
+    dwell: false,
+  });
+
+  return stops;
 };
 
 // ── Shared helpers ──────────────────────────────────────────────────────
@@ -363,6 +415,34 @@ if (require.main === module) {
       }
       list.push([lo, hi]);
       spans.set(key, list);
+    }
+
+    // A reshuffle seed changes the layout; the same seed reproduces it.
+    const a = buildGallery(images, 999);
+    const b = buildGallery(images, 999);
+    const c = buildGallery(images, 1000);
+    console.assert(
+      JSON.stringify(a) === JSON.stringify(b),
+      `seed is deterministic (count=${count})`
+    );
+    if (count > 3) {
+      console.assert(
+        JSON.stringify(a) !== JSON.stringify(c),
+        `different seeds diverge (count=${count})`
+      );
+    }
+
+    // Every tour stop is finite and starts in the foyer.
+    const stops = tourStops(gallery);
+    console.assert(
+      stops.length === gallery.rooms.length + 2,
+      `tour visits every room (count=${count})`
+    );
+    for (const s of stops) {
+      console.assert(
+        s.pos.every(Number.isFinite) && s.look.every(Number.isFinite),
+        "tour stop is finite"
+      );
     }
   }
   console.log("buildGallery self-check passed");

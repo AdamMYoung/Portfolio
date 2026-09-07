@@ -1,7 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { type MutableRefObject, useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import type { Image as ImageT } from "../../utils/file";
 import {
   type Box,
   CORRIDOR_HALF_WIDTH,
@@ -12,11 +11,14 @@ import {
   type ImageSlot,
   MAX_ROOM_DEPTH,
 } from "../../utils/gallery";
+import { autopilot, emitReaction, joystickProxy, playerPose, useGallery } from "./state";
 
 const MOVE_SPEED = 3.4; // units/sec
+const SPRINT = 1.8;
 const TURN_SPEED = 2.5; // rad/sec
 const INTERACT_RANGE = 2.4;
 const PLAYER_RADIUS = 0.35;
+const DRAG_LOOK = 0.0042; // rad per pixel
 
 // Push a circle at (x, z) out of any AABB it overlaps.
 const resolveBox = (position: THREE.Vector3, box: Box, radius: number) => {
@@ -32,26 +34,16 @@ const resolveBox = (position: THREE.Vector3, box: Box, radius: number) => {
   position.z += (dz / dist) * push;
 };
 
-type PlayerControlsProps = {
-  gallery: Gallery;
-  joystickRef: MutableRefObject<{ x: number; y: number }>;
-  onTargetChange: (slot: ImageSlot | null) => void;
-  onOpenImage: (image: ImageT) => void;
-};
-
-// Tank controls: forward/back + turn only, no mouse-look — the camera never
-// needs "pointing", it just faces wherever the last turn left it. Height
-// follows the gallery's ground (flat, then up the stairs, then flat again).
-export const PlayerControls = ({
-  gallery,
-  joystickRef,
-  onTargetChange,
-  onOpenImage,
-}: PlayerControlsProps) => {
-  const { camera } = useThree();
+// Tank controls with quality-of-life on top: drag anywhere to look, hold
+// Shift to hurry, click a frame to walk to it, and the guided tour can take
+// the wheel. Height follows the gallery's ground (flat, up the stairs, flat).
+export const PlayerControls = ({ gallery }: { gallery: Gallery }) => {
+  const { camera, gl } = useThree();
   const keys = useRef(new Set<string>());
   const yaw = useRef(0);
   const targetRef = useRef<ImageSlot | null>(null);
+  const wasTouring = useRef(false);
+  const drag = useRef({ active: false, moved: 0, lastX: 0 });
 
   const boxes = useMemo(() => collisionBoxes(gallery), [gallery]);
   const slots = useMemo(() => gallery.rooms.flatMap((room) => room.slots), [gallery]);
@@ -61,8 +53,13 @@ export const PlayerControls = ({
     const down = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
       keys.current.add(key);
-      if ((key === "e" || key === "enter") && targetRef.current) {
-        onOpenImage(targetRef.current.image);
+      if (key === "e" || key === "enter") window.dispatchEvent(new CustomEvent("pg:inspect"));
+      if (key === "f") {
+        const t = useGallery.getState().target;
+        if (t) {
+          emitReaction([t.position[0], t.position[1], t.position[2]]);
+          useGallery.getState().addHeart(t.image.path);
+        }
       }
     };
     const up = (e: KeyboardEvent) => keys.current.delete(e.key.toLowerCase());
@@ -72,43 +69,107 @@ export const PlayerControls = ({
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
     };
-  }, [onOpenImage]);
+  }, []);
+
+  // Drag-to-look on the canvas surface.
+  useEffect(() => {
+    const el = gl.domElement;
+    const onDown = (e: PointerEvent) => {
+      drag.current = { active: true, moved: 0, lastX: e.clientX };
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!drag.current.active) return;
+      const dx = e.clientX - drag.current.lastX;
+      drag.current.lastX = e.clientX;
+      drag.current.moved += Math.abs(dx);
+      if (drag.current.moved > 5) {
+        yaw.current -= dx * DRAG_LOOK;
+        useGallery.getState().setTour(false);
+        autopilot.target = null;
+      }
+    };
+    const onUp = () => {
+      drag.current.active = false;
+    };
+    el.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    return () => {
+      el.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+  }, [gl]);
 
   useFrame((_, delta) => {
     const step = Math.min(delta, 0.05);
-    const held = keys.current;
-    const joy = joystickRef.current;
+    const touring = useGallery.getState().tour;
 
-    let turn = joy.x;
-    let move = -joy.y;
-    if (held.has("a") || held.has("arrowleft")) turn -= 1;
-    if (held.has("d") || held.has("arrowright")) turn += 1;
-    if (held.has("w") || held.has("arrowup")) move += 1;
-    if (held.has("s") || held.has("arrowdown")) move -= 1;
+    if (touring) {
+      wasTouring.current = true;
+    } else {
+      // Handing back from the tour: adopt whatever heading it left us on.
+      if (wasTouring.current) {
+        yaw.current = camera.rotation.y;
+        wasTouring.current = false;
+      }
 
-    yaw.current -= turn * TURN_SPEED * step;
-    camera.rotation.set(0, yaw.current, 0);
+      const held = keys.current;
+      const joy = joystickProxy.current;
+      let turn = joy.x;
+      let move = -joy.y;
+      if (held.has("a") || held.has("arrowleft")) turn -= 1;
+      if (held.has("d") || held.has("arrowright")) turn += 1;
+      if (held.has("w") || held.has("arrowup")) move += 1;
+      if (held.has("s") || held.has("arrowdown")) move -= 1;
 
-    forward.set(-Math.sin(yaw.current), 0, -Math.cos(yaw.current));
-    camera.position.addScaledVector(forward, move * MOVE_SPEED * step);
+      const manual = turn !== 0 || move !== 0;
+      if (manual) autopilot.target = null;
 
-    for (const box of boxes) resolveBox(camera.position, box, PLAYER_RADIUS);
+      // Autopilot: steer toward a clicked frame until we're on top of it.
+      if (autopilot.target && !manual) {
+        const [ax, , az] = autopilot.target;
+        const dx = ax - camera.position.x;
+        const dz = az - camera.position.z;
+        const dist = Math.hypot(dx, dz);
+        if (dist < 1.4) {
+          autopilot.target = null;
+        } else {
+          const want = Math.atan2(-dx, -dz);
+          let d = ((want - yaw.current + Math.PI) % (Math.PI * 2)) - Math.PI;
+          if (d < -Math.PI) d += Math.PI * 2;
+          yaw.current += THREE.MathUtils.clamp(d, -TURN_SPEED * step, TURN_SPEED * step);
+          move = Math.abs(d) < 0.6 ? 1 : 0.25;
+        }
+      }
 
-    // Outer envelope backstop — the wall boxes do the real stopping; this
-    // just guarantees the player can never end up outside the building.
-    const margin = 0.5;
-    const maxX = CORRIDOR_HALF_WIDTH + MAX_ROOM_DEPTH + 0.6;
-    camera.position.x = THREE.MathUtils.clamp(camera.position.x, -maxX, maxX);
-    camera.position.z = THREE.MathUtils.clamp(
-      camera.position.z,
-      gallery.bounds.minZ + margin,
-      gallery.bounds.maxZ - margin
-    );
-    camera.position.y = groundHeightAt(gallery, camera.position.z) + EYE_HEIGHT;
+      const speed = held.has("shift") ? MOVE_SPEED * SPRINT : MOVE_SPEED;
+      yaw.current -= turn * TURN_SPEED * step;
+      camera.rotation.set(0, yaw.current, 0);
+      forward.set(-Math.sin(yaw.current), 0, -Math.cos(yaw.current));
+      camera.position.addScaledVector(forward, move * speed * step);
 
-    // Nearest frame in reach — drives the "view" prompt.
+      for (const box of boxes) resolveBox(camera.position, box, PLAYER_RADIUS);
+
+      const margin = 0.5;
+      const maxX = CORRIDOR_HALF_WIDTH + MAX_ROOM_DEPTH + 0.6;
+      camera.position.x = THREE.MathUtils.clamp(camera.position.x, -maxX, maxX);
+      camera.position.z = THREE.MathUtils.clamp(
+        camera.position.z,
+        gallery.bounds.minZ + margin,
+        gallery.bounds.maxZ - margin
+      );
+      camera.position.y = groundHeightAt(gallery, camera.position.z) + EYE_HEIGHT;
+    }
+
+    playerPose.x = camera.position.x;
+    playerPose.z = camera.position.z;
+    playerPose.yaw = camera.rotation.y;
+
+    // Nearest frame in reach — drives the placard + inspect prompt. Runs
+    // during the tour too, so the label tracks whatever it's showing you.
     let nearest: ImageSlot | null = null;
-    let nearestDist = INTERACT_RANGE;
+    let nearestDist = INTERACT_RANGE + (touring ? 3.5 : 0);
     for (const slot of slots) {
       const dx = slot.position[0] - camera.position.x;
       const dy = slot.position[1] - camera.position.y;
@@ -121,7 +182,7 @@ export const PlayerControls = ({
     }
     if (nearest !== targetRef.current) {
       targetRef.current = nearest;
-      onTargetChange(nearest);
+      useGallery.getState().setTarget(nearest);
     }
   });
 

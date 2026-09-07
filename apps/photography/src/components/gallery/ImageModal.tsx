@@ -1,5 +1,6 @@
 import { Dialog } from "@headlessui/react";
 import { useEffect, useState } from "react";
+import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 
 import type { Image as ImageT } from "../../utils/file";
 
@@ -25,18 +26,69 @@ const rgb = (image: ImageT) =>
 type ImageModalProps = {
   image: ImageT | null;
   onClose: () => void;
+  onPrev: () => void;
+  onNext: () => void;
+  index: number;
+  total: number;
 };
 
-export const ImageModal = ({ image, onClose }: ImageModalProps) => (
-  <Dialog open={!!image} onClose={onClose} className="relative z-50">
-    <div className="fixed inset-0 bg-black/90" aria-hidden="true" />
-    <div className="fixed inset-0 flex items-center justify-center p-4">
-      {image && <ModalContents key={image.path} image={image} onClose={onClose} />}
-    </div>
-  </Dialog>
+export const ImageModal = ({ image, onClose, onPrev, onNext, index, total }: ImageModalProps) => {
+  useEffect(() => {
+    if (!image) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") onPrev();
+      if (e.key === "ArrowRight") onNext();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [image, onPrev, onNext]);
+
+  return (
+    <Dialog open={!!image} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-black/92" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        {image && (
+          <>
+            <NavButton side="left" onClick={onPrev} />
+            <NavButton side="right" onClick={onNext} />
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="absolute right-4 top-4 z-10 text-white/70 hover:text-white"
+            >
+              <FiX size={22} />
+            </button>
+            <ModalContents key={image.path} image={image} index={index} total={total} />
+          </>
+        )}
+      </div>
+    </Dialog>
+  );
+};
+
+const NavButton = ({ side, onClick }: { side: "left" | "right"; onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-label={side === "left" ? "Previous piece" : "Next piece"}
+    className={`absolute top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/10 p-2 text-white/80 hover:bg-white/20 ${
+      side === "left" ? "left-3" : "right-3"
+    }`}
+  >
+    {side === "left" ? <FiChevronLeft size={26} /> : <FiChevronRight size={26} />}
+  </button>
 );
 
-const ModalContents = ({ image, onClose }: { image: ImageT; onClose: () => void }) => {
+const ModalContents = ({
+  image,
+  index,
+  total,
+}: {
+  image: ImageT;
+  index: number;
+  total: number;
+}) => {
   const [loaded, setLoaded] = useState(false);
 
   // Guarantee the reveal even if the image was already cached (onLoad can
@@ -48,11 +100,21 @@ const ModalContents = ({ image, onClose }: { image: ImageT; onClose: () => void 
 
   const aspect =
     image.exif.width && image.exif.height ? image.exif.width / image.exif.height : 3 / 2;
+  const e = image.exif;
+  const specs: [string, string][] = [
+    ["Camera", [e.make, e.model].filter(Boolean).join(" ")],
+    ["Lens", e.lens],
+    ["Focal length", e.focalLength],
+    ["Aperture", e.aperture],
+    ["Shutter", e.exposure],
+    ["ISO", e.iso],
+    ["Taken", e.captureDate],
+  ];
 
   return (
     <Dialog.Panel className="flex max-h-full w-full max-w-5xl flex-col items-center gap-3">
       <div
-        className="relative max-h-[78vh] w-full overflow-hidden rounded-sm"
+        className="relative max-h-[74vh] w-full overflow-hidden rounded-sm"
         style={{ aspectRatio: String(aspect), backgroundColor: rgb(image) }}
       >
         {/* biome-ignore lint/performance/noImgElement: hitting Next's optimizer URL directly for full control over the blur-up */}
@@ -74,17 +136,19 @@ const ModalContents = ({ image, onClose }: { image: ImageT; onClose: () => void 
         />
       </div>
 
-      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-white/75">
-        <span>
-          {image.exif.make} {image.exif.model}
-        </span>
-        <span>{image.exif.focalLength}</span>
-        <span>{image.exif.aperture}</span>
-        <span>{image.exif.exposure}</span>
-        <span>ISO {image.exif.iso}</span>
-        <button type="button" onClick={onClose} className="ml-2 underline underline-offset-2">
-          Close
-        </button>
+      <div className="flex w-full max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-1 text-sm text-white/75">
+        {specs
+          .filter(([, v]) => v && v !== "N/A")
+          .map(([k, v]) => (
+            <span key={k}>
+              <span className="text-white/40">{k}</span> {v}
+            </span>
+          ))}
+        {total > 0 && (
+          <span className="text-white/40">
+            {index + 1} / {total}
+          </span>
+        )}
       </div>
     </Dialog.Panel>
   );

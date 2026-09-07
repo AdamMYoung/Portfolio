@@ -32,6 +32,16 @@ export const getBucketObjects = async () => {
   return data;
 };
 
+// Just the public URLs — one LIST call, no per-object downloads. Used by the
+// sitemap, which needs the addresses but none of the EXIF/colour work.
+export const listPhotoUrls = async (): Promise<string[]> => {
+  const objects = await getBucketObjects();
+  return (objects.Contents ?? [])
+    .map((obj) => obj.Key)
+    .filter((key): key is string => Boolean(key))
+    .map((key) => `https://${bucketHostname}/${key}`);
+};
+
 export class AWSImageRepository {
   async getImages(): Promise<ImageData[]> {
     const objects = await getBucketObjects();

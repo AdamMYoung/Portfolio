@@ -1226,6 +1226,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-three/postprocessing@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "@react-three/postprocessing@npm:3.1.1"
+  dependencies:
+    maath: "npm:^0.10.8"
+    n8ao: "npm:^2.0.0"
+  peerDependencies:
+    "@react-three/fiber": ">=9.7.0"
+    postprocessing: ^6.36.0
+    react: ^19.0.0
+    three: ">= 0.156.0"
+  checksum: 10c0/3aa4a9a5667755e571d92f9690a06fe2f8bf3fc6f90623946b9553ef41c24c499b7d73f46f80aa9e65d3766ae3669f855bdb98266244f73143d29ec9e099e1a4
+  languageName: node
+  linkType: hard
+
 "@react-types/shared@npm:^3.34.0, @react-types/shared@npm:^3.36.1":
   version: 3.36.1
   resolution: "@react-types/shared@npm:3.36.1"
@@ -3890,6 +3905,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"n8ao@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "n8ao@npm:2.0.1"
+  peerDependencies:
+    postprocessing: ">=6.30.0"
+    three: ">=0.137"
+  checksum: 10c0/f0269375fb4219be7eb79343feb2205e6eee6529c94fd3bbbac8898c2a8ad4acac9f6f20ce58f4c5493bf1802a2066fc23dab5797acc7225fd9f73db3e65d35a
+  languageName: node
+  linkType: hard
+
 "nanoid@npm:^3.3.16, nanoid@npm:^3.3.18":
   version: 3.3.18
   resolution: "nanoid@npm:3.3.18"
@@ -4018,6 +4043,7 @@ __metadata:
     "@next/mdx": "npm:^16.3.4"
     "@react-three/drei": "npm:^10.7.8"
     "@react-three/fiber": "npm:^9.7.0"
+    "@react-three/postprocessing": "npm:^3.1.1"
     "@tailwindcss/postcss": "npm:^4.3.3"
     "@types/node": "npm:^24.5.2"
     "@types/react": "npm:^19.2.8"
@@ -4028,6 +4054,7 @@ __metadata:
     dayjs: "npm:^1.11.23"
     exifreader: "npm:^4.44.1"
     next: "npm:^16.3.4"
+    postprocessing: "npm:^6.39.4"
     react: "npm:^19.2.8"
     react-dom: "npm:^19.2.8"
     react-icons: "npm:^5.7.0"
@@ -4038,6 +4065,7 @@ __metadata:
     three: "npm:^0.185.1"
     tsconfig: "npm:*"
     typescript: "npm:^7.0.2"
+    zustand: "npm:^5.0.15"
   languageName: unknown
   linkType: soft
 
@@ -4135,6 +4163,15 @@ __metadata:
     rxjs:
       optional: true
   checksum: 10c0/1174a573e0ffc4e1dfff03ec3c099940bf5f8565ef72e17d7a56fd5cbced70604ca07a5c43115266e80534c8e0fa84b14b245efc9dcc373a16bac064ec410b95
+  languageName: node
+  linkType: hard
+
+"postprocessing@npm:^6.39.4":
+  version: 6.39.4
+  resolution: "postprocessing@npm:6.39.4"
+  peerDependencies:
+    three: ">= 0.168.0 < 0.186.0"
+  checksum: 10c0/5adec143dfda0d35784a7d23b7b64e53ffc60c44570ef84dcd0ad815f1091e655d8ee39fd5398cdff3fc492a486e15487b86192291099e9947ee731cca74a60c
   languageName: node
   linkType: hard
 
@@ -5264,7 +5301,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand@npm:^5.0.1, zustand@npm:^5.0.3":
+"zustand@npm:^5.0.1, zustand@npm:^5.0.15, zustand@npm:^5.0.3":
   version: 5.0.15
   resolution: "zustand@npm:5.0.15"
   peerDependencies:

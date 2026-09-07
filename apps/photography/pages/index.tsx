@@ -1,14 +1,16 @@
-import Head from "next/head";
-
 import { Link } from "../src/components/link";
+import { JsonLd, personAndSite, Seo } from "../src/components/seo";
 
 export default function Home() {
   return (
     <>
-      <Head>
-        <title>Adam Young | Photography</title>
-        <meta name="description" content="Photography portfolio of Photographer, Adam Young" />
-      </Head>
+      <Seo
+        title="Adam Young — Photography"
+        description="The photography portfolio of Adam Young — landscapes, travel and the outdoors. Browse a plain grid or walk through a 3D gallery."
+        path="/"
+        type="profile"
+      />
+      <JsonLd data={personAndSite()} />
 
       <div className="flex min-h-[70vh] flex-col items-center justify-center gap-6 p-6 text-center">
         <h1 className="text-4xl font-bold tracking-tight">Adam Young</h1>

@@ -1,4 +1,4 @@
-import { RoundedBox, useTexture } from "@react-three/drei";
+import { MeshReflectorMaterial, RoundedBox, useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { Component, type ReactNode, Suspense, useRef } from "react";
 import * as THREE from "three";
@@ -14,6 +14,7 @@ import {
   STAIR_STEPS,
   type Stairs,
 } from "../../utils/gallery";
+import { autopilot, useGallery } from "./state";
 
 // ── Palette ─────────────────────────────────────────────────────────────
 const WALL = "#f6f3ec";
@@ -46,11 +47,11 @@ export const Scene = ({ gallery }: SceneProps) => {
   return (
     <group>
       {/* Level 0 shell */}
-      <Slab position={[0, 0, l0Mid]} size={[floorWidth, l0Span]} color={FLOOR} />
+      <GalleryFloor position={[0, 0, l0Mid]} size={[floorWidth, l0Span]} />
       <Slab position={[0, CEIL_HEIGHT_0, l0Mid]} size={[floorWidth, l0Span]} color={CEILING} flip />
 
       {/* Level 1 shell */}
-      <Slab position={[0, gallery.levelHeight, l1Mid]} size={[floorWidth, l1Span]} color={FLOOR} />
+      <GalleryFloor position={[0, gallery.levelHeight, l1Mid]} size={[floorWidth, l1Span]} />
       <Slab position={[0, CEIL_HEIGHT_1, l1Mid]} size={[floorWidth, l1Span]} color={CEILING} flip />
 
       {/* End caps: the entrance wall behind the spawn, the far wall at the back */}
@@ -71,22 +72,9 @@ export const Scene = ({ gallery }: SceneProps) => {
 
       <Staircase stairs={stairs} levelHeight={gallery.levelHeight} />
 
+      {/* Emissive strips — actual light comes from <Lighting> */}
       <CeilingLights fromZ={bounds.maxZ} toZ={stairs.bottomZ} y={CEIL_HEIGHT_0 - 0.05} />
       <CeilingLights fromZ={stairs.topZ} toZ={bounds.minZ} y={CEIL_HEIGHT_1 - 0.05} />
-      <pointLight
-        position={[0, CEIL_HEIGHT_0 - 0.6, l0Mid]}
-        intensity={7}
-        distance={l0Span * 0.9}
-        decay={2}
-        color="#fff4e2"
-      />
-      <pointLight
-        position={[0, CEIL_HEIGHT_1 - 0.6, l1Mid]}
-        intensity={7}
-        distance={Math.abs(l1Span) * 0.9}
-        decay={2}
-        color="#fff4e2"
-      />
 
       {rooms.map((room) => (
         <RoomView key={room.id} room={room} />
@@ -112,6 +100,40 @@ const Slab = ({
     <meshStandardMaterial color={color} roughness={0.85} side={THREE.DoubleSide} />
   </mesh>
 );
+
+// The floor a visitor actually notices: a wet-look reflection of the frames
+// and lamps on "high", a plain matte plane on "lite".
+const GalleryFloor = ({
+  position,
+  size,
+}: {
+  position: [number, number, number];
+  size: [number, number];
+}) => {
+  const hq = useGallery((s) => s.quality) === "high";
+  return (
+    <mesh position={position} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[size[0], Math.abs(size[1])]} />
+      {hq ? (
+        <MeshReflectorMaterial
+          color={FLOOR}
+          resolution={512}
+          mixBlur={1}
+          mixStrength={2.4}
+          blur={[320, 110]}
+          mirror={0.32}
+          metalness={0.12}
+          roughness={0.88}
+          depthScale={0.4}
+          minDepthThreshold={0.5}
+          maxDepthThreshold={1.2}
+        />
+      ) : (
+        <meshStandardMaterial color={FLOOR} roughness={0.85} />
+      )}
+    </mesh>
+  );
+};
 
 const CeilingLights = ({ fromZ, toZ, y }: { fromZ: number; toZ: number; y: number }) => {
   const mid = (fromZ + toZ) / 2;
@@ -423,8 +445,24 @@ const textureUrl = (path: string, width: number) =>
 const ArtFrame = ({ slot }: { slot: ImageSlot }) => {
   const texture = useTexture(textureUrl(slot.image.path, 1080));
   const { width, height } = slot;
+  const sign = Math.sign(slot.position[0]) || 1;
   return (
-    <group position={slot.position} rotation={[0, slot.rotationY, 0]}>
+    <group
+      position={slot.position}
+      rotation={[0, slot.rotationY, 0]}
+      onClick={(e) => {
+        e.stopPropagation();
+        // Stand just inside the room opening, at this frame's Z.
+        autopilot.target = [sign * (CORRIDOR_HALF_WIDTH + 1.2), 0, slot.position[2]];
+        useGallery.getState().setTour(false);
+      }}
+      onPointerOver={() => {
+        document.body.style.cursor = "pointer";
+      }}
+      onPointerOut={() => {
+        document.body.style.cursor = "";
+      }}
+    >
       <RoundedBox args={[width + 0.24, height + 0.24, 0.1]} radius={0.02} smoothness={2}>
         <meshStandardMaterial color={FRAME_DARK} roughness={0.45} metalness={0.15} />
       </RoundedBox>

@@ -35,14 +35,13 @@ const resolveBox = (position: THREE.Vector3, box: Box, radius: number) => {
 };
 
 // Tank controls with quality-of-life on top: drag anywhere to look, hold
-// Shift to hurry, click a frame to walk to it, and the guided tour can take
-// the wheel. Height follows the gallery's ground (flat, up the stairs, flat).
+// Shift to hurry, click a frame to walk to it. Height follows the gallery's
+// ground (flat, up the stairs, flat).
 export const PlayerControls = ({ gallery }: { gallery: Gallery }) => {
   const { camera, gl } = useThree();
   const keys = useRef(new Set<string>());
   const yaw = useRef(0);
   const targetRef = useRef<ImageSlot | null>(null);
-  const wasTouring = useRef(false);
   const drag = useRef({ active: false, moved: 0, lastX: 0 });
 
   const boxes = useMemo(() => collisionBoxes(gallery), [gallery]);
@@ -84,7 +83,6 @@ export const PlayerControls = ({ gallery }: { gallery: Gallery }) => {
       drag.current.moved += Math.abs(dx);
       if (drag.current.moved > 5) {
         yaw.current -= dx * DRAG_LOOK;
-        useGallery.getState().setTour(false);
         autopilot.target = null;
       }
     };
@@ -103,73 +101,61 @@ export const PlayerControls = ({ gallery }: { gallery: Gallery }) => {
 
   useFrame((_, delta) => {
     const step = Math.min(delta, 0.05);
-    const touring = useGallery.getState().tour;
 
-    if (touring) {
-      wasTouring.current = true;
-    } else {
-      // Handing back from the tour: adopt whatever heading it left us on.
-      if (wasTouring.current) {
-        yaw.current = camera.rotation.y;
-        wasTouring.current = false;
+    const held = keys.current;
+    const joy = joystickProxy.current;
+    let turn = joy.x;
+    let move = -joy.y;
+    if (held.has("a") || held.has("arrowleft")) turn -= 1;
+    if (held.has("d") || held.has("arrowright")) turn += 1;
+    if (held.has("w") || held.has("arrowup")) move += 1;
+    if (held.has("s") || held.has("arrowdown")) move -= 1;
+
+    const manual = turn !== 0 || move !== 0;
+    if (manual) autopilot.target = null;
+
+    // Autopilot: steer toward a clicked frame until we're on top of it.
+    if (autopilot.target && !manual) {
+      const [ax, , az] = autopilot.target;
+      const dx = ax - camera.position.x;
+      const dz = az - camera.position.z;
+      const dist = Math.hypot(dx, dz);
+      if (dist < 1.4) {
+        autopilot.target = null;
+      } else {
+        const want = Math.atan2(-dx, -dz);
+        let d = ((want - yaw.current + Math.PI) % (Math.PI * 2)) - Math.PI;
+        if (d < -Math.PI) d += Math.PI * 2;
+        yaw.current += THREE.MathUtils.clamp(d, -TURN_SPEED * step, TURN_SPEED * step);
+        move = Math.abs(d) < 0.6 ? 1 : 0.25;
       }
-
-      const held = keys.current;
-      const joy = joystickProxy.current;
-      let turn = joy.x;
-      let move = -joy.y;
-      if (held.has("a") || held.has("arrowleft")) turn -= 1;
-      if (held.has("d") || held.has("arrowright")) turn += 1;
-      if (held.has("w") || held.has("arrowup")) move += 1;
-      if (held.has("s") || held.has("arrowdown")) move -= 1;
-
-      const manual = turn !== 0 || move !== 0;
-      if (manual) autopilot.target = null;
-
-      // Autopilot: steer toward a clicked frame until we're on top of it.
-      if (autopilot.target && !manual) {
-        const [ax, , az] = autopilot.target;
-        const dx = ax - camera.position.x;
-        const dz = az - camera.position.z;
-        const dist = Math.hypot(dx, dz);
-        if (dist < 1.4) {
-          autopilot.target = null;
-        } else {
-          const want = Math.atan2(-dx, -dz);
-          let d = ((want - yaw.current + Math.PI) % (Math.PI * 2)) - Math.PI;
-          if (d < -Math.PI) d += Math.PI * 2;
-          yaw.current += THREE.MathUtils.clamp(d, -TURN_SPEED * step, TURN_SPEED * step);
-          move = Math.abs(d) < 0.6 ? 1 : 0.25;
-        }
-      }
-
-      const speed = held.has("shift") ? MOVE_SPEED * SPRINT : MOVE_SPEED;
-      yaw.current -= turn * TURN_SPEED * step;
-      camera.rotation.set(0, yaw.current, 0);
-      forward.set(-Math.sin(yaw.current), 0, -Math.cos(yaw.current));
-      camera.position.addScaledVector(forward, move * speed * step);
-
-      for (const box of boxes) resolveBox(camera.position, box, PLAYER_RADIUS);
-
-      const margin = 0.5;
-      const maxX = CORRIDOR_HALF_WIDTH + MAX_ROOM_DEPTH + 0.6;
-      camera.position.x = THREE.MathUtils.clamp(camera.position.x, -maxX, maxX);
-      camera.position.z = THREE.MathUtils.clamp(
-        camera.position.z,
-        gallery.bounds.minZ + margin,
-        gallery.bounds.maxZ - margin
-      );
-      camera.position.y = groundHeightAt(gallery, camera.position.z) + EYE_HEIGHT;
     }
+
+    const speed = held.has("shift") ? MOVE_SPEED * SPRINT : MOVE_SPEED;
+    yaw.current -= turn * TURN_SPEED * step;
+    camera.rotation.set(0, yaw.current, 0);
+    forward.set(-Math.sin(yaw.current), 0, -Math.cos(yaw.current));
+    camera.position.addScaledVector(forward, move * speed * step);
+
+    for (const box of boxes) resolveBox(camera.position, box, PLAYER_RADIUS);
+
+    const margin = 0.5;
+    const maxX = CORRIDOR_HALF_WIDTH + MAX_ROOM_DEPTH + 0.6;
+    camera.position.x = THREE.MathUtils.clamp(camera.position.x, -maxX, maxX);
+    camera.position.z = THREE.MathUtils.clamp(
+      camera.position.z,
+      gallery.bounds.minZ + margin,
+      gallery.bounds.maxZ - margin
+    );
+    camera.position.y = groundHeightAt(gallery, camera.position.z) + EYE_HEIGHT;
 
     playerPose.x = camera.position.x;
     playerPose.z = camera.position.z;
     playerPose.yaw = camera.rotation.y;
 
-    // Nearest frame in reach — drives the placard + inspect prompt. Runs
-    // during the tour too, so the label tracks whatever it's showing you.
+    // Nearest frame in reach — drives the placard + inspect prompt.
     let nearest: ImageSlot | null = null;
-    let nearestDist = INTERACT_RANGE + (touring ? 3.5 : 0);
+    let nearestDist = INTERACT_RANGE;
     for (const slot of slots) {
       const dx = slot.position[0] - camera.position.x;
       const dy = slot.position[1] - camera.position.y;

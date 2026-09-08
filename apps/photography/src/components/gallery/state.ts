@@ -12,23 +12,23 @@ export type TimeOfDay = "day" | "evening";
 
 type GalleryStore = {
   seed: number; // 0 = "use the image count"; a reshuffle drops a random one in
-  tour: boolean;
   quality: Quality;
   timeOfDay: TimeOfDay;
   reducedMotion: boolean;
   helpOpen: boolean;
   introDone: boolean;
+  modalOpen: boolean; // the full-screen ImageModal is up — hide in-world overlays
   target: ImageSlot | null;
   seen: Set<string>; // image paths the player has stood in front of
   hearts: Record<string, number>;
 
   reshuffle: () => void;
-  setTour: (v: boolean) => void;
   setQuality: (q: Quality) => void;
   setTimeOfDay: (t: TimeOfDay) => void;
   setReducedMotion: (v: boolean) => void;
   setHelpOpen: (v: boolean) => void;
   finishIntro: () => void;
+  setModalOpen: (v: boolean) => void;
   setTarget: (s: ImageSlot | null) => void;
   addHeart: (path: string) => void;
 };
@@ -54,24 +54,23 @@ const saveHearts = (hearts: Record<string, number>) => {
 
 export const useGallery = create<GalleryStore>((set, get) => ({
   seed: 0,
-  tour: false,
   quality: "high",
   timeOfDay: "day",
   reducedMotion: false,
   helpOpen: false,
   introDone: false,
+  modalOpen: false,
   target: null,
   seen: new Set(),
   hearts: loadHearts(),
 
-  reshuffle: () =>
-    set({ seed: 1 + Math.floor(Math.random() * 1_000_000), seen: new Set(), tour: false }),
-  setTour: (v) => set({ tour: v }),
+  reshuffle: () => set({ seed: 1 + Math.floor(Math.random() * 1_000_000), seen: new Set() }),
   setQuality: (q) => set({ quality: q }),
   setTimeOfDay: (t) => set({ timeOfDay: t }),
   setReducedMotion: (v) => set({ reducedMotion: v }),
   setHelpOpen: (v) => set({ helpOpen: v }),
   finishIntro: () => set({ introDone: true }),
+  setModalOpen: (v) => set({ modalOpen: v }),
   setTarget: (s) => {
     const prev = get().target;
     if (prev === s) return;
@@ -92,8 +91,8 @@ export const useGallery = create<GalleryStore>((set, get) => ({
 
 // ── Per-frame singletons (no React re-render) ───────────────────────────
 
-// Written by PlayerControls / TourController every frame; read by the
-// minimap and anything else that needs "where is the camera".
+// Written by PlayerControls every frame; read by the minimap and anything
+// else that needs "where is the camera".
 export const playerPose = { x: 0, z: 3, yaw: 0 };
 
 // The on-screen joystick writes here; PlayerControls reads it. Kept out of

@@ -4,13 +4,7 @@
 // so buildRooms.ts stays free of any Node-only (`require`/`module`) reference
 // that would break the client bundle.
 import type { Image } from "../file";
-import {
-  buildGallery,
-  collisionBoxes,
-  groundHeightAt,
-  LEVEL_HEIGHT,
-  tourStops,
-} from "./buildRooms";
+import { buildGallery, collisionBoxes, groundHeightAt, LEVEL_HEIGHT } from "./buildRooms";
 
 const makeImage = (hue: number): Image => ({
   path: `img-${hue}`,
@@ -65,19 +59,6 @@ for (const count of [1, 7, 20, 53]) {
     console.assert(
       JSON.stringify(a) !== JSON.stringify(c),
       `different seeds diverge (count=${count})`
-    );
-  }
-
-  // Every tour stop is finite and starts in the foyer.
-  const stops = tourStops(gallery);
-  console.assert(
-    stops.length === gallery.rooms.length + 2,
-    `tour visits every room (count=${count})`
-  );
-  for (const s of stops) {
-    console.assert(
-      s.pos.every(Number.isFinite) && s.look.every(Number.isFinite),
-      "tour stop is finite"
     );
   }
 }

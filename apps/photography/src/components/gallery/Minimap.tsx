@@ -54,7 +54,7 @@ export const Minimap = ({ gallery }: { gallery: Gallery }) => {
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
       preserveAspectRatio="xMidYMid meet"
-      className="pointer-events-none absolute right-2 top-16 h-[132px] w-[102px] rounded-md bg-black/45 backdrop-blur-sm sm:right-3 sm:h-[168px] sm:w-[130px]"
+      className="pointer-events-none absolute right-2 top-32 h-[132px] w-[102px] rounded-md bg-black/45 backdrop-blur-sm sm:right-3 sm:top-20 sm:h-[168px] sm:w-[130px]"
       aria-hidden="true"
     >
       <title>Gallery map</title>

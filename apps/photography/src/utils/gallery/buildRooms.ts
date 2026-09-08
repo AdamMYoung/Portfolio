@@ -64,15 +64,7 @@ export type Gallery = {
   stairs: Stairs;
   bounds: { minZ: number; maxZ: number };
   levelHeight: number;
-  seed: number; // the layout seed, so the crowd / tour can vary with a reshuffle
-};
-
-// A pose on the guided-tour spline: where to stand and what to look at.
-export type TourStop = {
-  pos: Vec3; // base of the stance, world coords (Y snapped to the floor at runtime)
-  look: Vec3; // point the camera settles on while dwelling here
-  label: string;
-  dwell: boolean; // pause here (a piece) vs. just pass through (a junction)
+  seed: number; // the layout seed, so the crowd can vary with a reshuffle
 };
 
 const VARIANTS: Record<
@@ -263,46 +255,6 @@ export const buildGallery = (images: Image[], seed = images.length): Gallery => 
     levelHeight: LEVEL_HEIGHT,
     seed,
   };
-};
-
-// ── Guided tour path ────────────────────────────────────────────────────
-// An ordered set of camera poses: start in the foyer, then stand in the
-// corridor in front of each room in spine order and face its wall. The
-// TourController lofts a Catmull-Rom curve through these and floor-locks the
-// height, so the walk flows up the staircase without extra bookkeeping.
-export const tourStops = (gallery: Gallery): TourStop[] => {
-  const stops: TourStop[] = [
-    {
-      pos: [0, 0, gallery.bounds.maxZ - 2],
-      look: [0, EYE_HEIGHT, gallery.bounds.maxZ - 14],
-      label: "Welcome",
-      dwell: true,
-    },
-  ];
-
-  for (const room of gallery.rooms) {
-    const sign = room.side === "left" ? -1 : 1;
-    const [, baseY, cz] = room.center;
-    const mid = room.slots[Math.floor(room.slots.length / 2)];
-    const look: Vec3 = mid
-      ? [mid.position[0], mid.position[1], mid.position[2]]
-      : [sign * (CORRIDOR_HALF_WIDTH + room.size.depth), baseY + 1.6, cz];
-    stops.push({
-      pos: [sign * (CORRIDOR_HALF_WIDTH - 0.6), baseY, cz],
-      look,
-      label: `${room.variant[0].toUpperCase()}${room.variant.slice(1)} · ${room.slots.length} works`,
-      dwell: true,
-    });
-  }
-
-  stops.push({
-    pos: [0, gallery.levelHeight, gallery.bounds.minZ + 3],
-    look: [0, gallery.levelHeight + EYE_HEIGHT, gallery.bounds.minZ],
-    label: "End of the gallery",
-    dwell: false,
-  });
-
-  return stops;
 };
 
 // ── Shared helpers ──────────────────────────────────────────────────────

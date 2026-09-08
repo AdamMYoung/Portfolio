@@ -1,15 +1,6 @@
 import { useProgress } from "@react-three/drei";
 import { useEffect, useState } from "react";
-import {
-  FiHelpCircle,
-  FiMoon,
-  FiPlay,
-  FiShuffle,
-  FiSquare,
-  FiSun,
-  FiX,
-  FiZap,
-} from "react-icons/fi";
+import { FiHelpCircle, FiMoon, FiShuffle, FiSun, FiX, FiZap } from "react-icons/fi";
 
 import { useGallery } from "./state";
 
@@ -39,8 +30,6 @@ const Btn = ({
 
 export const GalleryHud = () => {
   const {
-    tour,
-    setTour,
     quality,
     setQuality,
     timeOfDay,
@@ -64,16 +53,15 @@ export const GalleryHud = () => {
     return () => mq.removeEventListener("change", apply);
   }, [setReducedMotion]);
 
-  // Global shortcuts: ? opens help, T toggles the tour, Esc closes overlays.
+  // Global shortcuts: ? opens help, Esc closes overlays.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "?") setHelpOpen(!useGallery.getState().helpOpen);
       if (e.key === "Escape") setHelpOpen(false);
-      if (e.key.toLowerCase() === "t" && introDone) setTour(!useGallery.getState().tour);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [setHelpOpen, setTour, introDone]);
+  }, [setHelpOpen]);
 
   const ready = progress >= 100 && !active;
 
@@ -113,29 +101,8 @@ export const GalleryHud = () => {
         </div>
       )}
 
-      {/* ── Cinematic letterbox while touring ───────────────────────── */}
-      {tour && (
-        <>
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[9vh] bg-black" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[9vh] bg-black" />
-          <p
-            className="pointer-events-none absolute inset-x-0 bottom-[10vh] z-20 text-center text-sm tracking-wide text-white/80"
-            style={{ fontFamily: "var(--font-baskerville), Georgia, serif" }}
-          >
-            Guided tour — press <b>T</b> or move to take control
-          </p>
-        </>
-      )}
-
-      {/* ── Control cluster ─────────────────────────────────────────── */}
-      <div className="absolute left-3 top-16 z-20 flex flex-col gap-2">
-        <Btn
-          label={tour ? "Stop tour" : "Start guided tour"}
-          active={tour}
-          onClick={() => setTour(!tour)}
-        >
-          {tour ? <FiSquare size={16} /> : <FiPlay size={16} />}
-        </Btn>
+      {/* ── Control cluster — sits clear of the fixed site header ────── */}
+      <div className="absolute left-3 top-32 z-20 flex flex-col gap-2 sm:top-20">
         <Btn
           label={timeOfDay === "day" ? "Switch to evening" : "Switch to daylight"}
           onClick={() => setTimeOfDay(timeOfDay === "day" ? "evening" : "day")}
@@ -188,7 +155,6 @@ export const GalleryHud = () => {
                 ["Click a piece", "Walk over to it"],
                 ["E / Enter", "Inspect the piece in focus"],
                 ["F", "Leave a ❤️ on it"],
-                ["T", "Start / stop the guided tour"],
                 ["?", "This panel"],
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between gap-6">

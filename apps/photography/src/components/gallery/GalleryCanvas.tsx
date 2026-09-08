@@ -19,7 +19,6 @@ import { PostFx } from "./PostFx";
 import { Reactions } from "./Reactions";
 import { Scene } from "./Scene";
 import { emitReaction, joystickProxy, useGallery } from "./state";
-import { TourController } from "./TourController";
 
 type GalleryCanvasProps = { images: ImageT[] };
 
@@ -79,6 +78,12 @@ export default function GalleryCanvas({ images }: GalleryCanvasProps) {
     setActiveImage(null);
   }, [seed]);
 
+  // Let in-world overlays (the Placard) know the modal is up so they don't
+  // render on top of it — <Html> uses a huge z-index that beats the dialog.
+  useEffect(() => {
+    useGallery.getState().setModalOpen(activeImage !== null);
+  }, [activeImage]);
+
   // The in-world "E to inspect" key lives in PlayerControls; it asks to open
   // the modal through a window event so it doesn't need the setter threaded in.
   useEffect(() => {
@@ -124,7 +129,6 @@ export default function GalleryCanvas({ images }: GalleryCanvasProps) {
         <Atmosphere gallery={gallery} />
         <NpcCrowd gallery={gallery} />
         <PlayerControls gallery={gallery} />
-        <TourController gallery={gallery} />
         <Placard />
         <Reactions />
         <PostFx />

@@ -493,7 +493,6 @@ const ArtFrame = ({ slot }: { slot: ImageSlot }) => {
         e.stopPropagation();
         // Stand just inside the room opening, at this frame's Z.
         autopilot.target = [sign * (CORRIDOR_HALF_WIDTH + 1.2), 0, slot.position[2]];
-        useGallery.getState().setTour(false);
       }}
       onPointerOver={() => {
         document.body.style.cursor = "pointer";

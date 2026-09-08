@@ -7,8 +7,11 @@ import { useGallery } from "./state";
 // running ❤️ tally. One DOM node, mounted only while a piece is in focus.
 export const Placard = () => {
   const target = useGallery((s) => s.target);
+  const modalOpen = useGallery((s) => s.modalOpen);
   const hearts = useGallery((s) => (target ? (s.hearts[target.image.path] ?? 0) : 0));
-  if (!target) return null;
+  // <Html> renders at a z-index far above the modal, so pull it while the
+  // full-screen view is open.
+  if (!target || modalOpen) return null;
 
   const { image, position, rotationY } = target;
   const sign = Math.sign(position[0]) || 1;

@@ -13,7 +13,7 @@ type GalleryProps = {
 };
 
 const DESCRIPTION =
-  "Walk through a three-dimensional gallery of Adam Young's photography — a lived-in, explorable space you move through with your keyboard, a guided tour, or a tap.";
+  "Walk through a three-dimensional gallery of Adam Young's photography — a lived-in, explorable space you move through with your keyboard, a drag, or a tap.";
 
 export default function GalleryPage({ images }: GalleryProps) {
   return (

@@ -491,8 +491,8 @@ const ArtFrame = ({ slot }: { slot: ImageSlot }) => {
       rotation={[0, slot.rotationY, 0]}
       onClick={(e) => {
         e.stopPropagation();
-        // Stand just inside the room opening, at this frame's Z.
-        autopilot.target = [sign * (CORRIDOR_HALF_WIDTH + 1.2), 0, slot.position[2]];
+        // Walk to a viewing spot ~2.4 units out from this piece, square to it.
+        autopilot.target = [slot.position[0] - sign * 2.4, 0, slot.position[2]];
       }}
       onPointerOver={() => {
         document.body.style.cursor = "pointer";

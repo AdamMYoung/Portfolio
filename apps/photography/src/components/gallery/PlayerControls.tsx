@@ -114,20 +114,24 @@ export const PlayerControls = ({ gallery }: { gallery: Gallery }) => {
     const manual = turn !== 0 || move !== 0;
     if (manual) autopilot.target = null;
 
-    // Autopilot: steer toward a clicked frame until we're on top of it.
+    // Autopilot: steer toward the viewing spot in front of a clicked frame.
     if (autopilot.target && !manual) {
       const [ax, , az] = autopilot.target;
       const dx = ax - camera.position.x;
       const dz = az - camera.position.z;
-      const dist = Math.hypot(dx, dz);
-      if (dist < 1.4) {
+      if (Math.hypot(dx, dz) < 1.2) {
+        // Arrived — square up to the wall the piece hangs on.
+        yaw.current = -Math.sign(ax || 1) * (Math.PI / 2);
         autopilot.target = null;
       } else {
         const want = Math.atan2(-dx, -dz);
         let d = ((want - yaw.current + Math.PI) % (Math.PI * 2)) - Math.PI;
         if (d < -Math.PI) d += Math.PI * 2;
         yaw.current += THREE.MathUtils.clamp(d, -TURN_SPEED * step, TURN_SPEED * step);
-        move = Math.abs(d) < 0.6 ? 1 : 0.25;
+        // Never advance while still turning toward the target — that's what
+        // made a click on a piece you'd already walked up to send you away.
+        const off = Math.abs(d);
+        move = off > 1.2 ? 0 : off > 0.5 ? 0.35 : 1;
       }
     }
 

@@ -123,13 +123,13 @@ const GalleryFloor = ({
       {hq && reflective ? (
         <MeshReflectorMaterial
           color={FLOOR}
-          resolution={256}
+          resolution={192}
           mixBlur={1}
           mixStrength={2}
-          blur={[192, 64]}
-          mirror={0.3}
+          blur={[128, 40]}
+          mirror={0.28}
           metalness={0.12}
-          roughness={0.9}
+          roughness={0.92}
           depthScale={0.4}
           minDepthThreshold={0.5}
           maxDepthThreshold={1.2}
@@ -446,26 +446,32 @@ const TrackLight = ({ position, sign }: { position: [number, number, number]; si
 const textureUrl = (path: string, width: number) =>
   `/_next/image?url=${encodeURIComponent(path)}&w=${width}&q=78`;
 
-// Load radius with hysteresis: a full-res photo is ~2 MB of VRAM, so only
-// the handful of frames the visitor is actually near hold a texture. The
-// rest show their dominant-colour swatch until you walk over.
-const LOAD_IN = 22;
-const LOAD_OUT = 30;
-
-const useNearby = (pos: Vec3): boolean => {
-  const [near, setNear] = useState(false);
-  const state = useRef(false);
+// Per-frame level of detail, distance-driven with hysteresis so it doesn't
+// thrash at a boundary. 2 = full frame + streamed photo (a photo texture is
+// ~2 MB of VRAM, so only the handful you're near hold one); 1 = full frame,
+// dominant-colour stand-in; 0 = a single flat quad for the distant specks.
+// The check is throttled and phase-spread across ~10 frames so 69 of these
+// cost roughly 7 distance tests per frame, not 69.
+const useFrameTier = (pos: Vec3, phase: number): 0 | 1 | 2 => {
+  const [tier, setTier] = useState<0 | 1 | 2>(1);
+  const cur = useRef<0 | 1 | 2>(1);
+  const tick = useRef(phase);
   useFrame(() => {
+    tick.current = (tick.current + 1) % 10;
+    if (tick.current !== 0) return;
     const dx = pos[0] - playerPose.x;
     const dz = pos[2] - playerPose.z;
     const d2 = dx * dx + dz * dz;
-    const want = state.current ? d2 < LOAD_OUT * LOAD_OUT : d2 < LOAD_IN * LOAD_IN;
-    if (want !== state.current) {
-      state.current = want;
-      setNear(want);
+    const c = cur.current;
+    const near = (c >= 2 ? 26 : 20) ** 2;
+    const mid = (c >= 1 ? 64 : 56) ** 2;
+    const next: 0 | 1 | 2 = d2 < near ? 2 : d2 < mid ? 1 : 0;
+    if (next !== c) {
+      cur.current = next;
+      setTier(next);
     }
   });
-  return near;
+  return tier;
 };
 
 const ArtImage = ({ url, width, height }: { url: string; width: number; height: number }) => {
@@ -481,7 +487,7 @@ const ArtImage = ({ url, width, height }: { url: string; width: number; height: 
 const ArtFrame = ({ slot }: { slot: ImageSlot }) => {
   const { width, height } = slot;
   const sign = Math.sign(slot.position[0]) || 1;
-  const near = useNearby(slot.position);
+  const tier = useFrameTier(slot.position, Math.abs(Math.round(slot.position[2])) % 10);
   const { r, g, b } = slot.image.color;
   const swatch = `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
 
@@ -501,27 +507,37 @@ const ArtFrame = ({ slot }: { slot: ImageSlot }) => {
         document.body.style.cursor = "";
       }}
     >
-      <RoundedBox args={[width + 0.24, height + 0.24, 0.1]} radius={0.02} smoothness={2}>
-        <meshStandardMaterial color={FRAME_DARK} roughness={0.45} metalness={0.15} />
-      </RoundedBox>
-      <mesh position={[0, 0, 0.052]}>
-        <boxGeometry args={[width + 0.12, height + 0.12, 0.02]} />
-        <meshStandardMaterial color={MAT} roughness={0.9} />
-      </mesh>
-      {/* dominant-colour stand-in, always present */}
-      <mesh position={[0, 0, 0.064]}>
-        <planeGeometry args={[width, height]} />
-        <meshBasicMaterial color={swatch} toneMapped={false} />
-      </mesh>
-      {near && (
-        <Suspense fallback={null}>
-          <ArtImage url={textureUrl(slot.image.path, 828)} width={width} height={height} />
-        </Suspense>
+      {tier === 0 ? (
+        // Distant speck — one clickable quad the size of the whole frame.
+        <mesh>
+          <planeGeometry args={[width + 0.24, height + 0.24]} />
+          <meshBasicMaterial color={swatch} toneMapped={false} />
+        </mesh>
+      ) : (
+        <>
+          <RoundedBox args={[width + 0.24, height + 0.24, 0.1]} radius={0.02} smoothness={2}>
+            <meshStandardMaterial color={FRAME_DARK} roughness={0.45} metalness={0.15} />
+          </RoundedBox>
+          <mesh position={[0, 0, 0.052]}>
+            <boxGeometry args={[width + 0.12, height + 0.12, 0.02]} />
+            <meshStandardMaterial color={MAT} roughness={0.9} />
+          </mesh>
+          {/* dominant-colour stand-in, under the streamed photo */}
+          <mesh position={[0, 0, 0.064]}>
+            <planeGeometry args={[width, height]} />
+            <meshBasicMaterial color={swatch} toneMapped={false} />
+          </mesh>
+          {tier === 2 && (
+            <Suspense fallback={null}>
+              <ArtImage url={textureUrl(slot.image.path, 828)} width={width} height={height} />
+            </Suspense>
+          )}
+          <mesh position={[0, -(height / 2) - 0.32, 0.04]}>
+            <boxGeometry args={[0.46, 0.15, 0.02]} />
+            <meshStandardMaterial color="#e9e4d8" roughness={0.85} />
+          </mesh>
+        </>
       )}
-      <mesh position={[0, -(height / 2) - 0.32, 0.04]}>
-        <boxGeometry args={[0.46, 0.15, 0.02]} />
-        <meshStandardMaterial color="#e9e4d8" roughness={0.85} />
-      </mesh>
     </group>
   );
 };

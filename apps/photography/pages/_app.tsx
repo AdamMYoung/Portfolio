@@ -20,6 +20,9 @@ const baskerville = Baskervville({
 export default function MyApp({ Component, pageProps }: AppProps) {
   const { pathname } = useRouter();
   const isGallery = pathname === "/gallery";
+  // The landing is a full-bleed dark splash (see pages/index) — like the
+  // gallery it floats a transparent header and owns its own layout.
+  const isSplash = pathname === "/";
 
   return (
     <div
@@ -28,8 +31,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </Head>
-      <Header transparent={isGallery} />
-      <main className={isGallery ? "h-full" : "mx-auto max-w-6xl px-6 pb-16 pt-24"}>
+      <Header transparent={isGallery || isSplash} />
+      <main className={isGallery ? "h-full" : isSplash ? "" : "mx-auto max-w-6xl px-6 pb-16 pt-24"}>
         <Component {...pageProps} />
       </main>
 

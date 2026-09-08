@@ -9,6 +9,7 @@ export const Placard = () => {
   const target = useGallery((s) => s.target);
   const modalOpen = useGallery((s) => s.modalOpen);
   const hearts = useGallery((s) => (target ? (s.hearts[target.image.path] ?? 0) : 0));
+  const hearted = useGallery((s) => (target ? s.mine.has(target.image.path) : false));
   // <Html> renders at a z-index far above the modal, so pull it while the
   // full-screen view is open.
   if (!target || modalOpen) return null;
@@ -54,7 +55,7 @@ export const Placard = () => {
           </div>
         )}
         <div style={{ fontSize: "9px", opacity: 0.85, marginTop: "3px" }}>
-          <b>E</b> inspect · <b>F</b> react{hearts > 0 && `  ·  ❤️ ${hearts}`}
+          <b>E</b> inspect · <b>F</b> {hearted ? "❤️" : "♡"} {hearts}
         </div>
       </div>
     </Html>

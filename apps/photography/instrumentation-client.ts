@@ -1,20 +1,22 @@
 import posthog from "posthog-js";
-import { applyConsent, readConsent } from "./app/consent";
+import { applyConsent, readConsent } from "./src/components/consent/consent";
 
-const token = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
+const projectToken = process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN;
 const host = process.env.NEXT_PUBLIC_POSTHOG_HOST;
 
-if (!token) {
+if (!projectToken || !host) {
   if (process.env.NODE_ENV !== "production") {
+    const missingVariable = projectToken
+      ? "NEXT_PUBLIC_POSTHOG_HOST"
+      : "NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN";
+
     console.error(
-      "NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN variable required by PostHog is missing or un-configured, " +
-        "this causes events to be silently missed. This error stops appearing once NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN is configured"
+      `${missingVariable} variable required by PostHog is missing or un-configured, this causes events to be silently missed. This error stops appearing once ${missingVariable} is configured`
     );
   }
 } else {
-  posthog.init(token, {
-    api_host: "/ingest",
-    ui_host: host,
+  posthog.init(projectToken, {
+    api_host: host,
     defaults: "2026-01-30",
     debug: process.env.NODE_ENV === "development",
     // No cookies, no storage and no events until the banner says so. Flags are

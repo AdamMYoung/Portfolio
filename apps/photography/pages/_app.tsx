@@ -9,6 +9,7 @@ import { Analytics } from "@vercel/analytics/react";
 import Script from "next/script";
 import { twMerge } from "tailwind-merge";
 
+import { CookieBanner } from "../src/components/consent";
 import { Header } from "../src/components/header";
 
 const baskerville = Baskervville({
@@ -37,6 +38,7 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       <main className={isGallery ? "h-full" : isSplash ? "" : "mx-auto max-w-6xl px-6 pb-16 pt-24"}>
         <Component {...pageProps} />
       </main>
+      <CookieBanner />
 
       {process.env.NODE_ENV === "production" && (
         <>

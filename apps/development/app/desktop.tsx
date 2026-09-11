@@ -5,6 +5,7 @@ import { DesktopIcon, Taskbar, useWindows, Window, WindowManagerProvider } from 
 import dynamic from "next/dynamic";
 import posthog from "posthog-js";
 import { type ComponentType, type ReactNode, useEffect, useRef } from "react";
+import { CookieSettingsButton } from "./cookie-banner";
 import { pathOf, routeOf, titleOf } from "./routes";
 
 const AppLoading = () => (
@@ -45,7 +46,14 @@ export type Panel = {
 export function Desktop({ panels, defaultOpen }: { panels: Panel[]; defaultOpen?: string }) {
   const first = panels.find((p) => p.id === defaultOpen);
   return (
-    <CrtStage controls={<MotionToggle />}>
+    <CrtStage
+      controls={
+        <>
+          <MotionToggle />
+          <CookieSettingsButton />
+        </>
+      }
+    >
       <CrtScreen label="Portfolio desktop" badge="AY//OS 1.0">
         <WindowManagerProvider
           initialOpen={first ? [{ id: first.id, title: first.title, icon: first.icon }] : []}
@@ -119,6 +127,16 @@ function DesktopInner({ panels }: { panels: Panel[] }) {
 
   const openPanel = (p: Panel) => {
     open({ id: p.id, title: p.title, icon: p.icon });
+    // A window that's already open doesn't re-run Window's focus-on-open, so
+    // launching it again would leave a keyboard user stranded on the icon,
+    // several tab stops short of the content they just asked for.
+    // A timeout, not rAF: rAF is paused while the tab is hidden, so a window
+    // opened in a backgrounded tab would never receive focus.
+    setTimeout(() => {
+      document
+        .querySelector<HTMLElement>(`[data-window-id="${p.id}"] .rd-window__titlebar`)
+        ?.focus();
+    }, 0);
     posthog.capture("panel_opened", { panel_id: p.id, panel_title: p.title });
     if (p.app) {
       posthog.capture("game_launched", { game: p.app, game_title: p.title });

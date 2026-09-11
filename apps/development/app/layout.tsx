@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, VT323 } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
+import { CookieBanner } from "./cookie-banner";
 import { JsonLd } from "./json-ld";
 import { DESCRIPTION, SITE_NAME, SITE_URL } from "./site";
 
@@ -60,12 +61,11 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: "#05010f",
   colorScheme: "dark",
-  // The CRT handles its own scroll/pan internally — stop the page itself
-  // from pinch-zooming or scrolling on touch devices.
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // No maximumScale/userScalable: blocking pinch zoom fails WCAG 1.4.4. The
+  // page itself can't scroll anyway (body overflow: hidden), so zoom is the
+  // only thing that was being taken away.
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -86,6 +86,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to portfolio content
         </a>
         {children}
+        <CookieBanner />
         <Analytics />
       </body>
     </html>

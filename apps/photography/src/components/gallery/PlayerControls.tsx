@@ -1,4 +1,5 @@
 import { useFrame, useThree } from "@react-three/fiber";
+import posthog from "posthog-js";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import {
@@ -76,6 +77,7 @@ export const PlayerControls = ({ gallery }: { gallery: Gallery }) => {
         if (t) {
           emitReaction([t.position[0], t.position[1], t.position[2]]);
           useGallery.getState().addHeart(t.image.path);
+          posthog.capture("artwork_reacted", { source: "gallery_keyboard" });
         }
       }
     };

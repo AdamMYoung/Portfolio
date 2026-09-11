@@ -1,4 +1,5 @@
 import { useProgress } from "@react-three/drei";
+import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 import { FiHelpCircle, FiMoon, FiShuffle, FiSun, FiX, FiZap } from "react-icons/fi";
 
@@ -56,7 +57,10 @@ export const GalleryHud = () => {
   // Global shortcuts: ? opens help, Esc closes overlays.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "?") setHelpOpen(!useGallery.getState().helpOpen);
+      if (e.key === "?" && !useGallery.getState().helpOpen) {
+        setHelpOpen(true);
+        posthog.capture("gallery_help_opened", { source: "keyboard" });
+      }
       if (e.key === "Escape") setHelpOpen(false);
     };
     window.addEventListener("keydown", onKey);
@@ -92,6 +96,7 @@ export const GalleryHud = () => {
             disabled={!ready}
             onClick={() => {
               setEntering(true);
+              posthog.capture("gallery_entered");
               window.setTimeout(finishIntro, 700);
             }}
             className="mt-8 rounded-full border border-white/25 px-6 py-2 text-sm tracking-wide transition-colors enabled:hover:bg-white/10 disabled:opacity-40"
@@ -105,21 +110,43 @@ export const GalleryHud = () => {
       <div className="absolute left-3 top-[calc(4.5rem+env(safe-area-inset-top))] z-20 flex flex-col gap-2">
         <Btn
           label={timeOfDay === "day" ? "Switch to evening" : "Switch to daylight"}
-          onClick={() => setTimeOfDay(timeOfDay === "day" ? "evening" : "day")}
+          onClick={() => {
+            const nextTimeOfDay = timeOfDay === "day" ? "evening" : "day";
+            setTimeOfDay(nextTimeOfDay);
+            posthog.capture("gallery_time_of_day_changed", { time_of_day: nextTimeOfDay });
+          }}
         >
           {timeOfDay === "day" ? <FiMoon size={16} /> : <FiSun size={16} />}
         </Btn>
         <Btn
           label={quality === "high" ? "Performance mode" : "High detail"}
           active={quality === "high"}
-          onClick={() => setQuality(quality === "high" ? "lite" : "high")}
+          onClick={() => {
+            const nextQuality = quality === "high" ? "lite" : "high";
+            setQuality(nextQuality);
+            posthog.capture("gallery_quality_changed", { quality: nextQuality });
+          }}
         >
           <FiZap size={16} />
         </Btn>
-        <Btn label="Rebuild the gallery" onClick={reshuffle}>
+        <Btn
+          label="Rebuild the gallery"
+          onClick={() => {
+            reshuffle();
+            posthog.capture("gallery_reshuffled");
+          }}
+        >
           <FiShuffle size={16} />
         </Btn>
-        <Btn label="Help" active={helpOpen} onClick={() => setHelpOpen(!helpOpen)}>
+        <Btn
+          label="Help"
+          active={helpOpen}
+          onClick={() => {
+            const nextHelpOpen = !helpOpen;
+            setHelpOpen(nextHelpOpen);
+            if (nextHelpOpen) posthog.capture("gallery_help_opened");
+          }}
+        >
           <FiHelpCircle size={16} />
         </Btn>
       </div>

@@ -1,4 +1,5 @@
 import type { GetStaticProps } from "next";
+import posthog from "posthog-js";
 import { useState } from "react";
 import { GridImage } from "../src/components";
 import { ImageModal } from "../src/components/gallery/ImageModal";
@@ -42,7 +43,10 @@ export default function List({ images }: ListProps) {
             key={image.path}
             image={image}
             isPriority={index <= 10}
-            onOpen={() => setActive(index)}
+            onOpen={() => {
+              setActive(index);
+              posthog.capture("artwork_viewed", { source: "grid" });
+            }}
           />
         ))}
       </ImageGrid>

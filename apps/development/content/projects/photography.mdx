@@ -1,10 +1,17 @@
 export const meta = {
-  title: "photography.adammyoung.com",
+  title: "Photography Portfolio",
   url: "https://photography.adammyoung.com",
-  year: "2022",
-  stack: ["Next.js", "Cloudflare R2", "Sharp"],
+  year: "2022 — present",
+  stack: ["Next.js", "React Three Fiber", "three.js", "Zustand", "Cloudflare R2", "Sharp"],
 };
 
-My personal photography site. Full-bleed image grid, serving originals from
-Cloudflare R2 with on-the-fly resizing, EXIF-driven captions, and static
-generation for everything above the fold.
+My photography site, which stopped being a grid and became a building you walk
+around. Each room is an exhibit: wander the corridor with WASD or a thumbstick,
+walk up to a piece to read its placard, and leave a heart on the ones you like.
+There's a minimap that fills in the rooms you've visited, other visitors
+milling about, angled light shafts from the fixtures overhead, and enough
+post-processing to make a browser feel like a gallery.
+
+Originals are served from Cloudflare R2 and resized on the fly with Sharp, and
+the placards are written from each file's own EXIF — so hanging a new picture
+is a case of uploading it.

@@ -1,4 +1,5 @@
 import { Canvas, useThree } from "@react-three/fiber";
+import posthog from "posthog-js";
 import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import type { Image as ImageT } from "../../utils/file";
@@ -89,7 +90,10 @@ export default function GalleryCanvas({ images }: GalleryCanvasProps) {
   useEffect(() => {
     const onInspect = () => {
       const t = useGallery.getState().target;
-      if (t) setActiveImage(t.image);
+      if (t) {
+        setActiveImage(t.image);
+        posthog.capture("artwork_viewed", { source: "gallery_keyboard" });
+      }
     };
     window.addEventListener("pg:inspect", onInspect);
     return () => window.removeEventListener("pg:inspect", onInspect);
@@ -143,7 +147,10 @@ export default function GalleryCanvas({ images }: GalleryCanvasProps) {
         <div className="pointer-events-none absolute bottom-24 left-1/2 flex -translate-x-1/2 gap-2 [@media(pointer:coarse)]:bottom-[calc(13rem+env(safe-area-inset-bottom))]">
           <button
             type="button"
-            onClick={() => setActiveImage(target.image)}
+            onClick={() => {
+              setActiveImage(target.image);
+              posthog.capture("artwork_viewed", { source: "gallery_prompt" });
+            }}
             className="pointer-events-auto rounded bg-black/80 px-4 py-2 text-sm text-white"
           >
             Press E to inspect
@@ -153,6 +160,7 @@ export default function GalleryCanvas({ images }: GalleryCanvasProps) {
             onClick={() => {
               emitReaction([...target.position]);
               useGallery.getState().addHeart(target.image.path);
+              posthog.capture("artwork_reacted", { source: "gallery_prompt" });
             }}
             className="pointer-events-auto rounded bg-black/80 px-3 py-2 text-sm text-white"
             aria-label="React with a heart"

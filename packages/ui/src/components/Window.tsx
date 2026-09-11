@@ -59,6 +59,7 @@ export function Window({
 }: Props) {
   const { isOpen, close, focus, toggleMinimize, zIndexOf, focusedId, stack } = useWindows();
   const ref = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
   const labelId = useId();
   const touch = useCoarsePointer();
 
@@ -78,6 +79,33 @@ export function Window({
   }, [focus, id]);
 
   useFocusTrap(ref, open && !minimized && modal);
+
+  // Non-modal panels don't trap focus, but a window the visitor just opened
+  // should still receive it — otherwise a keyboard user has to tab past every
+  // remaining desktop icon to reach the content they asked for, and closing a
+  // window drops focus to <body>. Modal windows are left to the trap, which
+  // does both. The window open on first render is skipped: nothing should
+  // steal focus on page load.
+  const restoreTo = useRef<HTMLElement | null>(null);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      // A window open on first render has no opener to give focus back to on
+      // close. Fall back to the nearest focusable ancestor — the screen's
+      // content region, which sits just before the icons in tab order.
+      if (open) restoreTo.current = ref.current?.closest<HTMLElement>('[tabindex="0"]') ?? null;
+      return;
+    }
+    if (modal) return;
+    if (open) {
+      restoreTo.current = document.activeElement as HTMLElement | null;
+      titleRef.current?.focus();
+    } else {
+      restoreTo.current?.focus?.();
+      restoreTo.current = null;
+    }
+  }, [open, modal]);
 
   // Clamp against the real desktop surface (the window's positioned
   // ancestor), not the browser viewport — on a narrow/mobile screen the CRT
@@ -164,6 +192,7 @@ export function Window({
         className
       )}
       style={style}
+      data-window-id={id}
       role="dialog"
       aria-modal={modal || undefined}
       aria-labelledby={labelId}
@@ -172,6 +201,7 @@ export function Window({
       onKeyDown={onKeyDown}
     >
       <div
+        ref={titleRef}
         className="rd-window__titlebar"
         role="toolbar"
         onPointerDown={onTitlePointerDown}
@@ -218,7 +248,11 @@ export function Window({
           </button>
         </span>
       </div>
-      <div className="rd-window__body">{children}</div>
+      {/* The body scrolls, so it has to be focusable — otherwise a keyboard
+          user can't scroll the content at all (WCAG 2.1.1). */}
+      <div className="rd-window__body" tabIndex={0}>
+        {children}
+      </div>
     </div>
   );
 }

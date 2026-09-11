@@ -15,7 +15,7 @@ import {
   type Stairs,
   type Vec3,
 } from "../../utils/gallery";
-import { autopilot, playerPose, useGallery } from "./state";
+import { autopilot, playerPose, useGallery, VIEW_DISTANCE } from "./state";
 
 // ── Palette ─────────────────────────────────────────────────────────────
 const WALL = "#f6f3ec";
@@ -497,8 +497,8 @@ const ArtFrame = ({ slot }: { slot: ImageSlot }) => {
       rotation={[0, slot.rotationY, 0]}
       onClick={(e) => {
         e.stopPropagation();
-        // Walk to a viewing spot ~2.4 units out from this piece, square to it.
-        autopilot.target = [slot.position[0] - sign * 2.4, 0, slot.position[2]];
+        // Walk to the viewing spot out from this piece, square to it.
+        autopilot.target = [slot.position[0] - sign * VIEW_DISTANCE, 0, slot.position[2]];
       }}
       onPointerOver={() => {
         document.body.style.cursor = "pointer";

@@ -5,6 +5,13 @@ import { useGallery } from "./state";
 // The wall label. Sits just under whichever frame the visitor is closest to,
 // facing the same way as the artwork, carrying the shot's own EXIF and a
 // running ❤️ tally. One DOM node, mounted only while a piece is in focus.
+//
+// Deliberately no `occlude`: drei raycasts that against the whole scene and
+// hides the label with display:none on any hit — including the decorative
+// light shafts, which lean by `sign * FIXTURE_TILT` (see Atmosphere) and so
+// crossed the sight line on one side of the corridor only. Nothing solid can
+// get between the visitor and this label anyway: it only mounts for the
+// nearest piece within arm's reach, and the rooms are deeper than that.
 export const Placard = () => {
   const target = useGallery((s) => s.target);
   const modalOpen = useGallery((s) => s.modalOpen);
@@ -31,7 +38,6 @@ export const Placard = () => {
       rotation={[0, rotationY, 0]}
       transform
       distanceFactor={2.4}
-      occlude
       pointerEvents="none"
       className="pointer-events-none select-none"
       style={{ width: "170px" }}

@@ -150,6 +150,13 @@ export const playerPose = { x: 0, z: 3, yaw: 0 };
 // React because it changes on every pointer event.
 export const joystickProxy = { current: { x: 0, y: 0 } };
 
+// The walk-up contract, shared by the frame that sets the goal (Scene) and
+// the controller that drives to it (PlayerControls). They have to agree: the
+// placard's reach is derived from both, so that anywhere "walk me to it" can
+// legitimately park you counts as standing in front of the piece.
+export const VIEW_DISTANCE = 2.4; // where a clicked piece parks you
+export const ARRIVE_RADIUS = 1.2; // how near that spot counts as arrived
+
 // Set when the player clicks a frame — PlayerControls walks the camera here
 // and clears it on arrival or on any manual input.
 export const autopilot: { target: [number, number, number] | null } = { target: null };

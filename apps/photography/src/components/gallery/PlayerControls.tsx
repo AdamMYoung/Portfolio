@@ -11,12 +11,24 @@ import {
   type ImageSlot,
   MAX_ROOM_DEPTH,
 } from "../../utils/gallery";
-import { autopilot, emitReaction, joystickProxy, playerPose, useGallery } from "./state";
+import {
+  ARRIVE_RADIUS,
+  autopilot,
+  emitReaction,
+  joystickProxy,
+  playerPose,
+  useGallery,
+  VIEW_DISTANCE,
+} from "./state";
 
 const MOVE_SPEED = 3.4; // units/sec
 const SPRINT = 1.8;
 const TURN_SPEED = 2.5; // rad/sec
-const INTERACT_RANGE = 2.4;
+// Reach for the placard / inspect prompt. Derived, not guessed: the autopilot
+// parks you VIEW_DISTANCE out and gives up ARRIVE_RADIUS short of that, so this
+// has to cover the whole arrival zone or walking up to a piece leaves you just
+// outside its own viewing spot.
+const INTERACT_RANGE = VIEW_DISTANCE + ARRIVE_RADIUS;
 const PLAYER_RADIUS = 0.35;
 const DRAG_LOOK = 0.0042; // rad per pixel
 
@@ -119,7 +131,7 @@ export const PlayerControls = ({ gallery }: { gallery: Gallery }) => {
       const [ax, , az] = autopilot.target;
       const dx = ax - camera.position.x;
       const dz = az - camera.position.z;
-      if (Math.hypot(dx, dz) < 1.2) {
+      if (Math.hypot(dx, dz) < ARRIVE_RADIUS) {
         // Arrived — square up to the wall the piece hangs on.
         yaw.current = -Math.sign(ax || 1) * (Math.PI / 2);
         autopilot.target = null;
@@ -161,10 +173,12 @@ export const PlayerControls = ({ gallery }: { gallery: Gallery }) => {
     let nearest: ImageSlot | null = null;
     let nearestDist = INTERACT_RANGE;
     for (const slot of slots) {
+      // Floor-plan distance — "am I standing in front of it" is a question
+      // about the map, and counting the frame's hanging height against the
+      // budget is what put a square-on arrival out of reach.
       const dx = slot.position[0] - camera.position.x;
-      const dy = slot.position[1] - camera.position.y;
       const dz = slot.position[2] - camera.position.z;
-      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      const dist = Math.hypot(dx, dz);
       if (dist < nearestDist) {
         nearestDist = dist;
         nearest = slot;

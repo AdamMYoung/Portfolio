@@ -27,6 +27,7 @@ export default function Home() {
       <JsonLd data={personAndSite()} />
 
       <section
+        id="splash"
         className="flex min-h-dvh flex-col items-center justify-center bg-[#0d0b0a] px-6 text-center text-[#f3efe6]"
         style={SERIF}
       >

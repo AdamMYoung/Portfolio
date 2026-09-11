@@ -4,6 +4,10 @@ import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 
 import type { Image as ImageT } from "../../utils/file";
 
+// The full-screen viewer. Shared: /gallery opens it from a piece in focus,
+// /list opens it from a grid thumbnail. Lives here because the gallery was
+// its first caller — it has no 3D dependencies.
+
 // Full-screen viewing goes through Next's image optimizer at a sane width
 // (the R2 originals are up to ~9 MB) — same-origin, so no CORS issue.
 const optimized = (path: string, w: number, q: number) =>
@@ -46,7 +50,9 @@ export const ImageModal = ({ image, onClose, onPrev, onNext, index, total }: Ima
   return (
     <Dialog open={!!image} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-black/92" aria-hidden="true" />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
+      {/* Padded off the notch and the home indicator — the chrome (close,
+          prev/next) is pinned to this box, not to the raw viewport. */}
+      <div className="fixed inset-0 flex items-center justify-center p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
         {image && (
           <>
             <NavButton side="left" onClick={onPrev} />
@@ -55,7 +61,7 @@ export const ImageModal = ({ image, onClose, onPrev, onNext, index, total }: Ima
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="absolute right-4 top-4 z-10 text-white/70 hover:text-white"
+              className="absolute right-4 top-[max(1rem,env(safe-area-inset-top))] z-10 text-white/70 hover:text-white"
             >
               <FiX size={22} />
             </button>
@@ -112,9 +118,12 @@ const ModalContents = ({
   ];
 
   return (
-    <Dialog.Panel className="flex max-h-full w-full max-w-5xl flex-col items-center gap-3">
+    <Dialog.Panel className="flex max-h-full w-full max-w-5xl flex-col items-center gap-3 overflow-y-auto">
+      <Dialog.Title className="sr-only">{image.path.split("/").pop()}</Dialog.Title>
+      {/* dvh, not vh: on mobile Safari vh is the *large* viewport, so a 74vh
+          image plus its spec row slid under the URL bar. */}
       <div
-        className="relative max-h-[74vh] w-full overflow-hidden rounded-sm"
+        className="relative max-h-[62dvh] w-full shrink-0 overflow-hidden rounded-sm sm:max-h-[74dvh]"
         style={{ aspectRatio: String(aspect), backgroundColor: rgb(image) }}
       >
         {/* biome-ignore lint/performance/noImgElement: hitting Next's optimizer URL directly for full control over the blur-up */}

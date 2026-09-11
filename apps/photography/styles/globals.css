@@ -23,3 +23,18 @@ body {
     opacity: 0;
   }
 }
+
+/* The splash page owns the whole page ground. Safari paints the *body* colour
+   in the strip the collapsing URL bar exposes and in the overscroll gutter, so
+   a cream body under a dark section shows as a white band. */
+html:has(#splash),
+html:has(#splash) body {
+  background-color: #0d0b0a;
+}
+
+/* An open dialog marks the page root `inert`. Without this the fixed site
+   header ghosts through the backdrop and lands under the modal's own close
+   button — keyed off the platform attribute, not a library class. */
+#__next[inert] header {
+  opacity: 0;
+}

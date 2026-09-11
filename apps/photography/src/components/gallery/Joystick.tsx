@@ -43,7 +43,7 @@ export const Joystick = ({ valueRef }: JoystickProps) => {
   return (
     <div
       ref={baseRef}
-      className="absolute bottom-10 left-10 h-32 w-32 touch-none select-none rounded-full bg-white/25"
+      className="absolute bottom-[calc(2.5rem+env(safe-area-inset-bottom))] left-[calc(2.5rem+env(safe-area-inset-left))] h-32 w-32 touch-none select-none rounded-full bg-white/25"
       onPointerDown={(e) => {
         activePointer.current = e.pointerId;
         (e.target as HTMLElement).setPointerCapture(e.pointerId);

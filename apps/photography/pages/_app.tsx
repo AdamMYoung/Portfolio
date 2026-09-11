@@ -30,6 +30,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     >
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        {/* Per-route, so Safari's toolbar doesn't tint cream over the dark splash. */}
+        <meta name="theme-color" content={isSplash ? "#0d0b0a" : "#f5f2ea"} />
       </Head>
       <Header transparent={isGallery || isSplash} />
       <main className={isGallery ? "h-full" : isSplash ? "" : "mx-auto max-w-6xl px-6 pb-16 pt-24"}>

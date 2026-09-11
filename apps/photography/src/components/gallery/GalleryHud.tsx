@@ -102,7 +102,7 @@ export const GalleryHud = () => {
       )}
 
       {/* ── Control cluster — sits clear of the fixed site header ────── */}
-      <div className="absolute left-3 top-32 z-20 flex flex-col gap-2 sm:top-20">
+      <div className="absolute left-3 top-[calc(4.5rem+env(safe-area-inset-top))] z-20 flex flex-col gap-2">
         <Btn
           label={timeOfDay === "day" ? "Switch to evening" : "Switch to daylight"}
           onClick={() => setTimeOfDay(timeOfDay === "day" ? "evening" : "day")}
@@ -124,9 +124,12 @@ export const GalleryHud = () => {
         </Btn>
       </div>
 
-      {/* ── Help panel ──────────────────────────────────────────────── */}
+      {/* ── Help panel ──────────────────────────────────────────────────
+          z-50: the site header is z-40, and a modal panel the header floats
+          over isn't a modal. The intro curtain deliberately stays below it —
+          the nav should stay usable while the gallery loads. */}
       {helpOpen && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center p-6">
+        <div className="absolute inset-0 z-50 flex items-center justify-center overflow-y-auto p-6">
           <button
             type="button"
             aria-label="Close help"
@@ -134,7 +137,7 @@ export const GalleryHud = () => {
             className="absolute inset-0 h-full w-full cursor-default bg-black/60"
           />
           <div
-            className="relative max-w-md rounded-lg bg-[#141210] p-7 text-[#f3efe6]"
+            className="relative my-auto max-h-full max-w-md overflow-y-auto rounded-lg bg-[#141210] p-7 text-[#f3efe6]"
             style={{ fontFamily: "var(--font-baskerville), Georgia, serif" }}
           >
             <button

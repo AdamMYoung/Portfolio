@@ -3,16 +3,21 @@ import NextImage from "next/image";
 import type { Image } from "../../utils";
 
 type GridImageProps = {
-  index: number;
   image: Image;
   isPriority?: boolean;
+  onOpen: () => void;
 };
 
-export const GridImage = ({ image, isPriority }: GridImageProps) => {
+export const GridImage = ({ image, isPriority, onOpen }: GridImageProps) => {
   return (
-    <a href={image.path} target="_blank" title="View original image" rel="noopener">
+    <button
+      type="button"
+      onClick={onOpen}
+      title="View image"
+      className="mb-2 block w-full cursor-zoom-in"
+    >
       <NextImage
-        className="mb-2 w-full"
+        className="w-full"
         priority={isPriority}
         alt=""
         src={image.path}
@@ -20,6 +25,6 @@ export const GridImage = ({ image, isPriority }: GridImageProps) => {
         height={image.exif.height}
         sizes="(max-width: 1024px) 50vw, 25vw"
       />
-    </a>
+    </button>
   );
 };

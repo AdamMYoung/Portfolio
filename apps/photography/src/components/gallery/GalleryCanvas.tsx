@@ -137,8 +137,10 @@ export default function GalleryCanvas({ images }: GalleryCanvasProps) {
       <GalleryHud />
       <Minimap gallery={gallery} />
 
+      {/* The joystick owns the bottom-left on touch devices (up to 2.5rem +
+          8rem off the bottom), so lift this bar clear of it there. */}
       {target && !activeImage && (
-        <div className="pointer-events-none absolute bottom-24 left-1/2 flex -translate-x-1/2 gap-2">
+        <div className="pointer-events-none absolute bottom-24 left-1/2 flex -translate-x-1/2 gap-2 [@media(pointer:coarse)]:bottom-[calc(13rem+env(safe-area-inset-bottom))]">
           <button
             type="button"
             onClick={() => setActiveImage(target.image)}

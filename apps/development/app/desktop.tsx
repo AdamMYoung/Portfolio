@@ -4,7 +4,8 @@ import { CrtScreen, CrtStage, MotionToggle } from "@portfolio/crt";
 import { DesktopIcon, Taskbar, useWindows, Window, WindowManagerProvider } from "@portfolio/ui";
 import dynamic from "next/dynamic";
 import posthog from "posthog-js";
-import type { ComponentType, ReactNode } from "react";
+import { type ComponentType, type ReactNode, useEffect, useRef } from "react";
+import { pathOf, routeOf, titleOf } from "./routes";
 
 const AppLoading = () => (
   <p className="pg-game__status" role="status">
@@ -78,8 +79,44 @@ function IconColumn({
   );
 }
 
+/** Two-way sync between the window stack and the address bar.
+ *
+ *  Outward: the focused window owns the URL, written with the native History
+ *  API rather than `router.push` — a real navigation would re-render the route
+ *  and throw away every other open window.
+ *  Inward: back/forward opens whatever panel that URL names. */
+function useUrlSync(focusedId: string | null, open: (id: string) => void) {
+  const openRef = useRef(open);
+  openRef.current = open;
+
+  useEffect(() => {
+    const id = focusedId ?? "about";
+    const path = pathOf(id);
+    // Pushed only when the focused window and the address bar disagree; the
+    // title is set either way, since arriving via popstate leaves the path
+    // already correct but the title still that of the previous panel.
+    if (window.location.pathname !== path) window.history.pushState(null, "", path);
+    document.title = titleOf(id);
+  }, [focusedId]);
+
+  useEffect(() => {
+    const onPop = () => {
+      const route = routeOf(window.location.pathname);
+      if (route) openRef.current(route.id);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+}
+
 function DesktopInner({ panels }: { panels: Panel[] }) {
-  const { open } = useWindows();
+  const { open, focusedId } = useWindows();
+
+  useUrlSync(focusedId, (id) => {
+    const p = panels.find((w) => w.id === id);
+    if (p) open({ id: p.id, title: p.title, icon: p.icon });
+  });
+
   const openPanel = (p: Panel) => {
     open({ id: p.id, title: p.title, icon: p.icon });
     posthog.capture("panel_opened", { panel_id: p.id, panel_title: p.title });

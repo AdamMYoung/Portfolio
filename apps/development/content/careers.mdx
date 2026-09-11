@@ -1,0 +1,98 @@
+export const meta = {
+  id: "careers",
+  title: "Careers",
+  icon: "💼",
+};
+
+# Careers
+
+Seven years of product engineering, mostly front-end-leaning full stack:
+planning and mapping software, two fintechs, and a payments processor.
+
+## 9fin
+
+<p className="projects__year">Senior Software Engineer · Nov 2023 — present · London / remote</p>
+
+<ul className="projects__stack" aria-label="Tech stack">
+  <li>Python</li>
+  <li>React</li>
+  <li>TypeScript</li>
+  <li>Postgres</li>
+</ul>
+
+9fin is a debt capital markets platform — news, filings and analytics for
+people who trade credit. I build the data-heavy applications that sit on top of
+it in Python and React, where the interesting problems are the ones that only
+show up at scale: query cost, payload size, and keeping a table honest when
+it's holding tens of thousands of rows. Started as a Software Engineer,
+promoted to Senior in July 2024.
+
+## Checkout.com
+
+<p className="projects__year">Software Engineer · Apr 2022 — Nov 2023 · Remote</p>
+
+<ul className="projects__stack" aria-label="Tech stack">
+  <li>Next.js</li>
+  <li>TypeScript</li>
+  <li>Tailwind CSS</li>
+  <li>MDX</li>
+  <li>Storybook</li>
+  <li>Vercel</li>
+</ul>
+
+Checkout.com processes payments for a good chunk of the internet, and I worked
+on the properties around the product rather than the product itself.
+
+I built and shipped the internal component library several of those
+user-facing products now sit on — TypeScript over Headless UI and Tailwind,
+documented in Storybook, tested with React Testing Library and Jest. I also
+rebuilt the docs site end to end in Next.js and Tailwind, which was as much a
+content problem as a code one: the MDX pipeline had to be something technical
+writers could work in without asking an engineer. Page refactoring, image and
+script loading, and a smaller bundle took PageSpeed from the mid-40s to over
+90 on most docs pages.
+
+The other half of the job was the marketing site — 600+ pages across six
+locales on a headless CMS, leaning on Next.js and Vercel to keep it fast
+wherever it was served from.
+
+## Curve
+
+<p className="projects__year">Software Engineer · Jun 2021 — Apr 2022 · London / remote</p>
+
+<ul className="projects__stack" aria-label="Tech stack">
+  <li>Gatsby</li>
+  <li>React</li>
+  <li>Contentful</li>
+  <li>CI/CD</li>
+</ul>
+
+Curve puts all of your cards behind one card. I owned the public site, built on
+Gatsby and Contentful, and led the V2 redesign — which was mostly a bet that
+making the CMS pleasant to use would get us more out of the marketing team than
+any amount of new components would. Also partnership builds, faster deploy
+pipelines, and enough of the developer guidelines that new starters stopped
+asking me the same questions.
+
+## TerraQuest
+
+<p className="projects__year">Software Developer · Jul 2019 — Jun 2021 · Birmingham</p>
+
+<ul className="projects__stack" aria-label="Tech stack">
+  <li>React</li>
+  <li>Gatsby</li>
+  <li>GraphQL</li>
+  <li>Azure</li>
+  <li>styled-system</li>
+</ul>
+
+TerraQuest runs the UK's Planning Portal, which means legacy systems used by
+every local authority in the country. I worked on the greenfield replacements:
+Gatsby and GraphQL against a headless CMS, deployed on Azure.
+
+Two things outlasted me there. A set of interactive mapping tools that started
+as a few-week proof of concept in a small team and went on into production, and
+the authentication libraries I built on Azure B2C that ended up in most of the
+internal and external products. The component library I put together in
+styled-system, from Invision and Zeroheight designs, is still what their apps
+are built from.

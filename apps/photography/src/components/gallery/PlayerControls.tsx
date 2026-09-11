@@ -30,6 +30,12 @@ const TURN_SPEED = 2.5; // rad/sec
 // outside its own viewing spot.
 const INTERACT_RANGE = VIEW_DISTANCE + ARRIVE_RADIUS;
 const PLAYER_RADIUS = 0.35;
+// Cosine of the half-cone that counts as "in front of me". Wider than the
+// widest visible corner of a 68° fov, so it never drops a piece you can
+// actually see — it only rules out the ones level with your shoulder, whose
+// wall label is both meaningless and, as a CSS3D plane approaching 90° off
+// axis, projected to a screen-wide smear on the way past.
+const FACING_MIN = 0.5; // 60°
 const DRAG_LOOK = 0.0042; // rad per pixel
 
 // Push a circle at (x, z) out of any AABB it overlaps.
@@ -179,10 +185,11 @@ export const PlayerControls = ({ gallery }: { gallery: Gallery }) => {
       const dx = slot.position[0] - camera.position.x;
       const dz = slot.position[2] - camera.position.z;
       const dist = Math.hypot(dx, dz);
-      if (dist < nearestDist) {
-        nearestDist = dist;
-        nearest = slot;
-      }
+      if (dist >= nearestDist) continue;
+      // ...and looking at it. `forward` is this frame's heading, set above.
+      if ((dx * forward.x + dz * forward.z) / (dist || 1) < FACING_MIN) continue;
+      nearestDist = dist;
+      nearest = slot;
     }
     if (nearest !== targetRef.current) {
       targetRef.current = nearest;

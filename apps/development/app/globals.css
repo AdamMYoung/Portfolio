@@ -140,3 +140,78 @@ body {
 .noscript-fallback a {
   color: var(--color-link);
 }
+
+/* ---- Jukebox window body ----------------------------------------- */
+.jukebox {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.jukebox__now {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--sw-void-800);
+  border: 2px solid;
+  border-color: var(--rd-bevel-dark) #fff #fff var(--rd-bevel-dark);
+}
+.jukebox__title {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--sw-cyan-400);
+}
+.jukebox__artist {
+  font-size: var(--text-2xs);
+  color: var(--color-phosphor-dim);
+}
+.jukebox__transport {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+}
+.jukebox__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.jukebox__row input[type="range"] {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--sw-magenta-500);
+}
+.jukebox__time {
+  font-size: var(--text-2xs);
+  color: var(--color-phosphor-dim);
+  min-width: 3.2ch;
+}
+.jukebox__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.jukebox__track {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 1px;
+  padding: var(--space-1) var(--space-2);
+  text-align: left;
+  font: inherit;
+  font-size: var(--text-xs);
+  color: var(--color-phosphor);
+  background: transparent;
+  border: 0;
+  cursor: var(--crt-cursor-hand, pointer);
+}
+.jukebox__track:hover {
+  background: var(--sw-void-700);
+}
+.jukebox__track--on {
+  background: var(--sw-void-700);
+  color: var(--sw-magenta-400);
+}

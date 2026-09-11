@@ -46,6 +46,27 @@ export function CookieBanner() {
     if (shown && reopened.current) ref.current?.focus();
   }, [shown]);
 
+  // Publish the strip of viewport the (fixed) banner covers so the CRT stage
+  // can lay itself out above it — otherwise it sits on top of the taskbar.
+  // Re-measured on resize: the copy rewraps, so the height isn't constant.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const measure = () => {
+      root.style.setProperty(
+        "--cookies-h",
+        `${window.innerHeight - el.getBoundingClientRect().top}px`
+      );
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      root.style.removeProperty("--cookies-h");
+    };
+  }, [shown]);
+
   const choose = useCallback((consent: Consent) => {
     applyConsent(consent);
     setCurrent(consent);

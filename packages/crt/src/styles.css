@@ -16,7 +16,12 @@
   place-items: center;
   min-height: 100dvh;
   width: 100%;
-  padding: clamp(1rem, 4vmin, 4rem) clamp(1rem, 4vmin, 4rem) clamp(3rem, 9vmin, 7rem);
+  /* Vertical room the stage can actually lay out in: the viewport minus
+     whatever a fixed overlay (the cookie banner) is covering at the bottom.
+     `--cookies-h` is published by the banner; 0 once it's dismissed. */
+  --stage-h: calc(100dvh - var(--cookies-h, 0px));
+  padding: clamp(1rem, 4vmin, 4rem);
+  padding-bottom: calc(clamp(3rem, 9vmin, 7rem) + var(--cookies-h, 0px));
   overflow: hidden;
   background: var(--color-bg);
   /* Static perspective — the vanishing point never moves, so panning the
@@ -214,7 +219,7 @@
   position: relative;
   z-index: var(--z-stage);
   width: min(78vw, 820px);
-  max-height: 78dvh;
+  max-height: calc(var(--stage-h) * 0.78);
   aspect-ratio: 4 / 3;
   transform-style: preserve-3d;
   transform-origin: 50% 50% calc(var(--crt-depth) * -0.5);
@@ -232,10 +237,11 @@
      room for a pointer-hover effect that never plays. */
   .crt-stage {
     padding: clamp(0.75rem, 4vw, 1.5rem);
+    padding-bottom: calc(clamp(0.75rem, 4vw, 1.5rem) + var(--cookies-h, 0px));
   }
   .crt-monitor {
-    width: min(94vw, calc(88dvh * 0.75));
-    max-height: 88dvh;
+    width: min(94vw, calc(var(--stage-h) * 0.88 * 0.75));
+    max-height: calc(var(--stage-h) * 0.88);
     aspect-ratio: 3 / 4;
     --crt-depth: 60px;
     /* Shared with the `.crt-screen` inset override and `.crt-monitor__panel`

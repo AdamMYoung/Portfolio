@@ -56,6 +56,8 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large" },
   },
+  // AdSense site verification (the account is approved on the apex domain).
+  other: { "google-adsense-account": "ca-pub-4964465078481921" },
 };
 
 export const viewport: Viewport = {

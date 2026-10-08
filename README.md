@@ -1,58 +1,46 @@
 # Portfolio
 
-Personal portfolio monorepo (Turborepo + Yarn 4 workspaces). Two Next.js apps
-deploy independently on Vercel.
+Monorepo for my two portfolio sites (Turborepo + Yarn 4 workspaces). Each app
+deploys independently on Vercel.
 
-## Apps
+| App | Site | Stack |
+| --- | ---- | ----- |
+| [`apps/development`](apps/development/README.md) | [development.adammyoung.com](https://development.adammyoung.com) | Next 16 (App Router), React 19, Tailwind v4, MDX |
+| [`apps/photography`](apps/photography/README.md) | [photography.adammyoung.com](https://photography.adammyoung.com) | Next 16 (Pages Router), React 19, React Three Fiber, Tailwind v4 |
 
-| App | Stack | Description |
-| --- | ----- | ----------- |
-| `apps/development` | Next 16 (App Router), React 19, Tailwind v4, MDX | The **CRT desktop** portfolio — an interactive synthwave CRT monitor with a retro window manager, MDX content, and two PixiJS easter-egg games. |
-| `apps/photography` | Next 14 (Pages Router) | Photo gallery backed by Cloudflare R2. Untouched by the CRT revamp. |
+- **Development** is an interactive synthwave CRT monitor with a retro desktop
+  inside it: About, Careers, Projects and Contact open as windows, plus a few
+  easter-egg games.
+- **Photography** is a walk-through 3D gallery of my photographs, with a plain
+  grid view as an alternative. The photos come from Cloudflare R2.
 
 ## Packages
 
+These are only used by the development site. They ship TypeScript source
+(no build step) and are transpiled by the app.
+
 | Package | What it is |
 | --- | --- |
-| `@portfolio/design-tokens` | Single source of truth for the synthwave / CRT system — `tokens.css` (CSS custom properties), a Tailwind v4 `@theme` bridge, and a small JS palette mirror for canvas code. |
-| `@portfolio/crt` | The CRT + synthwave stage, **pure CSS** (no WebGL): `<CrtStage>` (pointer-driven 3D pan), `<CrtScreen>` (bezel, curvature, scanlines, TV static, flicker, power-on), `<SynthwaveBackground>` (grid + sun + horizon), `<MotionToggle>` + `useMotionPreference`. |
-| `@portfolio/ui` | Retro-desktop kit rendered *inside* the screen: `<WindowManagerProvider>` / `useWindows`, draggable `<Window>` (focus trap, keyboard move), `<DesktopIcon>`, `<Taskbar>`, `<Clock>`, `<Button>`. |
-| `@portfolio/games` | Easter eggs on PixiJS v8, one lazy-loaded module each: `@portfolio/games/snake`, `@portfolio/games/space-invaders`. A shared `GameShell` owns the Pixi lifecycle, rAF via Pixi's ticker, keyboard + touch input, and the accessible status shell. |
-| `tsconfig` | Shared TS configs (`library.json`, `next.json`, plus the legacy configs the photography app still uses). |
+| `@portfolio/design-tokens` | Single source of truth for the look: `tokens.css` (CSS custom properties), a Tailwind v4 `@theme` bridge, and a JS palette mirror for canvas code. |
+| `@portfolio/crt` | The CRT + synthwave stage, pure CSS: `<CrtStage>`, `<CrtScreen>`, `<SynthwaveBackground>`, motion and gyro toggles, and parallax/tilt hooks. |
+| `@portfolio/ui` | Retro window manager rendered inside the screen: `<WindowManagerProvider>` / `useWindows`, draggable `<Window>`, `<DesktopIcon>`, `<Taskbar>`, `<Clock>`, `<Button>`. |
+| `@portfolio/games` | Easter eggs, one lazy module each: `snake`, `space-invaders` (PixiJS v8), `matrix` (canvas), `hacker` (DOM). |
+| `tsconfig` | Shared TS configs (`library.json` and `next.json` for development and the packages, `base.json` / `nextjs.json` for photography). |
 
 ## Getting started
+
+Requires Node 24 (`.nvmrc`).
 
 ```bash
 corepack enable        # Yarn 4 via the packageManager field
 yarn install
-yarn dev               # all apps (development on :3000)
+yarn dev               # both apps: development on :3000, photography on :3001
 yarn build             # turbo build
-yarn typecheck         # tsc --noEmit across every package
-yarn lint              # biome check
-yarn workspace @portfolio/games test   # pure snake-logic assertions
+yarn typecheck         # tsc --noEmit across every workspace
+yarn lint              # Biome (lint + format check)
+yarn workspace @portfolio/games test   # snake-logic assertions
 ```
 
-## Design notes
-
-- **No WebGL for the scene.** The tube, curvature, scanlines, TV static
-  (SVG `feTurbulence`), the synthwave floor/ceiling grid and the retro sun are
-  all CSS. PixiJS is used *only* for the two games and is never in the initial
-  bundle — each game is a `dynamic(() => import(...), { ssr: false })` boundary.
-- **Content is server-rendered.** About / Projects / Contact are MDX compiled at
-  build time and rendered as React Server Components, so the prose costs zero
-  client JS. The interactive shell (`app/desktop.tsx`) is the only large client
-  boundary; a `<noscript>` block renders the same content as plain flow.
-- **Motion is opt-out at three levels.** A blocking `<head>` script sets
-  `data-motion` before first paint from `localStorage` or the OS
-  `prefers-reduced-motion` setting; every keyframe is gated behind both that
-  attribute and the media query; the top-right `<MotionToggle>` flips it live
-  (shared across consumers via a `useSyncExternalStore` module store).
-- **Accessibility.** Skip link into the screen, visible focus rings on every
-  control, labelled dialog windows with a focus trap for modals, `aria-live`
-  status for the (canvas) games, on-screen d-pad for touch, full keyboard paths.
-
-## Retuning the aesthetic
-
-Everything visual keys off `packages/design-tokens/src/tokens.css`. Change the
-palette primitives or the `--crt-*` / `--grid-*` / `--pan-*` knobs there and the
-whole scene follows.
+Each app reads its own environment variables. Copy that app's `.env.example`
+to `.env.local` and fill it in. See the app READMEs for what each variable does.
+Never commit real values. `.env` and `.env*.local` are gitignored.

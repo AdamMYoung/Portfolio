@@ -9,8 +9,9 @@ ESLint/Prettier.
 - `apps/development` — the CRT-desktop portfolio. Next 16 App Router, React 19,
   Tailwind v4, MDX (`@next/mdx`, Turbopack — plugins referenced by name in
   `next.config.mjs`, not imported).
-- `apps/photography` — legacy Next 14 Pages Router app. Do not migrate it as a
-  side effect; it has its own toolchain.
+- `apps/photography` — Next 16 **Pages Router** app (React Three Fiber gallery,
+  photos from Cloudflare R2). Don't move it to the App Router as a side effect;
+  it doesn't use the `@portfolio/*` packages and extends its own tsconfig.
 - `packages/design-tokens` (`@portfolio/design-tokens`) — CSS custom properties +
   Tailwind `@theme` bridge + JS palette. The one place to change the look.
 - `packages/crt` (`@portfolio/crt`) — CSS-only CRT + synthwave stage.

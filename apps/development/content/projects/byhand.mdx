@@ -1,0 +1,22 @@
+export const meta = {
+  title: "ByHand",
+  url: "https://byhand.studio",
+  year: "2025 — present",
+  stack: ["Next.js Cache Components", "FastAPI", "Postgres", "Fly.io", "Vercel", "Cloudflare R2", "Stripe"],
+};
+
+**ByHand** is a directory of independent shops where everything is handmade —
+think Product Hunt for makers. Shops apply with captioned evidence of how their
+work is made, and a person reviews every application before it goes live.
+Shoppers browse by craft without an account, and sign in to leave a
+thumbprint, keep lists, and comment on makers' monthly updates. Makers get
+their own analytics, and can pay to fast-track review or take a clearly
+labelled featured stall — neither of which ever touches the ranking.
+
+The storefront is Next.js on Vercel with Cache Components, so every public page
+is anonymous and cacheable, with per-visitor state fetched on the client. It's
+backed by FastAPI, SQLAlchemy and Postgres on Fly, with a second, private admin
+API and review dashboard that have no public IPs at all. A typed client is
+generated from the API's OpenAPI contract, uploads go straight to Cloudflare R2
+with presigned URLs, and every deploy is gated on Playwright journeys and axe
+accessibility checks.

@@ -35,7 +35,7 @@ const ALL: Route[] = [
     path: "/projects",
     title: "Projects",
     description:
-      "Side projects by Adam Young — TrailWise, a photography site on Cloudflare R2, and Blurdle.",
+      "Side projects by Adam Young — TrailWise, ByHand, a photography site on Cloudflare R2, and Blurdle.",
     index: true,
   },
   {

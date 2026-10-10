@@ -10,7 +10,7 @@ retro desktop inside it.
 | --- | --- |
 | `/` | About |
 | `/careers` | Careers |
-| `/projects` | Projects (TrailWise, the photography site, Blurdle) |
+| `/projects` | Projects (TrailWise, ByHand, the photography site, Blurdle) |
 | `/contact` | Contact |
 | `/snake`, `/invaders`, `/matrix`, `/hacker` | Easter eggs |
 

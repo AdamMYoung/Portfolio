@@ -16,4 +16,5 @@ export const SAME_AS = [
   "https://www.linkedin.com/in/adammichaelyoung",
   "https://photography.adammyoung.com",
   "https://trailwise.io",
+  "https://byhand.studio",
 ];

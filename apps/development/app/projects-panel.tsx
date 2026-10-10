@@ -1,10 +1,12 @@
 import Blurdle, { meta as blurdle } from "@/content/projects/blurdle.mdx";
+import ByHand, { meta as byhand } from "@/content/projects/byhand.mdx";
 import Photography, { meta as photography } from "@/content/projects/photography.mdx";
 import TrailWise, { meta as trailwise } from "@/content/projects/trailwise.mdx";
 import { ProjectLink } from "./project-link";
 
 const PROJECTS = [
   { Body: TrailWise, meta: trailwise },
+  { Body: ByHand, meta: byhand },
   { Body: Photography, meta: photography },
   { Body: Blurdle, meta: blurdle },
 ];

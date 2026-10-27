@@ -1,6 +1,9 @@
 // One source of truth for the things the metadata, sitemap, robots,
 // manifest, OG image and JSON-LD all need to agree on.
-export const SITE_URL = "https://development.adammyoung.com";
+// www is the live host: the apex 308s to it, and development.adammyoung.com
+// has no DNS record — with it here, every canonical, the sitemap and robots.txt
+// pointed search engines at a host that doesn't exist.
+export const SITE_URL = "https://www.adammyoung.com";
 
 export const SITE_NAME = "Adam Young";
 export const PERSON_NAME = "Adam M. Young";

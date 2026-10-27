@@ -1,6 +1,7 @@
 import NextImage from "next/image";
 
 import type { Image } from "../../utils";
+import { altFor } from "../../utils/file/alt";
 
 type GridImageProps = {
   image: Image;
@@ -19,7 +20,7 @@ export const GridImage = ({ image, isPriority, onOpen }: GridImageProps) => {
       <NextImage
         className="w-full"
         priority={isPriority}
-        alt=""
+        alt={altFor(image)}
         src={image.path}
         width={image.exif.width}
         height={image.exif.height}

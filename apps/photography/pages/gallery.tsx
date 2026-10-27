@@ -32,6 +32,7 @@ export default function GalleryPage({ images }: GalleryProps) {
           images: images.map((i) => i.path),
         })}
       />
+      <h1 className="sr-only">3D gallery of photography by Adam Young</h1>
       <GalleryCanvas images={images} />
     </>
   );

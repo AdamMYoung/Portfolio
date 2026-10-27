@@ -1,6 +1,6 @@
 # Development portfolio
 
-[development.adammyoung.com](https://development.adammyoung.com): my
+[www.adammyoung.com](https://www.adammyoung.com): my
 software engineering portfolio, presented as a synthwave CRT monitor with a
 retro desktop inside it.
 

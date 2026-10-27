@@ -1,8 +1,8 @@
 import { Dialog } from "@headlessui/react";
 import { useEffect, useState } from "react";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
-
 import type { Image as ImageT } from "../../utils/file";
+import { altFor } from "../../utils/file/alt";
 
 // The full-screen viewer. Shared: /gallery opens it from a piece in focus,
 // /list opens it from a grid thumbnail. Lives here because the gallery was
@@ -136,7 +136,7 @@ const ModalContents = ({
         {/* biome-ignore lint/performance/noImgElement: see above */}
         <img
           src={modalSrc(image)}
-          alt=""
+          alt={altFor(image)}
           decoding="async"
           onLoad={() => setLoaded(true)}
           className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-500 ${

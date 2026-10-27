@@ -37,6 +37,7 @@ export default function List({ images }: ListProps) {
         })}
       />
 
+      <h1 className="sr-only">Photographs by Adam Young</h1>
       <ImageGrid>
         {images.map((image, index) => (
           <GridImage

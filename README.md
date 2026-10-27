@@ -5,7 +5,7 @@ deploys independently on Vercel.
 
 | App | Site | Stack |
 | --- | ---- | ----- |
-| [`apps/development`](apps/development/README.md) | [development.adammyoung.com](https://development.adammyoung.com) | Next 16 (App Router), React 19, Tailwind v4, MDX |
+| [`apps/development`](apps/development/README.md) | [www.adammyoung.com](https://www.adammyoung.com) | Next 16 (App Router), React 19, Tailwind v4, MDX |
 | [`apps/photography`](apps/photography/README.md) | [photography.adammyoung.com](https://photography.adammyoung.com) | Next 16 (Pages Router), React 19, React Three Fiber, Tailwind v4 |
 
 - **Development** is an interactive synthwave CRT monitor with a retro desktop

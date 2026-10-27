@@ -12,7 +12,7 @@ export const DEFAULT_DESCRIPTION =
 export const SAME_AS = [
   "https://www.instagram.com/adammyoung_/",
   "https://twitter.com/AdamMYoung_",
-  "https://development.adammyoung.com",
+  "https://www.adammyoung.com",
 ];
 
 export const absolute = (path: string) =>
